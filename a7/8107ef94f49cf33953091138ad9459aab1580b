@@ -1,0 +1,47 @@
+apps/filesquid/Cargo.lock
+  s_b4f1997db6ff30::t_1c3849f9711e00 1192-1194,3787-3797,4233,5513
+apps/filesquid/crates/metadata/Cargo.toml
+  s_b4f1997db6ff30::t_a868f6f80ddac7 16-18,41-44
+apps/filesquid/crates/metadata/README.md
+  s_b4f1997db6ff30::t_2561758836b865 13,27-38
+apps/filesquid/crates/metadata/resources/component-diagram.html
+  s_b4f1997db6ff30::t_c2393f3f73798a 72,123,125,127,132,240,259
+apps/filesquid/crates/metadata/resources/plan.md
+  s_b4f1997db6ff30::t_509ccb0fdca3e8 28,33
+apps/filesquid/crates/metadata/src/cli.rs
+  s_b4f1997db6ff30::t_ce154a96fa6542 5-6,9-10,26-27,31-34,42-44,75-76,78-85,89,92-95,98-99,102,181-223,229,233,239-271,277,282
+apps/filesquid/crates/metadata/src/json.rs
+  s_b4f1997db6ff30::t_c3c394cf21468f 1-195
+apps/filesquid/crates/metadata/src/lib.rs
+  s_b4f1997db6ff30::t_5d6037cabb5802 14
+apps/filesquid/crates/metadata/tests/features.rs
+  s_b4f1997db6ff30::t_3eeb65db9129d3 11,14,47-258,448,460,464-476
+apps/filesquid/crates/metadata/tests/features/reusable_metadata_engine_F-052.feature
+  s_b4f1997db6ff30::t_72a79137e35621 41,44-77,100-101
+apps/filesquid/crates/metadata/tests/unit/cli.rs
+  s_b4f1997db6ff30::t_a9f1b9b3519ed9 3-4,88-224
+apps/filesquid/crates/metadata/tests/unit/json.rs
+  s_b4f1997db6ff30::t_494da231b269fd 1-255
+resources/implementation-plan.md
+  s_b4f1997db6ff30::t_b8a1c82fb4cfc8 237,242
+resources/product-vision.md
+  s_b4f1997db6ff30::t_befc89073077ee 66
+apps/filesquid/crates/metadata/resources/tasks/Task-MD-0.5-Walkthrough.md
+  s_b4f1997db6ff30::t_5d054984b0e0d7 1-297
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a78107ef94f49cf33953091138ad9459aab1580b",
+  "prompts": {},
+  "sessions": {
+    "s_b4f1997db6ff30": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b9e14f72-04be-426e-a81e-29b71e83a02b",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    }
+  }
+}

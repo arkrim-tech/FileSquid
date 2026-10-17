@@ -1,0 +1,21 @@
+docs/googlecc15870a351e7029.html
+  s_146eb1adce44dd::t_3bb77cadbfa9f7 1
+docs/sitemap.xml
+  s_146eb1adce44dd::t_232e0f707412e6 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0d728f7b524639f17df23886a2a42852b170b944",
+  "prompts": {},
+  "sessions": {
+    "s_146eb1adce44dd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "14c3352d-2419-4026-bd05-76aaac87edc3",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    }
+  }
+}

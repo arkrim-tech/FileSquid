@@ -1,0 +1,875 @@
+.agents/kb/c2pa.md
+  s_04bad79b56bab8::t_ef4e6703dc0c6f 1-334
+apps/filesquid/crates/api/tests/features/file_activity_and_comments_F-064.feature
+  s_04bad79b56bab8::t_25f5a7539160f9 1-141
+apps/filesquid/crates/api/tests/features/file_search_query_language_F-063.feature
+  s_04bad79b56bab8::t_cfa3d2f567eb3a 1-134
+apps/filesquid/crates/server/tests/features/accurate_public_claims_NFR-010.feature
+  s_f2bea47c855424::t_2d8e549f14f8b3 1-29
+apps/filesquid/crates/server/tests/features/file_and_folder_sharing_F-066.feature
+  s_04bad79b56bab8::t_ab41263d6888e0 1-128
+apps/filesquid/ui/tests/features/drive_style_views_and_preferences_F-062.feature
+  s_04bad79b56bab8::t_ca449fb8c14ad3 1-165
+apps/filesquid/ui/tests/features/file_version_history_F-065.feature
+  s_04bad79b56bab8::t_4220a2b39d60f5 1-81
+apps/imagesquid/resources/assets/ImageSquid-logo.svg
+  s_04bad79b56bab8::t_716109c31ecb97 1-7
+apps/imagesquid/resources/assets/origin-chip-AI.svg
+  s_04bad79b56bab8::t_e9622c3411d1d4 1-18
+apps/imagesquid/resources/assets/origin-chip-RW.svg
+  s_04bad79b56bab8::t_77156399bf3186 1-18
+docs/assets/FileSquid-icon.svg
+  s_146eb1adce44dd::t_3e13d691ab84ce 1
+docs/robots.txt
+  s_146eb1adce44dd::t_1d082729cbfebc 1-4
+resources/architecture/002-tauri2-desktop-shell.md
+  s_04bad79b56bab8::t_a8882227a14efa 1-75
+resources/architecture/007-durable-jobs-and-interactive-performance.md
+  s_04bad79b56bab8::t_1cefc19dbcc9c9 1-78
+resources/architecture/028-filesquid-ui-packages-and-panel-composition.md
+  s_04bad79b56bab8::t_57d8fbe58c3a3f 1-86
+resources/architecture/README.md
+  s_04bad79b56bab8::t_95f2c8482122c4 1-46
+resources/ui-mockups/README.md
+  s_04bad79b56bab8::t_3c3094a1fcfea9 1-35
+.agents/README.md
+  s_04bad79b56bab8::t_162c12268f1c46 1-154
+.agents/kb/README.md
+  s_04bad79b56bab8::t_41b493c697ddcb 1-55
+.agents/kb/agent-skills-1.0.md
+  s_04bad79b56bab8::t_7abe2df8b624e6 1-55
+.agents/kb/conventional-commits.md
+  s_04bad79b56bab8::t_95caa056e63cf8 1-75
+.agents/kb/ietf-9562-uuid.md
+  s_04bad79b56bab8::t_955b5b021cc537 1-264
+.agents/kb/index.md
+  s_04bad79b56bab8::t_4fa6e570f6ed6c 1-33
+.agents/kb/iso-15836-dublin-core.md
+  s_04bad79b56bab8::t_ca8f27246b6f4f 1-301
+.agents/kb/iso-29148-srs.md
+  s_04bad79b56bab8::t_38e97e6c210cae 1-51
+.agents/kb/iso-42010-adr.md
+  s_04bad79b56bab8::t_979191e3384316 1-63
+.agents/kb/log.md
+  s_04bad79b56bab8::t_7a548189adc7a4 1-11
+.agents/kb/ocfl.md
+  s_04bad79b56bab8::t_9abbb05d06e771 1-393
+.agents/kb/okf.md
+  s_04bad79b56bab8::t_450a3db005eb27 1-586
+.agents/kb/proofmode.md
+  s_04bad79b56bab8::t_7aba541af6309e 1-355
+.agents/kb/rfc-2119-req-terms.md
+  s_04bad79b56bab8::t_8efacca6679614 1-44
+.agents/kb/rfc-3339-date-and-time.md
+  s_04bad79b56bab8::t_bb0eb141d848ea 1-113
+.agents/kb/tauri2.md
+  s_04bad79b56bab8::t_810f5be0c1c56d 1-794
+.agents/rules/adr-formatting.md
+  s_04bad79b56bab8::t_71f2c1a2b8c4de 1-23
+.agents/rules/adr-verification.md
+  s_04bad79b56bab8::t_44d6c39c998bcb 1-14
+.agents/rules/artifact-isolation.md
+  s_04bad79b56bab8::t_0d9c20eab0fb20 1-13
+.agents/rules/centralized-infrastructure.md
+  s_04bad79b56bab8::t_03e846966732bf 1-41
+.agents/rules/command-verification.md
+  s_04bad79b56bab8::t_f76b4eb85433f6 1-13
+.agents/rules/decoupled-execution.md
+  s_04bad79b56bab8::t_894fa91408d9b3 1-14
+.agents/rules/dependency-management.md
+  s_04bad79b56bab8::t_e99628969c509e 1-18
+.agents/rules/docs-enforce.md
+  s_04bad79b56bab8::t_7e518905679106 1-26
+.agents/rules/docs-resources-split.md
+  s_04bad79b56bab8::t_b2e814a391c6d3 1-32
+.agents/rules/holistic-ui.md
+  s_04bad79b56bab8::t_44fd4d7a3bbf27 1-16
+.agents/rules/links-enforce.md
+  s_04bad79b56bab8::t_da37dc00d4a654 1-13
+.agents/rules/lint-enforce.md
+  s_04bad79b56bab8::t_cf18aa302b820d 1-60
+.agents/rules/local-verification.md
+  s_04bad79b56bab8::t_c01d55418d49b7 1-47
+.agents/rules/logging-enforce.md
+  s_04bad79b56bab8::t_4cf18ffdd810ef 1-36
+.agents/rules/no-silent-restore.md
+  s_04bad79b56bab8::t_24550090eb7902 1-35
+.agents/rules/platform-agnostic.md
+  s_04bad79b56bab8::t_c1285d86de9782 1-12
+.agents/rules/port-conflicts.md
+  s_04bad79b56bab8::t_ad59d25ccac4db 1-22
+.agents/rules/pr-documentation-update.md
+  s_04bad79b56bab8::t_b11f19702d93e3 1-27
+.agents/rules/src-isolation.md
+  s_04bad79b56bab8::t_888c78a9419937 1-28
+.agents/rules/sync-logic.md
+  s_04bad79b56bab8::t_a0c3289f124df6 1-40
+.agents/rules/task-workflow.md
+  s_04bad79b56bab8::t_84492e00896e9e 1-58
+.agents/rules/tdd-enforce.md
+  s_04bad79b56bab8::t_e0d164c816a937 1-61
+.agents/rules/test-cleanup.md
+  s_04bad79b56bab8::t_f25624fa598fbe 1-23
+.agents/rules/workspace-boundaries.md
+  s_04bad79b56bab8::t_74c7bd6fd87e88 1-79
+.agents/scripts/README.md
+  s_04bad79b56bab8::t_42d9f1c5dda881 1-268
+.agents/skills/architecture-writer/SKILL-architecture-writer.md
+  s_04bad79b56bab8::t_6e3fa8fc546fd3 1-86
+.agents/skills/feature-writer/SKILL-feature-writer.md
+  s_04bad79b56bab8::t_4a430a5a0bd570 1-333
+.agents/skills/init-beam-elixir/SKILL-init-beam-elixir.md
+  s_04bad79b56bab8::t_ec914ea62790fd 1-335
+.agents/skills/init-python-js/SKILL-init-python-js.md
+  s_04bad79b56bab8::t_d82f188e6a97fd 1-311
+.agents/skills/init-rust-js/SKILL-init-rust-js.md
+  s_04bad79b56bab8::t_3588d72f4fcd7a 1-359
+.agents/skills/kb-synthesizer/SKILL-kb-synthesizer.md
+  s_04bad79b56bab8::t_cc24c8dd75748e 1-227
+.agents/skills/plan-writer/SKILL-plan-writer.md
+  s_04bad79b56bab8::t_5cb4790279ee97 1-179
+.agents/skills/prd-writer/SKILL-prd-writer.md
+  s_04bad79b56bab8::t_69196997fd5090 1-45
+.agents/skills/requirements-extractor/SKILL-requirements-extractor.md
+  s_04bad79b56bab8::t_d31c184333b2e9 1-36
+.agents/skills/srs-writer/SKILL-srs-writer.md
+  s_04bad79b56bab8::t_061e3da4205b2f 1-208
+.agents/skills/vision-writer/SKILL-vision-writer.md
+  s_04bad79b56bab8::t_517ceb0613d5e9 1-71
+.env.example
+  s_04bad79b56bab8::t_4f9c60a32ec847 1-5
+.gitignore
+  s_04bad79b56bab8::t_a4d3666628fc9c 1-70
+AGENTS.md
+  s_04bad79b56bab8::t_e68831ab29651c 1-198
+COPYRIGHT
+  s_04bad79b56bab8::t_c20d14a309b8fe 1-3
+LICENSE
+  s_04bad79b56bab8::t_cc349238c9cf5e 1-21
+README.md
+  s_04bad79b56bab8::t_e678a28427d514 1-162
+apps/README.md
+  s_04bad79b56bab8::t_3f08357726019b 1-51
+apps/filesquid/Cargo.lock
+  s_04bad79b56bab8::t_a4cfef537b85d9 1-5643
+apps/filesquid/Cargo.toml
+  s_04bad79b56bab8::t_08f5482401acf0 1-16
+apps/filesquid/crates/api/Cargo.toml
+  s_04bad79b56bab8::t_35849b8f6f6bd9 1-78
+apps/filesquid/crates/api/openapi.json
+  s_04bad79b56bab8::t_a84a9b03bc38cb 1-707
+apps/filesquid/crates/api/resources/client-README.md
+  s_04bad79b56bab8::t_94da0f3509d6b0 1-11
+apps/filesquid/crates/api/resources/plan.md
+  s_04bad79b56bab8::t_68c6ef632c243e 1-296
+apps/filesquid/crates/api/resources/srs.md
+  s_04bad79b56bab8::t_a216a2f5710555 1-25
+apps/filesquid/crates/api/src/admin.rs
+  s_04bad79b56bab8::t_e514e26c7d6763 1-348
+apps/filesquid/crates/api/src/events.rs
+  s_04bad79b56bab8::t_db904e974490d0 1-70
+apps/filesquid/crates/api/src/health.rs
+  s_04bad79b56bab8::t_c17c3843773292 1-154
+apps/filesquid/crates/api/src/journal/memory.rs
+  s_04bad79b56bab8::t_274644b2d525f8 1-98
+apps/filesquid/crates/api/src/journal/mod.rs
+  s_04bad79b56bab8::t_001a4beef8e9aa 1-430
+apps/filesquid/crates/api/src/journal/sqlite.rs
+  s_04bad79b56bab8::t_59b9403d83e2fc 1-271
+apps/filesquid/crates/api/src/journal_writer.rs
+  s_04bad79b56bab8::t_3e40f90ebd189c 1-247
+apps/filesquid/crates/api/src/lib.rs
+  s_04bad79b56bab8::t_ade9c65df747fe 1-81
+apps/filesquid/crates/api/src/metrics.rs
+  s_04bad79b56bab8::t_176f2f7be6693c 1-195
+apps/filesquid/crates/api/src/monitor.rs
+  s_04bad79b56bab8::t_c76fa1d1cbe03a 1-313
+apps/filesquid/crates/api/src/registry.rs
+  s_04bad79b56bab8::t_2307452474a2d0 1-409
+apps/filesquid/crates/api/src/routes.rs
+  s_04bad79b56bab8::t_8f6e417db36614 1-28
+apps/filesquid/crates/api/src/trace_layer.rs
+  s_04bad79b56bab8::t_33c0831407c99e 1-121
+apps/filesquid/crates/api/tests/features.rs
+  s_04bad79b56bab8::t_b9c6f7c60a794e 1-419
+apps/filesquid/crates/api/tests/features/activity_journal_and_live_health_monitoring_F-061.feature
+  s_04bad79b56bab8::t_36e384c45585b8 1-69
+apps/filesquid/crates/api/tests/unit/admin.rs
+  s_04bad79b56bab8::t_669ab70a628186 1-178
+apps/filesquid/crates/api/tests/unit/contract.rs
+  s_04bad79b56bab8::t_d6f80c09bb717c 1-103
+apps/filesquid/crates/api/tests/unit/events.rs
+  s_04bad79b56bab8::t_71d3ea26448d0a 1-25
+apps/filesquid/crates/api/tests/unit/health.rs
+  s_04bad79b56bab8::t_0264b7eac0bb34 1-39
+apps/filesquid/crates/api/tests/unit/health_rules.rs
+  s_04bad79b56bab8::t_de3b284762a07c 1-142
+apps/filesquid/crates/api/tests/unit/journal.rs
+  s_04bad79b56bab8::t_902b327c0dcc20 1-298
+apps/filesquid/crates/api/tests/unit/metrics.rs
+  s_04bad79b56bab8::t_2b8416b13effa2 1-27
+apps/filesquid/crates/api/tests/unit/registry.rs
+  s_04bad79b56bab8::t_b9039cb52d1460 1-151
+apps/filesquid/crates/api/tests/unit/writer.rs
+  s_04bad79b56bab8::t_9c0dff2822fec3 1-142
+apps/filesquid/crates/c2pa/README.md
+  s_04bad79b56bab8::t_10881ad916c32f 1-35
+apps/filesquid/crates/c2pa/resources/component-diagram.html
+  s_04bad79b56bab8::t_3b296dfe7bc939 1-324
+apps/filesquid/crates/c2pa/resources/plan.md
+  s_04bad79b56bab8::t_26a4a9130cb836 1-123
+apps/filesquid/crates/c2pa/resources/srs.md
+  s_04bad79b56bab8::t_2bb2dd5bb253d9 1-23
+apps/filesquid/crates/c2pa/tests/features/reusable_provenance_engine_F-054.feature
+  s_04bad79b56bab8::t_0fd0175e733f6d 1-66
+apps/filesquid/crates/core/Cargo.toml
+  s_04bad79b56bab8::t_4e350474295951 1-71
+apps/filesquid/crates/core/resources/plan.md
+  s_04bad79b56bab8::t_0c95baf06c3d4d 1-148
+apps/filesquid/crates/core/resources/srs.md
+  s_04bad79b56bab8::t_ebdf5e8d7649fb 1-40
+apps/filesquid/crates/core/src/capability.rs
+  s_04bad79b56bab8::t_8e070d1afdd861 1-299
+apps/filesquid/crates/core/src/collection.rs
+  s_04bad79b56bab8::t_81fdcfe2eb5d06 1-610
+apps/filesquid/crates/core/src/command.rs
+  s_04bad79b56bab8::t_78ae269754709e 1-304
+apps/filesquid/crates/core/src/crypto.rs
+  s_04bad79b56bab8::t_7aebe379526ba1 1-331
+apps/filesquid/crates/core/src/error.rs
+  s_04bad79b56bab8::t_100aa0536ef66a 1-87
+apps/filesquid/crates/core/src/file.rs
+  s_04bad79b56bab8::t_5eba6795b35f58 1-393
+apps/filesquid/crates/core/src/health.rs
+  s_04bad79b56bab8::t_f2b912114a3dab 1-26
+apps/filesquid/crates/core/src/ids.rs
+  s_04bad79b56bab8::t_4b86744f55a037 1-113
+apps/filesquid/crates/core/src/item.rs
+  s_04bad79b56bab8::t_de92bd05f3e12b 1-23
+apps/filesquid/crates/core/src/job.rs
+  s_04bad79b56bab8::t_cbd41d94921a8a 1-156
+apps/filesquid/crates/core/src/lib.rs
+  s_04bad79b56bab8::t_3744a32e839fc5 1-64
+apps/filesquid/crates/core/src/library.rs
+  s_04bad79b56bab8::t_a7693cc559bbc2 1-55
+apps/filesquid/crates/core/src/provenance.rs
+  s_04bad79b56bab8::t_36caf27a9a531c 1-343
+apps/filesquid/crates/core/tests/features.rs
+  s_04bad79b56bab8::t_9432b394892917 1-1469
+apps/filesquid/crates/core/tests/features/c2pa_and_provo_records_F-043.feature
+  s_04bad79b56bab8::t_d580d3541cea3d 1-57
+apps/filesquid/crates/core/tests/features/capability_register_F-040.feature
+  s_04bad79b56bab8::t_f68f27dd13930f 1-38
+apps/filesquid/crates/core/tests/features/collections_and_virtual_collections_F-004.feature
+  s_04bad79b56bab8::t_6bf6b45a4f6e8e 1-72
+apps/filesquid/crates/core/tests/features/command_query_ports_F-038.feature
+  s_04bad79b56bab8::t_64c6dcf7be7ccb 1-58
+apps/filesquid/crates/core/tests/features/cryptographic_envelopes_F-029.feature
+  s_04bad79b56bab8::t_c0648e6de193ec 1-58
+apps/filesquid/crates/core/tests/features/immutable_originals_and_recipes_TC-001.feature
+  s_04bad79b56bab8::t_c2ce1e246211dc 1-36
+apps/filesquid/crates/core/tests/features/item_type_is_file_CORE-S-002.feature
+  s_04bad79b56bab8::t_35bc08c39409d0 1-21
+apps/filesquid/crates/core/tests/features/job_checkpoint_protocol_NFR-003.feature
+  s_04bad79b56bab8::t_ea1ccf83eaa27f 1-55
+apps/filesquid/crates/core/tests/features/opaque_identifiers_CORE-S-001.feature
+  s_04bad79b56bab8::t_8e16d3404fc227 1-36
+apps/filesquid/crates/core/tests/features/portable_contracts_isolation_CORE-S-003.feature
+  s_04bad79b56bab8::t_72899051dd8533 1-20
+apps/filesquid/crates/core/tests/features/shared_health_status_CORE-S-004.feature
+  s_04bad79b56bab8::t_a18bef90c2e9ae 1-16
+apps/filesquid/crates/core/tests/unit/capability.rs
+  s_04bad79b56bab8::t_17969ac0de89f2 1-118
+apps/filesquid/crates/core/tests/unit/collection.rs
+  s_04bad79b56bab8::t_72525a506631c8 1-142
+apps/filesquid/crates/core/tests/unit/command.rs
+  s_04bad79b56bab8::t_16b68f939c721b 1-110
+apps/filesquid/crates/core/tests/unit/crypto.rs
+  s_04bad79b56bab8::t_cdb9c0dfa563b8 1-109
+apps/filesquid/crates/core/tests/unit/file.rs
+  s_04bad79b56bab8::t_a4bb3ea627ae1c 1-120
+apps/filesquid/crates/core/tests/unit/health.rs
+  s_04bad79b56bab8::t_60a5db9ae33703 1-20
+apps/filesquid/crates/core/tests/unit/ids.rs
+  s_04bad79b56bab8::t_ecca404756262f 1-67
+apps/filesquid/crates/core/tests/unit/isolation.rs
+  s_04bad79b56bab8::t_7f66987bce9865 1-91
+apps/filesquid/crates/core/tests/unit/item.rs
+  s_04bad79b56bab8::t_8380644c6a3dd7 1-19
+apps/filesquid/crates/core/tests/unit/job.rs
+  s_04bad79b56bab8::t_3553105106410b 1-76
+apps/filesquid/crates/core/tests/unit/library.rs
+  s_04bad79b56bab8::t_180cee8cabb507 1-13
+apps/filesquid/crates/core/tests/unit/provenance.rs
+  s_04bad79b56bab8::t_ba30329263e2d1 1-98
+apps/filesquid/crates/desktop/Cargo.toml
+  s_04bad79b56bab8::t_95cd64e05c6caa 1-47
+apps/filesquid/crates/desktop/build.rs
+  s_04bad79b56bab8::t_b6de7e04f74edf 1-27
+apps/filesquid/crates/desktop/capabilities/default.json
+  s_04bad79b56bab8::t_ab76e432331ae5 1-6
+apps/filesquid/crates/desktop/resources/plan.md
+  s_04bad79b56bab8::t_452c9b549b42c0 1-399
+apps/filesquid/crates/desktop/resources/srs.md
+  s_04bad79b56bab8::t_6ffed45ec6295f 1-18
+apps/filesquid/crates/desktop/src/api_protocol.rs
+  s_04bad79b56bab8::t_7657f6c8c63910 1-88
+apps/filesquid/crates/desktop/src/lib.rs
+  s_04bad79b56bab8::t_725e26749e1317 1-159
+apps/filesquid/crates/desktop/src/main.rs
+  s_04bad79b56bab8::t_4b02912cf46aca 1-7
+apps/filesquid/crates/desktop/tauri.conf.json
+  s_04bad79b56bab8::t_89309baca882cc 1-37
+apps/filesquid/crates/desktop/tests/integration/api_protocol.rs
+  s_04bad79b56bab8::t_f5d51c9d369cc4 1-109
+apps/filesquid/crates/metadata/Cargo.toml
+  s_04bad79b56bab8::t_8dd39ae5c2734b 1-53
+apps/filesquid/crates/metadata/README.md
+  s_04bad79b56bab8::t_415f25656fef51 1-32
+apps/filesquid/crates/metadata/resources/component-diagram.html
+  s_04bad79b56bab8::t_20b84ee49ace87 1-273
+apps/filesquid/crates/metadata/resources/plan.md
+  s_04bad79b56bab8::t_28b9340e3893ba 1-89
+apps/filesquid/crates/metadata/resources/srs.md
+  s_04bad79b56bab8::t_f7b18a15b88b05 1-23
+apps/filesquid/crates/metadata/src/bin/filesquid-metadata.rs
+  s_04bad79b56bab8::t_285cad11b40d02 1-16
+apps/filesquid/crates/metadata/src/cli.rs
+  s_04bad79b56bab8::t_fed30ff7d1c395 1-210
+apps/filesquid/crates/metadata/src/csv.rs
+  s_04bad79b56bab8::t_3fa893f6ffc0fc 1-207
+apps/filesquid/crates/metadata/src/extract.rs
+  s_04bad79b56bab8::t_4ff07f065f4432 1-74
+apps/filesquid/crates/metadata/src/lib.rs
+  s_04bad79b56bab8::t_05dcfa1eb70bc7 1-212
+apps/filesquid/crates/metadata/src/markdown.rs
+  s_04bad79b56bab8::t_91a8e00af06a28 1-134
+apps/filesquid/crates/metadata/src/record.rs
+  s_04bad79b56bab8::t_e06854919910dc 1-99
+apps/filesquid/crates/metadata/src/store.rs
+  s_04bad79b56bab8::t_13146d6dac73b0 1-31
+apps/filesquid/crates/metadata/src/xmp.rs
+  s_04bad79b56bab8::t_f090392c63aca7 1-76
+apps/filesquid/crates/metadata/tests/features.rs
+  s_04bad79b56bab8::t_fd71f07a82a4d6 1-316
+apps/filesquid/crates/metadata/tests/features/reusable_metadata_engine_F-052.feature
+  s_04bad79b56bab8::t_5038ed42cba25b 1-68
+apps/filesquid/crates/metadata/tests/unit/cli.rs
+  s_04bad79b56bab8::t_82226e8afb491c 1-85
+apps/filesquid/crates/metadata/tests/unit/csv.rs
+  s_04bad79b56bab8::t_90005069432f3c 1-91
+apps/filesquid/crates/metadata/tests/unit/isolation.rs
+  s_04bad79b56bab8::t_028e61147a6558 1-64
+apps/filesquid/crates/metadata/tests/unit/markdown.rs
+  s_04bad79b56bab8::t_cedcec66acf999 1-48
+apps/filesquid/crates/metadata/tests/unit/register.rs
+  s_04bad79b56bab8::t_f9450e0594695c 1-105
+apps/filesquid/crates/metadata/tests/unit/store.rs
+  s_04bad79b56bab8::t_df155e7ddd0f42 1-46
+apps/filesquid/crates/ocfl/Cargo.toml
+  s_04bad79b56bab8::t_d0f3fbfd51392b 1-26
+apps/filesquid/crates/ocfl/README.md
+  s_04bad79b56bab8::t_85809a1f77fd42 1-32
+apps/filesquid/crates/ocfl/resources/component-diagram.html
+  s_04bad79b56bab8::t_848adca976708f 1-382
+apps/filesquid/crates/ocfl/resources/plan.md
+  s_04bad79b56bab8::t_d05026eb9d9e9b 1-195
+apps/filesquid/crates/ocfl/resources/srs.md
+  s_04bad79b56bab8::t_84f5a68096408d 1-27
+apps/filesquid/crates/ocfl/src/lib.rs
+  s_04bad79b56bab8::t_e5b05e6f978663 1-94
+apps/filesquid/crates/ocfl/tests/features.rs
+  s_04bad79b56bab8::t_9a339b8492d2b2 1-135
+apps/filesquid/crates/ocfl/tests/features/OCFL_1.1_fixture_conformance.feature
+  s_04bad79b56bab8::t_0ac0a59c7da31b 1-47
+apps/filesquid/crates/ocfl/tests/features/reusable_ocfl_engine_F-051.feature
+  s_04bad79b56bab8::t_6f3be5e15bd722 1-59
+apps/filesquid/crates/ocfl/tests/unit/git_guard.rs
+  s_04bad79b56bab8::t_7a31b2c8ce8f3f 1-15
+apps/filesquid/crates/server/Cargo.toml
+  s_04bad79b56bab8::t_6eb78adba066eb 1-50
+apps/filesquid/crates/server/Dockerfile
+  s_04bad79b56bab8::t_fafedcc57c26d3 1-27
+apps/filesquid/crates/server/resources/plan.md
+  s_04bad79b56bab8::t_a74e9f6d6f0d28 1-250
+apps/filesquid/crates/server/resources/srs.md
+  s_04bad79b56bab8::t_c7dffdb3769960 1-22
+apps/filesquid/crates/server/src/lib.rs
+  s_04bad79b56bab8::t_c5f4fbb17a5748 1-189
+apps/filesquid/crates/server/src/main.rs
+  s_04bad79b56bab8::t_cf62237ef0901d 1-107
+apps/filesquid/crates/server/src/telemetry.rs
+  s_04bad79b56bab8::t_add091e332db48 1-20
+apps/filesquid/crates/server/tests/features/accessibility_and_usability_NFR-006.feature
+  s_04bad79b56bab8::t_2208f6e31b1c6d 1-24
+apps/filesquid/crates/server/tests/features/benchmark_envelope_and_responsiveness_NFR-002.feature
+  s_04bad79b56bab8::t_03f2db5c6f5b74 1-24
+apps/filesquid/crates/server/tests/features/bounded_processing_and_migration_endurance_NFR-003.feature
+  s_04bad79b56bab8::t_08670d0deb6181 1-24
+apps/filesquid/crates/server/tests/features/client_encryption_and_key_custody_F-029.feature
+  s_04bad79b56bab8::t_3feb60dad249b6 1-24
+apps/filesquid/crates/server/tests/features/compatibility_and_parity_register_F-040.feature
+  s_04bad79b56bab8::t_cb984931f441d2 1-24
+apps/filesquid/crates/server/tests/features/compatibility_rendering_and_localization_NFR-007.feature
+  s_04bad79b56bab8::t_0d81210967c29d 1-24
+apps/filesquid/crates/server/tests/features/decision_status_and_repository_alignment_TC-004.feature
+  s_04bad79b56bab8::t_964d086066b9ae 1-24
+apps/filesquid/crates/server/tests/features/endpoint_processing_and_hosted_encryption_TC-002.feature
+  s_04bad79b56bab8::t_ff204611c8bcfe 1-24
+apps/filesquid/crates/server/tests/features/health.feature
+  s_04bad79b56bab8::t_38e1a9ce1b9af6 1-4
+apps/filesquid/crates/server/tests/features/immutable_originals_and_explicit_identity_TC-001.feature
+  s_04bad79b56bab8::t_e8c17620e44787 1-24
+apps/filesquid/crates/server/tests/features/institutional_dam_and_iiif_interoperability_F-047.feature
+  s_04bad79b56bab8::t_0fb3974a73db39 1-24
+apps/filesquid/crates/server/tests/features/later_filesquid_records_platform_F-050.feature
+  s_04bad79b56bab8::t_d9c1edac874c9e 1-24
+apps/filesquid/crates/server/tests/features/later_hosted_private_oss_inference_F-048.feature
+  s_04bad79b56bab8::t_6591e3ebff4300 1-24
+apps/filesquid/crates/server/tests/features/maintainability_and_verified_engineering_NFR-008.feature
+  s_04bad79b56bab8::t_f022225903f142 1-24
+apps/filesquid/crates/server/tests/features/observability_and_capacity_economics_NFR-009.feature
+  s_04bad79b56bab8::t_956dbec014b3f6 1-24
+apps/filesquid/crates/server/tests/features/open_interfaces_and_product_exit_F-038.feature
+  s_04bad79b56bab8::t_6499a263b0c1e8 1-24
+apps/filesquid/crates/server/tests/features/optional_service_extensions_F-035.feature
+  s_04bad79b56bab8::t_6a3c77152c0022 1-24
+apps/filesquid/crates/server/tests/features/platform_and_provider_limits_TC-003.feature
+  s_04bad79b56bab8::t_a55de2a3d397d4 1-24
+apps/filesquid/crates/server/tests/features/preservation_and_transactional_integrity_NFR-001.feature
+  s_04bad79b56bab8::t_916b1285ae209e 1-24
+apps/filesquid/crates/server/tests/features/recovery_and_service_reliability_NFR-005.feature
+  s_04bad79b56bab8::t_557d58b047ffff 1-24
+apps/filesquid/crates/server/tests/features/security_and_privacy_NFR-004.feature
+  s_04bad79b56bab8::t_a8f0a3f2f803d5 1-24
+apps/filesquid/crates/server/tests/features/shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature
+  s_04bad79b56bab8::t_c4e20a819643a3 1-33
+apps/filesquid/crates/server/tests/integration/events.rs
+  s_04bad79b56bab8::t_f4d7c09f4a257f 1-91
+apps/filesquid/crates/server/tests/integration/health.rs
+  s_04bad79b56bab8::t_725f13b05c9c5a 1-37
+apps/filesquid/crates/server/tests/integration/monitor.rs
+  s_04bad79b56bab8::t_f28466f0fd5f35 1-149
+apps/filesquid/crates/server/tests/integration/static_ui.rs
+  s_04bad79b56bab8::t_f9efaf2fe3d9e6 1-79
+apps/filesquid/crates/server/tests/unit/health.rs
+  s_04bad79b56bab8::t_fcfb7db580fa98 1-56
+apps/filesquid/distribution.json
+  s_04bad79b56bab8::t_e5c9ff29afb848 1-9
+apps/filesquid/resources/ui-mockups/README.md
+  s_04bad79b56bab8::t_09c3129ba01c26 1-5
+apps/filesquid/rust-toolchain.toml
+  s_04bad79b56bab8::t_6244ac838e154a 1-3
+apps/filesquid/ui/.gitignore
+  s_04bad79b56bab8::t_ee544c38e7a806 1-5
+apps/filesquid/ui/.npmrc
+  s_04bad79b56bab8::t_c8147b01b9831e 1
+apps/filesquid/ui/.prettierignore
+  s_04bad79b56bab8::t_a3a84a698605a4 1-7
+apps/filesquid/ui/.prettierrc.json
+  s_04bad79b56bab8::t_fe9b416f725529 1
+apps/filesquid/ui/eslint.config.js
+  s_04bad79b56bab8::t_9d88f8adc43131 1-22
+apps/filesquid/ui/index.html
+  s_04bad79b56bab8::t_86162c7117ad32 1-13
+apps/filesquid/ui/package-lock.json
+  s_04bad79b56bab8::t_b64b7acf9d9a19 1-3778
+apps/filesquid/ui/package.json
+  s_04bad79b56bab8::t_e999094cef8a9f 1-50
+apps/filesquid/ui/playwright.config.ts
+  s_04bad79b56bab8::t_b6100a0680abc3 1-28
+apps/filesquid/ui/resources/plan.md
+  s_04bad79b56bab8::t_46e733ce14d0c2 1-330
+apps/filesquid/ui/resources/srs.md
+  s_04bad79b56bab8::t_c44b9e476dae2d 1-24
+apps/filesquid/ui/src/api/client.ts
+  s_04bad79b56bab8::t_4cce34270ff01a 1-256
+apps/filesquid/ui/src/api/host.ts
+  s_04bad79b56bab8::t_7be000d9935d42 1-46
+apps/filesquid/ui/src/api/schema.d.ts
+  s_04bad79b56bab8::t_0987e3ab951df3 1-547
+apps/filesquid/ui/src/app/main.ts
+  s_04bad79b56bab8::t_384dd6d6fb949c 1-29
+apps/filesquid/ui/src/app/routes.ts
+  s_04bad79b56bab8::t_dc3523df8ba7ee 1-73
+apps/filesquid/ui/src/components/fs-app-shell.ts
+  s_04bad79b56bab8::t_8efce23c01bd90 1-118
+apps/filesquid/ui/src/components/fs-monitor.ts
+  s_04bad79b56bab8::t_706d45f96855cf 1-517
+apps/filesquid/ui/src/distribution.ts
+  s_04bad79b56bab8::t_0ca9040f3e8812 1-17
+apps/filesquid/ui/src/index.ts
+  s_04bad79b56bab8::t_9a6b4dc4cc0658 1-23
+apps/filesquid/ui/src/theme/index.ts
+  s_04bad79b56bab8::t_9b613778966f56 1-6
+apps/filesquid/ui/src/theme/labels.en.json
+  s_04bad79b56bab8::t_967011fbffb4b8 1-49
+apps/filesquid/ui/src/theme/labels.ts
+  s_04bad79b56bab8::t_e2bd09bd24d8c4 1-73
+apps/filesquid/ui/src/theme/tokens.css
+  s_04bad79b56bab8::t_4f7854af33ad4c 1-59
+apps/filesquid/ui/src/theme/tokens.ts
+  s_04bad79b56bab8::t_8b8722af7fdfdf 1-60
+apps/filesquid/ui/tests/e2e/admin-token.ts
+  s_04bad79b56bab8::t_5b292d9fe56325 1-2
+apps/filesquid/ui/tests/e2e/app.spec.ts
+  s_04bad79b56bab8::t_9e7c068d4a715d 1-102
+apps/filesquid/ui/tests/features/accounts_entitlements_billing_and_cancellation_F-032.feature
+  s_04bad79b56bab8::t_7ff9e0df786e0b 1-25
+apps/filesquid/ui/tests/features/albums_folders_and_navigation_F-004.feature
+  s_04bad79b56bab8::t_20aa22a70d63cf 1-53
+apps/filesquid/ui/tests/features/browser_and_mobileweb_experience_F-036.feature
+  s_04bad79b56bab8::t_1de72ffd40373a 1-24
+apps/filesquid/ui/tests/features/byo_ai_connections_and_pertask_model_choice_F-045.feature
+  s_04bad79b56bab8::t_569b61067db2ff 1-46
+apps/filesquid/ui/tests/features/composable_filesquid_ui_F-055.feature
+  s_04bad79b56bab8::t_386f9180e0bbe8 1-36
+apps/filesquid/ui/tests/features/consent_notifications_and_activity_privacy_F-039.feature
+  s_04bad79b56bab8::t_b2a735b11e64e3 1-24
+apps/filesquid/ui/tests/features/deletion_hidden_media_and_duplicate_review_F-008.feature
+  s_04bad79b56bab8::t_f6196403c9505a 1-24
+apps/filesquid/ui/tests/features/encrypted_backup_and_verified_restore_F-031.feature
+  s_04bad79b56bab8::t_c3ce4d3bd1cb25 1-24
+apps/filesquid/ui/tests/features/export_and_portable_backup_F-010.feature
+  s_04bad79b56bab8::t_a49b89bb04c9c1 1-24
+apps/filesquid/ui/tests/features/family_accounts_and_shared_libraries_F-034.feature
+  s_04bad79b56bab8::t_755ba8b153157a 1-24
+apps/filesquid/ui/tests/features/favorites_metadata_and_keywords_F-005.feature
+  s_04bad79b56bab8::t_d8dc8eca4e9cf9 1-32
+apps/filesquid/ui/tests/features/importtime_c2pa_records_and_action_disclosure_F-043.feature
+  s_04bad79b56bab8::t_42785805ce287d 1-24
+apps/filesquid/ui/tests/features/independent_local_library_and_ownership_F-001.feature
+  s_04bad79b56bab8::t_15168c6c7a20a7 1-24
+apps/filesquid/ui/tests/features/media_metadata_inspection_correction_and_privacy_e_F-046.feature
+  s_04bad79b56bab8::t_87627740860682 1-65
+apps/filesquid/ui/tests/features/migration_execution_recovery_and_reconciliation_F-027.feature
+  s_04bad79b56bab8::t_d20c71be829225 1-24
+apps/filesquid/ui/tests/features/migration_preservation_and_reconstruction_F-026.feature
+  s_04bad79b56bab8::t_9887390c2472c0 1-24
+apps/filesquid/ui/tests/features/migration_selection_inventory_and_pilot_F-025.feature
+  s_04bad79b56bab8::t_3dc360affd0b05 1-24
+apps/filesquid/ui/tests/features/multiple_libraries_and_filesystem_administration_F-009.feature
+  s_04bad79b56bab8::t_0252e1b6eefc75 1-24
+apps/filesquid/ui/tests/features/ocfl_preservation_and_portable_recovery_F-042.feature
+  s_04bad79b56bab8::t_eae5e373a7e35d 1-24
+apps/filesquid/ui/tests/features/paid_c2pa_publishing_and_watermarking_F-044.feature
+  s_04bad79b56bab8::t_8ac7a080b67b8a 1-24
+apps/filesquid/ui/tests/features/personal_synchronization_and_availability_F-030.feature
+  s_04bad79b56bab8::t_837296fdbb0ace 1-24
+apps/filesquid/ui/tests/features/product_component_terminology_and_item_type_F-049.feature
+  s_04bad79b56bab8::t_b5fea4289cd5f2 1-24
+apps/filesquid/ui/tests/features/safe_file_folder_and_device_import_F-002.feature
+  s_04bad79b56bab8::t_8316a8af5bb55a 1-24
+apps/filesquid/ui/tests/features/setup_updates_and_diagnostics_F-037.feature
+  s_04bad79b56bab8::t_f97312fb28a62b 1-24
+apps/filesquid/ui/tests/features/shared_albums_and_hosted_galleries_F-033.feature
+  s_04bad79b56bab8::t_2d5c2f5b4484e7 1-24
+apps/filesquid/ui/tests/features/smart_albums_and_metadata_search_F-006.feature
+  s_04bad79b56bab8::t_339c5db1e011d5 1-47
+apps/filesquid/ui/tests/features/sourceaware_web_clipping_and_http_evidence_F-041.feature
+  s_04bad79b56bab8::t_dbec70276e1a89 1-24
+apps/filesquid/ui/tests/features/system_sharing_and_extension_interfaces_F-024.feature
+  s_04bad79b56bab8::t_34c995d5d8b636 1-37
+apps/filesquid/ui/tests/features/theme_tokens_SRS-UI-007.feature
+  s_04bad79b56bab8::t_a87705593fce97 1-24
+apps/filesquid/ui/tests/features/virtual_exhibit_F-053.feature
+  s_04bad79b56bab8::t_0aaa6847695433 1-24
+apps/filesquid/ui/tests/ui/app-shell.test.ts
+  s_04bad79b56bab8::t_e618e45d6645bc 1-71
+apps/filesquid/ui/tests/ui/monitor-route.test.ts
+  s_04bad79b56bab8::t_2a1f4927dd3b17 1-74
+apps/filesquid/ui/tests/ui/monitor.test.ts
+  s_04bad79b56bab8::t_4ebfac7c133478 1-215
+apps/filesquid/ui/tests/unit/admin-client.test.ts
+  s_04bad79b56bab8::t_c9f57e48eb6db0 1-82
+apps/filesquid/ui/tests/unit/client.test.ts
+  s_04bad79b56bab8::t_3b734ae2b3df28 1-90
+apps/filesquid/ui/tests/unit/contract.test.ts
+  s_04bad79b56bab8::t_59981e2fd5780c 1-20
+apps/filesquid/ui/tests/unit/theme.test.ts
+  s_04bad79b56bab8::t_7f5194e8770a47 1-41
+apps/filesquid/ui/tsconfig.json
+  s_04bad79b56bab8::t_d9164b49dd8ec8 1-18
+apps/filesquid/ui/vite.config.ts
+  s_04bad79b56bab8::t_25b498d0a17ff5 1-19
+apps/filesquid/ui/vitest.config.ts
+  s_04bad79b56bab8::t_c75143d3d18a22 1-14
+apps/imagesquid/.gitignore
+  s_04bad79b56bab8::t_e2d4304fc83957 1-5
+apps/imagesquid/.npmrc
+  s_04bad79b56bab8::t_d325201de324eb 1
+apps/imagesquid/.prettierignore
+  s_04bad79b56bab8::t_55d020d9bb687c 1-7
+apps/imagesquid/.prettierrc.json
+  s_04bad79b56bab8::t_018a95008ed2f0 1
+apps/imagesquid/distribution.json
+  s_04bad79b56bab8::t_fc28031062df49 1-9
+apps/imagesquid/eslint.config.js
+  s_04bad79b56bab8::t_0593eb8d0600b0 1-22
+apps/imagesquid/index.html
+  s_04bad79b56bab8::t_3ef8344097968d 1-13
+apps/imagesquid/package-lock.json
+  s_04bad79b56bab8::t_a53c58af2c6b60 1-3543
+apps/imagesquid/package.json
+  s_04bad79b56bab8::t_2e1bde12926929 1-42
+apps/imagesquid/playwright.config.ts
+  s_04bad79b56bab8::t_7326d0884cb175 1-28
+apps/imagesquid/public/imagesquid-logo.svg
+  s_04bad79b56bab8::t_28e0783950db6c 1-7
+apps/imagesquid/resources/assets/FileSquid-logo.svg
+  s_04bad79b56bab8::t_9519255d8790d8 1
+apps/imagesquid/resources/plan.md
+  s_04bad79b56bab8::t_311aefbdc57346 1-287
+apps/imagesquid/resources/prd.md
+  s_04bad79b56bab8::t_eab32b89449de9 1-866
+apps/imagesquid/resources/product-vision.md
+  s_04bad79b56bab8::t_d210b778d616ff 1-273
+apps/imagesquid/resources/srs.md
+  s_04bad79b56bab8::t_7c72477160af15 1-257
+apps/imagesquid/resources/ui-mockups/README.md
+  s_04bad79b56bab8::t_30f8510d32712a 1-37
+apps/imagesquid/src/distribution.ts
+  s_04bad79b56bab8::t_025dfab56c56a2 1-14
+apps/imagesquid/src/main.ts
+  s_04bad79b56bab8::t_7adc1c04bbc103 1-22
+apps/imagesquid/src/theme/labels.en.json
+  s_04bad79b56bab8::t_f89a6de8d3fde3 1-51
+apps/imagesquid/src/theme/tokens.css
+  s_04bad79b56bab8::t_73db986a1de117 1-51
+apps/imagesquid/tauri.imagesquid.json
+  s_04bad79b56bab8::t_2292c9fb84b3d1 1-20
+apps/imagesquid/tests/e2e/admin-token.ts
+  s_04bad79b56bab8::t_ef494ed9d4cd94 1-2
+apps/imagesquid/tests/e2e/app.spec.ts
+  s_04bad79b56bab8::t_4a49cde6213ca6 1-65
+apps/imagesquid/tests/features/aiassisted_cleanup_and_styles_F-014.feature
+  s_04bad79b56bab8::t_ed314895e00c09 1-46
+apps/imagesquid/tests/features/automatic_and_activity_galleries_F-007.feature
+  s_04bad79b56bab8::t_f1e01c73adc9b8 1-24
+apps/imagesquid/tests/features/composition_and_tonal_color_editing_F-012.feature
+  s_04bad79b56bab8::t_8545898407dca2 1-24
+apps/imagesquid/tests/features/detail_filters_retouch_and_raw_F-013.feature
+  s_04bad79b56bab8::t_c1f7b7b1294727 1-24
+apps/imagesquid/tests/features/gallery_selection_and_viewing_F-003.feature
+  s_04bad79b56bab8::t_09998ff274cc1a 1-24
+apps/imagesquid/tests/features/library_chrome_SRS-UI-001.feature
+  s_04bad79b56bab8::t_b4d9e2a9bf3601 1-42
+apps/imagesquid/tests/features/live_photos_bursts_and_motion_images_F-016.feature
+  s_04bad79b56bab8::t_8163fb5fad39a6 1-24
+apps/imagesquid/tests/features/markup_and_companion_annotation_F-018.feature
+  s_04bad79b56bab8::t_f8b6c93383a868 1-24
+apps/imagesquid/tests/features/media_inspector_SRS-UI-002.feature
+  s_04bad79b56bab8::t_136bc053ff07d5 1-36
+apps/imagesquid/tests/features/memories_and_storytelling_F-022.feature
+  s_04bad79b56bab8::t_b756be4528e106 1-38
+apps/imagesquid/tests/features/mobile_companion_SRS-UI-006.feature
+  s_04bad79b56bab8::t_b656f392bae06d 1-122
+apps/imagesquid/tests/features/nondestructive_editing_workflow_F-011.feature
+  s_04bad79b56bab8::t_64874d01319553 1-24
+apps/imagesquid/tests/features/overflow_v2_SRS-UI-008.feature
+  s_04bad79b56bab8::t_b3b7421abec9e4 1-25
+apps/imagesquid/tests/features/people_pets_and_groups_F-019.feature
+  s_04bad79b56bab8::t_27be411e822bf6 1-24
+apps/imagesquid/tests/features/places_trips_and_curation_controls_F-021.feature
+  s_04bad79b56bab8::t_e27cc84a834d44 1-24
+apps/imagesquid/tests/features/portrait_depth_cinematic_and_spatial_media_F-015.feature
+  s_04bad79b56bab8::t_5858dfe92e4734 1-24
+apps/imagesquid/tests/features/preservation_SRS-UI-004.feature
+  s_04bad79b56bab8::t_086e1ae1384f01 1-25
+apps/imagesquid/tests/features/publication_SRS-UI-005.feature
+  s_04bad79b56bab8::t_be1516811525b5 1-25
+apps/imagesquid/tests/features/semantic_search_ocr_and_visual_understanding_F-020.feature
+  s_04bad79b56bab8::t_6a73f156959bfa 1-24
+apps/imagesquid/tests/features/slideshows_printing_and_photo_projects_F-023.feature
+  s_04bad79b56bab8::t_b6e6d8d19d8d59 1-24
+apps/imagesquid/tests/features/studio_SRS-UI-003.feature
+  s_04bad79b56bab8::t_49bc6af723e0f5 1-25
+apps/imagesquid/tests/features/supported_migration_routes_F-028.feature
+  s_04bad79b56bab8::t_8394d24e97948d 1-24
+apps/imagesquid/tests/features/video_and_audio_editing_F-017.feature
+  s_04bad79b56bab8::t_0b33e328b43b36 1-24
+apps/imagesquid/tests/ui/distribution.test.ts
+  s_04bad79b56bab8::t_4fb57f9f6b21ce 1-29
+apps/imagesquid/tests/unit/theme.test.ts
+  s_04bad79b56bab8::t_a762db0965f293 1-41
+apps/imagesquid/tsconfig.json
+  s_04bad79b56bab8::t_1c2f39b40fa776 1-18
+apps/imagesquid/vite.config.ts
+  s_04bad79b56bab8::t_15873b5e83b0e2 1-19
+apps/imagesquid/vitest.config.ts
+  s_04bad79b56bab8::t_8d4e1a9f87ca36 1-14
+config/victoriametrics/scrape.yml
+  s_04bad79b56bab8::t_44e6a433a2d16d 1-9
+data/README.md
+  s_04bad79b56bab8::t_a61da352197428 1-13
+docker-compose.yml
+  s_04bad79b56bab8::t_d205d4944959b3 1-71
+docs/README.md
+  s_04bad79b56bab8::t_7d97ad20f024ea 1-15
+docs/assets/FileSquid-logo.svg
+  s_04bad79b56bab8::t_373bb32a81c170 1
+docs/index.html
+  s_04bad79b56bab8::t_de793094e26735 1-366
+resources/architecture.md
+  s_04bad79b56bab8::t_83e608c9a16a61 1-1062
+resources/architecture/001-shared-rust-core-with-tauri-and-axum-hosts.md
+  s_04bad79b56bab8::t_09d42300a13353 1-91
+resources/architecture/003-svelte-client-rendered-ui.md
+  s_04bad79b56bab8::t_1f0c6922c9ac63 1-68
+resources/architecture/004-axum-hosted-ciphertext-mailbox.md
+  s_04bad79b56bab8::t_5a962f2317f9a1 1-95
+resources/architecture/005-sqlite-local-postgres-hosted.md
+  s_04bad79b56bab8::t_25c8ee874f8318 1-59
+resources/architecture/006-libvips-native-stills-not-imagemagick.md
+  s_04bad79b56bab8::t_bc3b3e383e97aa 1-83
+resources/architecture/008-browser-wasm-scope.md
+  s_04bad79b56bab8::t_22786c99719d9b 1-68
+resources/architecture/009-cryptography-webcrypto-compatible-suite.md
+  s_04bad79b56bab8::t_bb38e0d4592989 1-78
+resources/architecture/010-ocfl-1-1-dual-profile.md
+  s_04bad79b56bab8::t_bf172fb3288c50 1-50
+resources/architecture/011-native-media-adapters-and-ffmpeg-license.md
+  s_04bad79b56bab8::t_c45efe90f8a4cc 1-66
+resources/architecture/012-s3-compatible-ciphertext-storage.md
+  s_04bad79b56bab8::t_27c59518bba22f 1-53
+resources/architecture/013-cargo-svelte-workspaces.md
+  s_04bad79b56bab8::t_661d4459aeaf33 1-60
+resources/architecture/014-stdout-observability.md
+  s_04bad79b56bab8::t_05c0ea2e6ac75c 1-51
+resources/architecture/015-prov-o-jsonld-and-c2pa-sdk.md
+  s_04bad79b56bab8::t_15d2beb5ad13c8 1-49
+resources/architecture/016-rust-ocfl-library.md
+  s_04bad79b56bab8::t_b7ebdc706fe208 1-168
+resources/architecture/017-test-runners-and-reporting.md
+  s_04bad79b56bab8::t_32c538a3baf9a7 1-48
+resources/architecture/018-inline-docs-generators.md
+  s_04bad79b56bab8::t_5e892094c98bf1 1-48
+resources/architecture/019-coding-style-and-lint.md
+  s_04bad79b56bab8::t_49be14c33bbb19 1-48
+resources/architecture/020-distribution-web-and-tauri.md
+  s_04bad79b56bab8::t_3463f381b7a810 1-44
+resources/architecture/021-uuid-v4-identifiers.md
+  s_04bad79b56bab8::t_56c03ed7112ba7 1-73
+resources/architecture/022-dublin-core-descriptive-metadata.md
+  s_04bad79b56bab8::t_6d476bf6c9ae86 1-82
+resources/architecture/023-filesquid-ocfl-engine-and-parquet.md
+  s_04bad79b56bab8::t_978be49b034244 1-114
+resources/architecture/024-filesquid-metadata-engine.md
+  s_04bad79b56bab8::t_ecc6d78c0678ad 1-102
+resources/architecture/025-client-side-filesquid-engines.md
+  s_04bad79b56bab8::t_07300d84ec4dce 1-95
+resources/architecture/026-filesquid-provenance-engine.md
+  s_04bad79b56bab8::t_88efb57eda2302 1-89
+resources/architecture/027-filesquid-metadata-pluggable-stores.md
+  s_04bad79b56bab8::t_8ace56cc3ed2b7 1-62
+resources/architecture/029-filesquid-unified-product-and-distributions.md
+  s_04bad79b56bab8::t_8261eaf1d6a0f1 1-99
+resources/architecture/030-filesquid-api-and-transports.md
+  s_04bad79b56bab8::t_4215319d26aa7a 1-127
+resources/architecture/031-vanilla-typescript-ui-and-white-label-theming.md
+  s_04bad79b56bab8::t_7e6680b0816b10 1-87
+resources/architecture/032-hosting-and-privacy-model.md
+  s_04bad79b56bab8::t_7ac24874305c7d 1-102
+resources/architecture/033-activity-journal-and-live-health-monitoring.md
+  s_04bad79b56bab8::t_bf0b4f76520e24 1-75
+resources/architecture/034-at-protocol-publishing-connection.md
+  s_04bad79b56bab8::t_bdf9b4b9f9fb3f 1-60
+resources/architecture/component-diagram.html
+  s_04bad79b56bab8::t_ba0e3e7e30ab9e 1-293
+resources/assets/FileSquid-Design-Guide.html
+  s_04bad79b56bab8::t_21983dfa72a335 1-1051
+resources/assets/FileSquid-logo-v1.svg
+  s_04bad79b56bab8::t_fa88babf19559b 1-7
+resources/assets/FileSquid-logo.svg
+  s_04bad79b56bab8::t_a81e2065bf22ed 1-10
+resources/implementation-plan.md
+  s_04bad79b56bab8::t_03a564b7844048 1-1111
+resources/prd.md
+  s_04bad79b56bab8::t_0c3f69ff5e2019 1-1784
+resources/product-vision.md
+  s_04bad79b56bab8::t_16ed88d0bc5374 1-680
+resources/references/EU-AI-act-analysis.md
+  s_04bad79b56bab8::t_61a8fc32baa27a 1-145
+resources/references/README.md
+  s_04bad79b56bab8::t_d70f50163d64ed 1-153
+resources/references/filesquid-migration-playbook.md
+  s_04bad79b56bab8::t_72f7151f3ddd9f 1-326
+resources/references/rust-language-dev-briefing.md
+  s_04bad79b56bab8::t_e4d4c3e9405762 1-264
+resources/srs.md
+  s_04bad79b56bab8::t_ed03a183b290ad 1-1556
+resources/templates/architecture-template.md
+  s_04bad79b56bab8::t_ec2a9c8fbb9549 1-144
+resources/templates/prd-template.md
+  s_04bad79b56bab8::t_88bd22e756891e 1-115
+resources/templates/product-vision-template.md
+  s_04bad79b56bab8::t_93d815cd9f87cc 1-75
+scripts/docs/check_distribution_links.py
+  s_04bad79b56bab8::t_d8ae033712839f 1-73
+scripts/docs/check_links.py
+  s_04bad79b56bab8::t_a91308e2893836 1-110
+scripts/docs/check_plan_traceability.py
+  s_04bad79b56bab8::t_9c0e97d3acd64d 1-143
+scripts/docs/check_prd_allocation.py
+  s_04bad79b56bab8::t_39cf5665ddb417 1-144
+scripts/docs/validate-adrs.mjs
+  s_04bad79b56bab8::t_a599c4ec538f1e 1-405
+scripts/docs/validate-adrs.test.mjs
+  s_04bad79b56bab8::t_a869a8b25495b5 1-66
+scripts/pre-commit.sh
+  s_04bad79b56bab8::t_e7bb9eda30a861 1-86
+scripts/verify_branch.sh
+  s_04bad79b56bab8::t_6aa031a8af35a3 1-34
+scripts/verify_centralized_logging.sh
+  s_04bad79b56bab8::t_0b12a662150226 1-43
+scripts/verify_doc_sync.sh
+  s_04bad79b56bab8::t_8fd474d14105c6 1-49
+scripts/verify_docs.sh
+  s_04bad79b56bab8::t_dc81aeed68af65 1-48
+scripts/verify_formatting.sh
+  s_04bad79b56bab8::t_1b3bca928d5dd7 1-82
+scripts/verify_isolated_ports.sh
+  s_04bad79b56bab8::t_da6663632de4c0 1-121
+scripts/verify_relative_links.sh
+  s_04bad79b56bab8::t_26d0d1a57e19f7 1-35
+scripts/verify_srs_traceability.sh
+  s_04bad79b56bab8::t_6631c840dcf76b 1-61
+scripts/verify_task_cleanup.sh
+  s_04bad79b56bab8::t_282499c22cd3a7 1-39
+scripts/verify_tests.sh
+  s_04bad79b56bab8::t_ea4bbf1866a69c 1-81
+scripts/verify_workspace_boundaries.sh
+  s_04bad79b56bab8::t_19d63079d60534 1-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8f93e72d2dfd92c1b5c1b8209b0a24a1b4c976be",
+  "prompts": {},
+  "sessions": {
+    "s_04bad79b56bab8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "537bb16d-8228-470f-8918-e18b939db88e",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    },
+    "s_146eb1adce44dd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "14c3352d-2419-4026-bd05-76aaac87edc3",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    },
+    "s_f2bea47c855424": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "aa22df16-62d4-45a7-a56e-bb31adbe65b4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    }
+  }
+}

@@ -26,6 +26,7 @@ Accepted: 2026-10-17. Amends [ADR 002](./002-tauri2-desktop-shell.md), [ADR 006]
 2. **The FileSquid MVP is desktop-only.** The MVP ships the default distribution on the macOS desktop host with the scope in [C-056](../product-vision.md#release-sequence). `filesquid-server`, its HTTP binding, accounts, groups, sharing, the container image and the multi-user load test move after the MVP. `filesquid-api` stays transport-agnostic ([ADR 030](./030-filesquid-api-and-transports.md)); nothing in the MVP may assume a single transport.
 3. **Unsigned early-access DMG.** The MVP installer is a `.dmg` built by the Tauri bundler, not signed with a Developer ID and not notarized. On Apple silicon the bundle MUST still carry an ad-hoc signature so it can launch; the exact Tauri configuration is verified in DE-F3.1 before it is documented ([command-verification](../../.agents/rules/command-verification.md)). The app and the download page label the build "early access", and the install guide states how to open an app Gatekeeper blocks. Developer ID signing, notarization and the updater remain gated by a signing ADR (Task 8.5).
 4. **Native-window tests on macOS use the WebdriverIO Tauri service.** `tauri-driver` is not used on macOS.
+5. **The installer licence review is on the MVP path.** Distributing the early-access DMG counts as a public desktop binary. The [ADR 011](./011-native-media-adapters-and-ffmpeg-license.md) FOSS licence and patent review of the DMG's actual linked inventory (libvips and its loaders included) MUST pass before the DMG is distributed to anyone outside the development team (owner decision, 2026-10-17).
 
 ## Rationale
 
@@ -46,9 +47,10 @@ Accepted: 2026-10-17. Amends [ADR 002](./002-tauri2-desktop-shell.md), [ADR 006]
 ## Consequences / Implications
 
 - Easier: one platform, one host and no signing dependency before the MVP.
+- Harder: counsel review of the macOS DMG's linked inventory is on the MVP critical path, so it should start as soon as the MVP's native inventory is known (after Task 0.5).
 - Harder: WebKitGTK and WebView2 differences surface later; the Linux and Windows installers and their native-window suites become post-MVP work that MUST pass before the first consumer release. Developers on Linux or Windows can build and test the workspace but cannot produce or smoke-test the MVP DMG, which needs a macOS machine.
 - Gatekeeper warnings on the unsigned DMG make the MVP unsuitable for a general public launch; the PRD gate says so.
-- libvips workers ([ADR 006](./006-libvips-native-stills-not-imagemagick.md)) stay in the MVP, so the MVP DMG bundles native libraries. [ADR 011](./011-native-media-adapters-and-ffmpeg-license.md) requires a licence and patent review of the linked installer before a public desktop binary; whether distributing the early-access DMG counts as public is an open owner decision.
+- libvips workers ([ADR 006](./006-libvips-native-stills-not-imagemagick.md)) stay in the MVP, so the MVP DMG bundles native libraries.
 - The implementation plan splits Phase F3 into the MVP gate (Task FS-3.9) and a post-MVP completion phase that restores the deferred scope before the first consumer release.
 
 ## Related Decisions / Notes

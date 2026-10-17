@@ -6,7 +6,7 @@ Documentation-only task. TDD-ENFORCE: Not applicable - documentation update.
 
 Owner decisions (2026-10-17): the first desktop target is macOS; Linux and Windows follow the MVP; the MVP is desktop-only (no `filesquid-server`); C2PA is limited to read, validation and unsigned import records; search, version restore and labels, and drive views, sort and ZIP download stay in; the MVP installer is an unsigned early-access DMG.
 
-Revision (owner, 2026-10-17): libvips media workers (DE-0.5) stay in the MVP inside Task 0.5. An earlier draft had moved them out of the MVP without owner approval; that change is reverted.
+Revision (owner, 2026-10-17): libvips media workers (DE-0.5) stay in the MVP inside Task 0.5. An earlier draft had moved them out of the MVP without owner approval; that change is reverted. The owner then put the ADR 011 installer licence and patent review on the MVP path (ADR 035 decision 5; Tasks FS-3.1 and FS-3.9; DE-F3.1; PRD MVP exit gate).
 
 ## Changes
 

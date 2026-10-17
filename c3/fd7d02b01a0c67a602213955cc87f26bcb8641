@@ -1,0 +1,53 @@
+README.md
+  s_36c7854d004a03::t_8dca6594fc493b 159
+apps/filesquid/Cargo.lock
+  s_36c7854d004a03::t_c0db89ddb9bb96 1192-1194,3787-3797,4233,5513
+apps/filesquid/crates/metadata/Cargo.toml
+  s_36c7854d004a03::t_45f3f922586585 16-18,41-44
+apps/filesquid/crates/metadata/README.md
+  s_36c7854d004a03::t_7a5d61388d6299 13,27-38
+apps/filesquid/crates/metadata/resources/component-diagram.html
+  s_36c7854d004a03::t_1c0efa2e2c9f2a 72,123,125,127,132,240,259
+apps/filesquid/crates/metadata/resources/plan.md
+  s_36c7854d004a03::t_b2767d74769fee 18,28,33
+apps/filesquid/crates/metadata/resources/tasks/Task-MD-0.5-Walkthrough.md
+  s_36c7854d004a03::t_f5a062e2127c1b 1-356
+apps/filesquid/crates/metadata/src/cli.rs
+  s_36c7854d004a03::t_785123cadbaf16 5-6,9-10,26-27,31-34,42-47,78-82,84-92,96-100,102-106,109-111,118,141,154,177,191-250,252,256,260,266-298,300,304,309
+apps/filesquid/crates/metadata/src/json.rs
+  s_36c7854d004a03::t_f3a974225f7854 1-195
+apps/filesquid/crates/metadata/src/lib.rs
+  s_36c7854d004a03::t_c51075d5dad728 14
+apps/filesquid/crates/metadata/tests/features.rs
+  s_36c7854d004a03::t_4e25543bb253e5 11,14,47-258,448,460,464-476
+apps/filesquid/crates/metadata/tests/features/reusable_metadata_engine_F-052.feature
+  s_36c7854d004a03::t_860637624d4770 41,44-77,100-101
+apps/filesquid/crates/metadata/tests/unit/cli.rs
+  s_36c7854d004a03::t_c0f6eb87ecc771 3-4,88-282
+apps/filesquid/crates/metadata/tests/unit/json.rs
+  s_36c7854d004a03::t_cd01cfb5fc299f 1-257
+resources/implementation-plan.md
+  s_36c7854d004a03::t_65e0f2fd61818e 238-246,434,452,461,1071,1162,1166,1180
+resources/product-vision.md
+  s_36c7854d004a03::t_19923e6449f724 66,94,97
+resources/tasks/Task-ADR-035-Walkthrough.md
+  s_36c7854d004a03::t_58121183c1ce09 148-151
+resources/tasks/Task-ui-mockups-v1-Plan.md
+  s_36c7854d004a03::t_325b21d882c156 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c3fd7d02b01a0c67a602213955cc87f26bcb8641",
+  "prompts": {},
+  "sessions": {
+    "s_36c7854d004a03": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3e5a56ec-076e-421c-8ee2-a21631a21ec2",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    }
+  }
+}

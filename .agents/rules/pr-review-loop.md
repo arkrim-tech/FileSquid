@@ -7,7 +7,23 @@ license: CC-BY
 
 # Pull Request Review Loop (Cubic)
 
-**Purpose:** This rule enforces the PR Review Mandate in `AGENTS.md`. The external reviewer is Cubic (`cubic-dev-ai[bot]` on GitHub). While agents work independently towards the MVP, the owner has granted them permission (2026-10-17) to merge their own pull requests into `main` once this loop is finished.
+**Purpose:** This rule enforces the PR Review Mandate in `AGENTS.md`. The external reviewer is Cubic (`cubic-dev-ai[bot]` on GitHub). The owner has granted agents permission (2026-10-17) to merge their own pull requests into `main` once this loop is finished, for tasks inside the current milestone only.
+
+## Current milestone
+
+Only the owner edits this section. It is updated after the owner's manual testing review of the previous milestone, to open the next development phase.
+
+| Field | Value |
+|---|---|
+| Milestone | FileSquid MVP (macOS desktop, unsigned early-access DMG; [ADR 035](../../resources/architecture/035-macos-first-desktop-mvp.md)) |
+| Scope | Every task in phases F0, F1, F2 and F3 of [resources/implementation-plan.md](../../resources/implementation-plan.md) |
+| Gate task | **Task FS-3.9: FileSquid MVP gate (macOS desktop)** |
+| Opened | 2026-10-17 |
+
+1. **Inside the milestone:** agents MAY pick up, implement and self-merge tasks in the scope above, in the plan's dependency order.
+2. **Outside the milestone:** agents MUST NOT start a task outside the scope (for example phase F3R, F4 or I1) on their own. If the owner explicitly asks for one, run the loop below but do not merge; leave the PR for the owner.
+3. **Stop at the gate:** after the gate task's PR is merged, stop. Do not start another task. Report to the owner that the milestone is complete and ready for manual testing review, with links to the gate evidence and any open gaps.
+4. **Next milestone:** work resumes only after the owner replaces the table above with the next milestone's scope and gate task.
 
 ## The loop
 

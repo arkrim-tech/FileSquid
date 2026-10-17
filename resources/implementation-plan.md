@@ -137,12 +137,12 @@ The global **Dependencies** field is the lock across modules. Module `plan.md` f
 
 ### Branch naming
 
-Use hyphenated lowercase branch names per task, for example `task/co-0.1-domain-ids`, `task/api-f1.1-contract`, `task/ui-f2.2-file-browser`, `task/ui-1.1-library-ui`. Do not commit directly to `main`. Do not open a pull request unless asked. After push, wait for Cubic review when a PR exists.
+Use hyphenated lowercase branch names per task, for example `task/co-0.1-domain-ids`, `task/api-f1.1-contract`, `task/ui-f2.2-file-browser`, `task/ui-1.1-library-ui`. Do not commit directly to `main`. After push, open a pull request, fix Cubic's review comments until none remain, then merge the PR ([pr-review-loop.md](../.agents/rules/pr-review-loop.md)).
 
 ### Operator loop (copy-paste)
 
 ```text
-@AGENTS.md Begin by creating a new feature branch for Task <MODULE-ID>. Execute Task <MODULE-ID> from @<module dir>/resources/plan.md. Read AGENTS.md and .agents/rules/. Search resources/architecture/ before denying a technology. Keep work inside <module dir>; run Cargo from apps/filesquid/ with -p <crate>, or npm inside apps/filesquid/ui/. Follow TDD. Invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, generate <module dir>/resources/tasks/Task-<MODULE-ID>-Walkthrough.md with SRS ID and full title at heading 2, delete Plan.md and ToDos.md, check off the box in <module dir>/resources/plan.md, commit, and push the branch to origin.
+@AGENTS.md Begin by creating a new feature branch for Task <MODULE-ID>. Execute Task <MODULE-ID> from @<module dir>/resources/plan.md. Read AGENTS.md and .agents/rules/. Search resources/architecture/ before denying a technology. Keep work inside <module dir>; run Cargo from apps/filesquid/ with -p <crate>, or npm inside apps/filesquid/ui/. Follow TDD. Invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, generate <module dir>/resources/tasks/Task-<MODULE-ID>-Walkthrough.md with SRS ID and full title at heading 2, delete Plan.md and ToDos.md, check off the box in <module dir>/resources/plan.md, commit, and push the branch to origin. Open a pull request, fix Cubic's review comments until none remain, then merge it into main (.agents/rules/pr-review-loop.md).
 ```
 
 Replace `<MODULE-ID>`, `<module dir>` and `<crate>` from the global Description (for example `IO-0.1`, `apps/filesquid/crates/ocfl` and `filesquid-ocfl`). After the fan-out is complete, check the matching global box in this file.

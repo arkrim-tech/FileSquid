@@ -19,6 +19,10 @@
 <text x="177.058" y="63.6" font-family="ui-monospace, 'SF Mono', Menlo, 'Fira Code', 'Roboto Mono', Consolas, monospace" font-size="10" font-weight="700" fill="#FFFFFF" letter-spacing="0.04em" text-anchor="middle">JPG</text>
 <text x="202.058" y="65" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#F5F5F5">facade-study.jpg</text>
 <text x="840" y="65" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#6A6A6A" text-anchor="middle">6 of 14</text>
+<rect x="892" y="46" width="283.165" height="28" rx="14" fill="#242424" stroke="#2A2A2A" stroke-width="1"/>
+<g transform="translate(904 52) scale(0.625)" fill="none" stroke="#A0A0A0" stroke-width="2.80" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></g>
+<text x="926" y="64.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#E0E0E0">This device</text>
+<text x="993.13" y="64.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#A0A0A0"> · only you can read these files</text>
 <g transform="translate(1395 51) scale(0.75)" fill="none" stroke="#A0A0A0" stroke-width="2.33" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5h.01M12 12h.01M12 19h.01" stroke-width="3"/></g>
 <rect x="1350" y="44" width="32" height="32" rx="6" fill="#0D2B18"/>
 <g transform="translate(1357 51) scale(0.75)" fill="none" stroke="#16AC49" stroke-width="2.33" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></g>

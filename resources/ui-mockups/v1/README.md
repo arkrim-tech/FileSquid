@@ -4,7 +4,7 @@ Draft mockups of the screens the FileSquid MVP (the first consumer release) need
 
 **Status: draft, not the active suite.** The [mockups README](../README.md) names the active suite. Until the owner approves v1 there, these files MUST NOT be read as SRS requirements.
 
-Every mockup is an SVG at 1440 × 900 in light mode, with dark variants of the list and preview screens. Desktop screens show the "This device · only you can read these files" boundary. `filesquid-server` screens show the server address and "its operator can read files" ([F-057](../../prd.md#f-057-desktop-and-server-hosts)).
+Every mockup is an SVG at 1440 × 900 in light mode, with dark variants of the list and preview screens. Desktop screens show the "This device · only you can read these files" boundary; the welcome screen states it in full as "Who can read your files: only you, on this device." `filesquid-server` screens show the server address and "its operator can read files" ([F-057](../../prd.md#f-057-desktop-and-server-hosts)).
 
 ## Onboarding and hosts
 

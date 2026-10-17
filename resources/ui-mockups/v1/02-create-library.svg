@@ -11,6 +11,10 @@
 <line x1="0" y1="32" x2="1440" y2="32" stroke="#E0E0E0" stroke-width="1"/>
 <g transform="translate(200 94) scale(0.75)" fill="none" stroke="#555555" stroke-width="2.33" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></g>
 <text x="226" y="108" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#555555">Back</text>
+<rect x="957" y="89" width="283.165" height="28" rx="14" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="1"/>
+<g transform="translate(969 95) scale(0.625)" fill="none" stroke="#555555" stroke-width="2.80" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></g>
+<text x="991" y="107.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#111111">This device</text>
+<text x="1058.13" y="107.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#555555"> · only you can read these files</text>
 <text x="200" y="172" font-family="Georgia, 'Charter', 'Palatino Linotype', serif" font-size="40" font-weight="700" fill="#000000" letter-spacing="-0.025em">Create a library</text>
 <text x="200" y="204" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="400" fill="#555555">A library is a named set of files on this repository. You can create more later.</text>
 <text x="200" y="258" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#111111">Name</text>

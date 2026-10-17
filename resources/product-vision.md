@@ -91,10 +91,10 @@ These details come from the module designs and bind each module in addition to t
 - Canonical `metadata.md`: YAML front matter grouped by namespace plus an optional Markdown body.
 - Must provide ability to add arbitrary schemas or key:value pairs
 - Stores: `sidecar` (default on native; `metadata.md` next to each file), `ocfl` (feature; native and WebAssembly; `metadata.md` as a logical file inside the OCFL object), `sqlite` (feature, native only), or a caller's own `MetadataStore`; plus an optional rebuildable SQLite index. In the browser, callers use `ocfl` or their own store.
-- Interchange: CSV (one row per file, `prefix:term` headers, RFC 4180 quoting) and XMP sidecar read and write. No MODS or SQL interchange.
+- Interchange: CSV (one row per file, `prefix:term` headers, RFC 4180 quoting), XMP sidecar and JSON sidecar read and write. A JSON sidecar is one UTF-8 document per OCFL object that binds `{namespace, term, value}` statements to the OCFL object identifier and the SHA-256 digest of the described logical file. No MODS or SQL interchange.
 - Properties API and Metadata panel: populated key/value rows, namespace prefixes, and an Add property search across `/terms/` then Schema.org.
 - Constraints: the module maps a deliberate subset of tags and reports the rest as native observations or unsupported; writing metadata back into original bytes is out of scope for the canonical path (originals stay untouched; records live beside them); in WebAssembly there is no filesystem and memory is bounded, so extraction streams bytes and the `sqlite` store is native-only.
-- Default dependencies: `kamadak-exif`, `id3`, `thiserror`.
+- Default dependencies: `kamadak-exif`, `id3`, `serde`, `serde_json`, `sha2`, `thiserror`.
 
 **`filesquid-c2pa`**
 

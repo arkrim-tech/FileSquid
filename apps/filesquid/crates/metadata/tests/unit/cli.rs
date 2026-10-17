@@ -214,11 +214,69 @@ fn csv_export_still_ignores_json_flags() {
         "export",
         "csv",
         &out.to_string_lossy(),
+        "--id",
+        "urn:x:1",
+        "--file",
+        "photo.jpg",
         "--object",
         &object.to_string_lossy(),
     ]))
     .expect("csv");
     assert_eq!(code, 0);
     assert!(std::fs::read_to_string(&out).unwrap().contains("Harbour"));
+    cleanup(&[&object], &out);
+}
+
+#[test]
+fn json_rejects_a_flag_as_the_id_value() {
+    let object = json_object("flag-as-value", b"pixels");
+    let out = object.join("out.json");
+    let err = run(&args(&[
+        "export",
+        "json",
+        &out.to_string_lossy(),
+        "--id",
+        "--file",
+        "photo.jpg",
+        "--object",
+        &object.to_string_lossy(),
+    ]))
+    .expect_err("--id has no value");
+    assert!(err.contains("--id"), "{err}");
+    assert!(!out.exists(), "no sidecar is written");
+    cleanup(&[&object], &out);
+}
+
+#[test]
+fn set_keeps_json_flag_names_as_literal_values() {
+    let object = json_object("literal-flag", b"pixels");
+    set_in(&object, "dcterms:title", "--file");
+    let body = std::fs::read_to_string(object.join("metadata.md")).unwrap();
+    assert!(body.contains("--file"), "{body}");
+    cleanup(&[&object], &object.join("unused.json"));
+}
+
+#[cfg(unix)]
+#[test]
+fn json_rejects_a_symlink_that_leaves_the_object() {
+    let object = json_object("symlink-escape", b"pixels");
+    let outside = object.with_extension("outside.bin");
+    std::fs::write(&outside, b"secret").unwrap();
+    std::os::unix::fs::symlink(&outside, object.join("link.jpg")).unwrap();
+    let out = object.join("out.json");
+    let err = run(&args(&[
+        "export",
+        "json",
+        &out.to_string_lossy(),
+        "--id",
+        "urn:x:1",
+        "--file",
+        "link.jpg",
+        "--object",
+        &object.to_string_lossy(),
+    ]))
+    .expect_err("symlink escape");
+    assert!(err.contains("outside the object"), "{err}");
+    std::fs::remove_file(&outside).ok();
     cleanup(&[&object], &out);
 }

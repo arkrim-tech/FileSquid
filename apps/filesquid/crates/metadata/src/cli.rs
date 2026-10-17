@@ -39,8 +39,11 @@ const COMMANDS: &[&str] = &[
     "extract", "get", "set", "export", "import", "validate", "help",
 ];
 
-/// Flags that take a value; their values are never positional arguments.
-const VALUE_FLAGS: &[&str] = &["--object", "--id", "--file"];
+/// Flags that take a value for every command.
+const OBJECT_FLAGS: &[&str] = &["--object"];
+
+/// Flags that take a value for `export` and `import`, which bind JSON sidecars.
+const INTERCHANGE_FLAGS: &[&str] = &["--object", "--id", "--file"];
 
 /// Run the CLI. Returns a process exit code.
 pub fn run(args: &[String]) -> Result<i32, String> {
@@ -73,10 +76,14 @@ fn is_help(arg: &str) -> bool {
 }
 
 /// Return the value following `flag`, if present.
+///
+/// A recognised flag is never taken as a value, so `--id --file x` leaves
+/// `--id` without a value instead of binding the identifier `--file`.
 fn flag_value<'a>(args: &'a [String], flag: &str) -> Option<&'a str> {
     args.windows(2)
         .find(|w| w[0] == flag)
         .map(|w| w[1].as_str())
+        .filter(|value| !INTERCHANGE_FLAGS.contains(value))
 }
 
 /// Return the object directory from `--object`, defaulting to `.`.
@@ -86,26 +93,29 @@ fn object_dir(args: &[String]) -> PathBuf {
         .unwrap_or_else(|| PathBuf::from("."))
 }
 
-/// Return the arguments that are neither value flags nor their values.
-fn positional(args: &[String]) -> Vec<&str> {
+/// Return the arguments that are neither one of `flags` nor their values.
+///
+/// Only the flags a command recognises are removed, so `set dcterms:title
+/// --file` keeps `--file` as the literal value.
+fn positional<'a>(args: &'a [String], flags: &[&str]) -> Vec<&'a str> {
     let mut out = Vec::new();
     let mut skip_next = false;
     for arg in args {
-        if skip_next {
+        let is_flag = flags.contains(&arg.as_str());
+        if skip_next && !is_flag {
             skip_next = false;
             continue;
         }
-        if VALUE_FLAGS.contains(&arg.as_str()) {
-            skip_next = true;
-            continue;
+        skip_next = is_flag;
+        if !is_flag {
+            out.push(arg.as_str());
         }
-        out.push(arg.as_str());
     }
     out
 }
 
 fn validate_args(rest: &[String]) -> Result<i32, String> {
-    let pos = positional(rest);
+    let pos = positional(rest, OBJECT_FLAGS);
     let Some(curie) = pos.first() else {
         return Err("validate requires a term such as dcterms:title".into());
     };
@@ -128,7 +138,7 @@ fn validate_args(rest: &[String]) -> Result<i32, String> {
 }
 
 fn cmd_extract(rest: &[String]) -> Result<i32, String> {
-    let pos = positional(rest);
+    let pos = positional(rest, OBJECT_FLAGS);
     let Some(file) = pos.first() else {
         return Err("extract requires a media file path".into());
     };
@@ -141,7 +151,7 @@ fn cmd_extract(rest: &[String]) -> Result<i32, String> {
 }
 
 fn cmd_get(rest: &[String]) -> Result<i32, String> {
-    let pos = positional(rest);
+    let pos = positional(rest, OBJECT_FLAGS);
     let object = object_dir(rest);
     let record = load(&object).map_err(|e| e.to_string())?;
     if let Some(curie) = pos.first() {
@@ -164,7 +174,7 @@ fn cmd_get(rest: &[String]) -> Result<i32, String> {
 }
 
 fn cmd_set(rest: &[String]) -> Result<i32, String> {
-    let pos = positional(rest);
+    let pos = positional(rest, OBJECT_FLAGS);
     let Some(curie) = pos.first() else {
         return Err("set requires prefix:term and a value".into());
     };
@@ -186,16 +196,33 @@ struct JsonBinding {
     digest: String,
 }
 
+/// Check that `logical_path` resolves inside `object` (file I/O).
+///
+/// `filesquid-ocfl` rejects lexical escapes such as `..`, but a symlink inside
+/// the object could still point elsewhere, so both paths are resolved first.
+fn check_resolves_inside_object(object: &Path, logical_path: &str) -> Result<(), String> {
+    let root = object.canonicalize().map_err(|e| e.to_string())?;
+    let target = object
+        .join(logical_path)
+        .canonicalize()
+        .map_err(|e| e.to_string())?;
+    if !target.starts_with(&root) {
+        return Err(format!("{logical_path} resolves outside the object"));
+    }
+    Ok(())
+}
+
 /// Read `--id` and hash the `--file` logical file of `object` (file I/O).
 ///
 /// The file is read through `filesquid-ocfl`, which applies the Git guard and
-/// rejects paths that escape the object.
+/// rejects lexical path escapes; symlink escapes are rejected beforehand.
 fn read_json_binding(rest: &[String], object: &Path) -> Result<JsonBinding, String> {
     let (Some(object_id), Some(logical_path)) =
         (flag_value(rest, "--id"), flag_value(rest, "--file"))
     else {
         return Err("json requires --id <object-id> and --file <logical-path>".into());
     };
+    check_resolves_inside_object(object, logical_path)?;
     let bytes = read_logical_file(object, logical_path).map_err(|e| e.to_string())?;
     Ok(JsonBinding {
         object_id: object_id.to_string(),
@@ -222,7 +249,7 @@ fn render_export(
 }
 
 fn cmd_export(rest: &[String]) -> Result<i32, String> {
-    let pos = positional(rest);
+    let pos = positional(rest, INTERCHANGE_FLAGS);
     let fmt = pos.first().copied().unwrap_or("");
     let path = pos.get(1).copied().unwrap_or("");
     if path.is_empty() {
@@ -270,7 +297,7 @@ fn apply_import(
 }
 
 fn cmd_import(rest: &[String]) -> Result<i32, String> {
-    let pos = positional(rest);
+    let pos = positional(rest, INTERCHANGE_FLAGS);
     let fmt = pos.first().copied().unwrap_or("");
     let path = pos.get(1).copied().unwrap_or("");
     if path.is_empty() {

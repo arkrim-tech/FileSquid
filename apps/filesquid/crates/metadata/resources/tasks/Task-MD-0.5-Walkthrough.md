@@ -11,7 +11,7 @@ Also covered: MD-S-002 (`/terms/` register on import), MD-S-005 (CLI as the stan
 ## What changed
 
 - **`src/json.rs` (new, pure):** `JsonSidecar`, `JsonStatement`, `JsonTarget`, `JsonError`, `DIGEST_ALGORITHM`, `sha256_hex`, `to_json`, `parse_json`, `apply_json`. `apply_json` checks the algorithm (`sha256` only), the digest (hex, case-insensitive), the object identifier, then stages every statement on a copy of the record, so a rejected sidecar changes nothing.
-- **Document shape:** one JSON object, `{"objectId", "digestAlgorithm": "sha256", "digest", "statements": [{"namespace", "term", "value"}]}`, UTF-8, Unicode written unescaped. Field names follow the OCFL inventory spelling (`digestAlgorithm`).
+- **Document shape:** one JSON object, for example `{"objectId":"urn:example:object-1","digestAlgorithm":"sha256","digest":"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad","statements":[{"namespace":"dcterms","term":"title","value":"Harbour"}]}`, UTF-8, Unicode written unescaped. Field names follow the OCFL inventory spelling (`digestAlgorithm`).
 - **Namespace checks:** `dcterms`, `exif`, `schema` are accepted; `dc` maps onto `dcterms` (MD-S-002); any other prefix is rejected with `namespace prefix <p> is not registered`. This is the MD-S-012 registry check with no extension namespaces registered; the registry itself is MD-0.7, which depends on this task.
 - **CLI (`src/cli.rs`):** `export json <path>` and `import json <path>` take `--id <object-id>` and `--file <logical-path>` beside `--object <dir>`. The digest is computed from the logical file read through `filesquid_ocfl::read_logical_file` (Git guard, no path escape). Import writes only `metadata.md`; the sidecar is never written into the object. Flag parsing was flattened into `flag_value` and `positional`, and export/import dispatch moved into `render_export` and `apply_import` to keep each function small.
 - **Dependencies:** `serde` 1 (derive), `serde_json` 1 (both already in the workspace lockfile), `sha2` 0.11 (current on crates.io; `sha2` is the SHA-256 implementation named in [ADR 009](../../../../../../resources/architecture/009-cryptography-webcrypto-compatible-suite.md)). All are portable Rust and do not block the planned `wasm32` build.
@@ -294,4 +294,63 @@ running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
+```
+
+## PR #4 review fixes
+
+Cubic review of PR #4 raised eight findings; seven are fixed here.
+
+- `flag_value` no longer takes a recognised flag as another flag's value: `--id --file photo.jpg` now reports the missing `--id` value.
+- `--id` and `--file` are flags only for `export` and `import`; `set dcterms:title --file` stores the literal `--file`.
+- A `--file` logical path that resolves through a symlink to outside the object is rejected before hashing.
+- `csv_export_still_ignores_json_flags` now passes `--id` and `--file`; `missing_digest_is_rejected` keeps `digestAlgorithm` and omits only `digest`.
+- The document-shape example above is now valid JSON, and the product vision's `filesquid-metadata` specification lists JSON sidecar interchange and the new default dependencies.
+
+Deferred: hashing streams the logical file instead of reading it whole. `filesquid_ocfl::read_logical_file` returns the whole file; the streaming reader is OCFL-S-004 in the open `filesquid-ocfl` read task (global Task 0.3), and MD-0.2 moves interchange onto it.
+
+```text
+$ cargo test -p filesquid-metadata --locked --test unit_cli --test unit_json
+
+running 15 tests
+test help_lists_json_interchange ... ok
+test help_prints_commands ... ok
+test json_rejects_a_flag_as_the_id_value ... ok
+test set_and_get_round_trip ... ok
+test json_requires_id_and_file ... ok
+test unknown_command_errors ... ok
+test validate_name_fails ... ok
+test validate_title_ok ... ok
+test set_keeps_json_flag_names_as_literal_values ... ok
+test export_csv_contains_header ... ok
+test json_rejects_a_symlink_that_leaves_the_object ... ok
+test json_import_rejects_other_object_id ... ok
+test csv_export_still_ignores_json_flags ... ok
+test json_import_rejects_digest_mismatch_and_keeps_metadata_md ... ok
+test json_export_then_import_round_trips_through_metadata_md ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 19 tests
+test digest_algorithm_is_sha256 ... ok
+test array_of_objects_is_rejected ... ok
+test export_is_utf8_without_escaping_unicode ... ok
+test export_then_import_reproduces_statements ... ok
+test import_accepts_uppercase_digest_hex ... ok
+test import_maps_dc_onto_dcterms ... ok
+test import_rejects_other_digest_algorithm ... ok
+test export_writes_namespace_term_value_statements ... ok
+test import_rejects_accrual_term_on_file ... ok
+test import_rejects_digest_mismatch ... ok
+test import_rejects_other_object_id ... ok
+test export_binds_object_id_and_digest ... ok
+test import_merges_into_existing_record ... ok
+test import_rejects_unknown_dcterms_term ... ok
+test import_rejects_unregistered_namespace_by_name ... ok
+test malformed_json_is_rejected ... ok
+test missing_digest_is_rejected ... ok
+test rejected_import_leaves_record_unchanged ... ok
+test sha256_matches_fips_vector ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 ```

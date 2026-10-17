@@ -241,7 +241,9 @@ fn malformed_json_is_rejected() {
 
 #[test]
 fn missing_digest_is_rejected() {
-    let text = format!("{{\"objectId\":\"{OBJECT_ID}\",\"statements\":[]}}");
+    let text = format!(
+        "{{\"objectId\":\"{OBJECT_ID}\",\"digestAlgorithm\":\"sha256\",\"statements\":[]}}"
+    );
     assert!(matches!(import(&text), Err(JsonError::Malformed(_))));
 }
 

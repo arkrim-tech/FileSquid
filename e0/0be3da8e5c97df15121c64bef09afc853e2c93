@@ -1,0 +1,19 @@
+resources/ui-mockups/v1/README.md
+  s_b4f1997db6ff30::t_ac4d0cc151bd9a 1-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e00be3da8e5c97df15121c64bef09afc853e2c93",
+  "prompts": {},
+  "sessions": {
+    "s_b4f1997db6ff30": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b9e14f72-04be-426e-a81e-29b71e83a02b",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    }
+  }
+}

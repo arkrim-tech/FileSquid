@@ -1,0 +1,79 @@
+.claude/agents/filesquid-modules-engineer.md
+  s_b4f1997db6ff30::t_f24b3a02bafaf1 1-50
+.claude/agents/filesquid-platform-engineer.md
+  s_b4f1997db6ff30::t_fbd99e906af853 1-50
+.claude/agents/filesquid-ui-engineer.md
+  s_b4f1997db6ff30::t_de67735f09fc69 1-51
+resources/tasks/Task-ui-mockups-v1-Plan.md
+  s_fec8c24c8e0213::t_5f3b7343d2fde2 1-49
+resources/tasks/Task-ui-mockups-v1-ToDos.md
+  s_fec8c24c8e0213::t_e2d626d3a57018 1-26
+resources/ui-mockups/v1/01-desktop-welcome.svg
+  s_fec8c24c8e0213::t_ef6ce29add9bcc 1-44
+resources/ui-mockups/v1/02-create-library.svg
+  s_fec8c24c8e0213::t_24b37151adee4c 1-65
+resources/ui-mockups/v1/03-server-sign-in.svg
+  s_fec8c24c8e0213::t_75ebfd8d3ede78 1-40
+resources/ui-mockups/v1/04-home.svg
+  s_fec8c24c8e0213::t_324a88309df2bc 1-180
+resources/ui-mockups/v1/05-all-files-list-dark.svg
+  s_fec8c24c8e0213::t_a764c7f3717de8 1-248
+resources/ui-mockups/v1/05-all-files-list.svg
+  s_fec8c24c8e0213::t_661b5533d0cd03 1-248
+resources/ui-mockups/v1/06-all-files-grid.svg
+  s_fec8c24c8e0213::t_295c75f16c2cf4 1-242
+resources/ui-mockups/v1/07-selection-bulk-actions.svg
+  s_fec8c24c8e0213::t_4a5dd5b528a97e 1-285
+resources/ui-mockups/v1/08-new-and-item-menus.svg
+  s_fec8c24c8e0213::t_87acabf27b8269 1-270
+resources/ui-mockups/v1/09-move-copy-picker.svg
+  s_fec8c24c8e0213::t_cb72c2b54058c7 1-299
+resources/ui-mockups/v1/10-drag-drop-upload.svg
+  s_fec8c24c8e0213::t_2ce14ba1857b5d 1-287
+resources/ui-mockups/v1/11-search-suggestions.svg
+  s_fec8c24c8e0213::t_bb325df98cd192 1-302
+resources/ui-mockups/v1/12-search-results.svg
+  s_fec8c24c8e0213::t_47853e442cb75c 1-192
+resources/ui-mockups/v1/13-preview-image-dark.svg
+  s_fec8c24c8e0213::t_ed84f2f5a452ac 1-114
+resources/ui-mockups/v1/13-preview-image.svg
+  s_fec8c24c8e0213::t_5cd37171ac8fad 1-114
+resources/ui-mockups/v1/14-preview-unsupported.svg
+  s_fec8c24c8e0213::t_3f15628dbbdc3d 1-124
+resources/ui-mockups/v1/15-panel-details.svg
+  s_fec8c24c8e0213::t_1f8fffc2e479af 1-294
+resources/ui-mockups/v1/16-panel-versions.svg
+  s_fec8c24c8e0213::t_d8f21a6ba54971 1-332
+resources/ui-mockups/v1/17-panel-metadata.svg
+  s_fec8c24c8e0213::t_6c022d3a20b849 1-324
+resources/ui-mockups/v1/18-panel-credentials.svg
+  s_fec8c24c8e0213::t_05dcd3fe3e56e8 1-307
+resources/ui-mockups/v1/19-panel-activity.svg
+  s_fec8c24c8e0213::t_19a72f3c1575d5 1-322
+resources/ui-mockups/v1/20-panel-sharing.svg
+  s_fec8c24c8e0213::t_2fbb2c03ac2382 1-327
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8ddd49375b22cbbf6ec4737cb1b0668978025240",
+  "prompts": {},
+  "sessions": {
+    "s_b4f1997db6ff30": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b9e14f72-04be-426e-a81e-29b71e83a02b",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    },
+    "s_fec8c24c8e0213": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0db9f243-fb19-45ad-84bd-d0ae175a2c30",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    }
+  }
+}

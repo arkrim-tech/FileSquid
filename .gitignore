@@ -61,3 +61,6 @@ data/*_data/
 # Python bytecode caches
 **/__pycache__/
 *.pyc
+
+# Claude Code worktrees for parallel agent runs
+.claude/worktrees/

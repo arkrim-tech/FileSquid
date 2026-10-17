@@ -1,0 +1,19 @@
+resources/tasks/Task-ui-mockups-v1-Plan.md
+  s_36c7854d004a03::t_2d311ea9827319 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "06a25cea079f9c4c89d1589bf19e4a93c22e6713",
+  "prompts": {},
+  "sessions": {
+    "s_36c7854d004a03": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3e5a56ec-076e-421c-8ee2-a21631a21ec2",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    }
+  }
+}

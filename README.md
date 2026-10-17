@@ -155,8 +155,5 @@ On Windows PowerShell, read the token with `$TOKEN = Get-Content filesquid-data/
 FileSquid and the ImageSquid distribution are licensed under the [MIT License](./LICENSE). Copyright (c) 2026 Pieter Van Garderen. See [COPYRIGHT](./COPYRIGHT). 
 
 # Open Agent Dev
-FileSquid is developed using the FOSS [Open Agent Dev](https://github.com/peterVG/open-agent-dev) harness created by [Pieter Van Garderen](https://vangarderen.net).
-
----
 
 This project is developed using the [Open Agent Dev](https://github.com/peterVG/open-agent-dev/) tooling developed by [@peterVG](https://vangarderen.net)

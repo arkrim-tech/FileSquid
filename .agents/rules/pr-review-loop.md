@@ -24,7 +24,7 @@ license: CC-BY
 
 Merge the PR into `main` only when all of these are true:
 
-- Cubic's latest review is of the current head commit.
+- Cubic has reviewed the current head commit: its `cubic · AI code reviewer` check run on that commit has completed with `success`. A clean pass posts no new review, so the check run is the signal; new findings arrive as review comments.
 - No Cubic review thread is unresolved.
 - `bash scripts/pre-commit.sh` exited 0 on the current head commit.
 - The PR has no merge conflict with `main`. Resolve a conflict by merging `main` into the branch, then return to step 2.
@@ -38,6 +38,6 @@ The loop is capped at **10 Cubic review rounds** per PR (`AGENTS.md` §22). If C
 
 ## MUST NOT
 
-- Merge with an unresolved Cubic thread, a failing pre-commit hook, or before Cubic has reviewed the head commit.
+- Merge with an unresolved Cubic thread, a failing pre-commit hook, or before Cubic's check run on the head commit has completed.
 - Commit or push directly to `main`. The PR merge is the only way agent work reaches `main` ([task-workflow.md](./task-workflow.md)).
 - Weaken a verifier, skip a test, or bypass the hook with `--no-verify` to end the loop ([local-verification.md](./local-verification.md)).

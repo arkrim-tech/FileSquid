@@ -39,7 +39,7 @@ The [FileSquid release row](../prd.md#release-order-and-dependency-gates) assign
 
 1. Build a small SVG generator in the session scratch area (not committed) with shared tokens, icons and components so every mockup is consistent.
 2. Draw each screen at 1440 × 900 (desktop window or browser window for `filesquid-server`), light mode, plus dark variants of three key screens.
-3. Write [`resources/ui-mockups/v1/README.md`](../ui-mockups/v1/README.md) indexing each mockup with its surface, host, states and PRD IDs.
+3. Write `resources/ui-mockups/v1/README.md` (not yet created) indexing each mockup with its surface, host, states and PRD IDs.
 4. Do not mark v1 as the active suite in [`resources/ui-mockups/README.md`](../ui-mockups/README.md) without owner approval, because an active suite becomes a hard SRS requirement source.
 
 ## Verification

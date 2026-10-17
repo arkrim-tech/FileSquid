@@ -4,7 +4,7 @@
 
 **FileSquid** is a free, open-source file platform that keeps your files in an archival standard you own, with descriptions and provenance attached, on your own computer, on your own server, or in an encrypted cloud you can leave at any time ([product vision](./resources/product-vision.md)).
 
-It is designed to look and work like a familiar cloud drive: folders, list and grid views, search with filter chips, previews, a details sidebar with activity and comments, version history that never thins, and sharing with viewer, commenter and editor roles (specified in the PRD; the scaffolded packages do not implement these yet). Underneath, every file is stored the way archives store them:
+It is designed to look and work like a familiar cloud drive: folders, list and grid views. Underneath, every file is stored the way archives store them:
 
 - **OCFL 1.1** objects on disk or S3-compatible storage: versioned, checksummed, readable without FileSquid, and enough to rebuild the whole application if its database is lost (`ocfl` module).
 - **Metadata** in a human-readable `metadata.md` record using ISO 15836-2 Dublin Core `/terms/` (`dcterms:`), with Schema.org for anything Dublin Core cannot say and, once the planned namespace registry ships, any additional schema you register (for example RiC-O, or your own key:value namespace), next to the embedded EXIF, ID3, IPTC and XMP (`metadata` module).

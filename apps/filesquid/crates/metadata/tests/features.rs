@@ -8,9 +8,10 @@ use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use cucumber::{then, when, writer, StatsWriter as _, World, WriterExt as _};
+use cucumber::{given, then, when, writer, StatsWriter as _, World, WriterExt as _};
 use filesquid_metadata::cli::USAGE;
 use filesquid_metadata::csv::{apply_csv, to_csv};
+use filesquid_metadata::json::{apply_json, parse_json, sha256_hex, to_json, JsonTarget};
 use filesquid_metadata::markdown::to_markdown;
 use filesquid_metadata::record::Record;
 use filesquid_metadata::store::{load, save, METADATA_MD};
@@ -43,6 +44,218 @@ struct MetadataWorld {
     inspected: String,
     /// Whether the last CSV import failed.
     csv_rejected: bool,
+    /// JSON sidecar written by the last export step (outside the object).
+    sidecar_path: Option<PathBuf>,
+    /// Second object directory that a JSON sidecar is imported into.
+    target_dir: Option<PathBuf>,
+    /// `metadata.md` text of the target object before a JSON import.
+    target_before: String,
+    /// Error text of the last JSON import, if it failed.
+    json_error: Option<String>,
+}
+
+impl Drop for MetadataWorld {
+    /// Remove every scratch directory and sidecar a scenario created.
+    fn drop(&mut self) {
+        for dir in [self.object_dir.take(), self.target_dir.take()]
+            .into_iter()
+            .flatten()
+        {
+            remove_dir_if_present(&dir);
+        }
+        if let Some(path) = self.sidecar_path.take() {
+            remove_file_if_present(&path);
+        }
+    }
+}
+
+/// Object identifier bound into every JSON sidecar scenario.
+const JSON_OBJECT_ID: &str = "urn:example:harbour";
+
+/// Logical file the JSON sidecar describes.
+const JSON_LOGICAL_FILE: &str = "photo.jpg";
+
+/// Bytes of the described logical file.
+const JSON_FILE_BYTES: &[u8] = b"harbour-pixels";
+
+/// Remove a file, treating "already absent" as success.
+fn remove_file_if_present(path: &Path) {
+    match fs::remove_file(path) {
+        Ok(()) => {}
+        Err(err) if err.kind() == ErrorKind::NotFound => {}
+        Err(err) => panic!("remove {}: {err}", path.display()),
+    }
+}
+
+/// Create a fresh object directory holding the described logical file.
+fn object_with_file(bytes: &[u8]) -> PathBuf {
+    let dir = fresh_object_dir();
+    fs::write(dir.join(JSON_LOGICAL_FILE), bytes).expect("logical file");
+    dir
+}
+
+/// Run `filesquid-metadata <cmd> json <sidecar> --id --file --object <dir>`.
+fn run_json_cli(cmd: &str, sidecar: &Path, object: &Path) -> Result<i32, String> {
+    let args: Vec<String> = [
+        cmd,
+        "json",
+        &sidecar.to_string_lossy(),
+        "--id",
+        JSON_OBJECT_ID,
+        "--file",
+        JSON_LOGICAL_FILE,
+        "--object",
+        &object.to_string_lossy(),
+    ]
+    .iter()
+    .map(|arg| (*arg).to_string())
+    .collect();
+    filesquid_metadata::cli::run(&args)
+}
+
+/// Read the sidecar written by the last export step.
+fn sidecar_text(world: &MetadataWorld) -> String {
+    let path = world.sidecar_path.as_ref().expect("sidecar exported");
+    let bytes = fs::read(path).expect("sidecar file");
+    String::from_utf8(bytes).expect("sidecar is UTF-8")
+}
+
+/// Import `text` into `target` and record the outcome on the world.
+fn import_into_target(world: &mut MetadataWorld, target: PathBuf) {
+    world.target_before = fs::read_to_string(target.join(METADATA_MD)).unwrap_or_default();
+    let sidecar = world.sidecar_path.clone().expect("sidecar exported");
+    world.json_error = run_json_cli("import", &sidecar, &target).err();
+    world.target_dir = Some(target);
+}
+
+#[given(expr = "an OCFL object with a logical file and dcterms:title {word}")]
+fn object_with_title(world: &mut MetadataWorld, title: String) {
+    let dir = object_with_file(JSON_FILE_BYTES);
+    let mut record = Record::default();
+    record
+        .set(MetadataNamespace::Dcterms, "title", title)
+        .expect("set title");
+    save(&dir, &record).expect("save metadata.md");
+    world.object_dir = Some(dir);
+}
+
+#[when("I export the object's JSON sidecar")]
+fn export_json_sidecar(world: &mut MetadataWorld) {
+    let dir = world.object_dir.clone().expect("object dir");
+    let sidecar = dir.with_extension("json");
+    assert_eq!(run_json_cli("export", &sidecar, &dir), Ok(0));
+    world.sidecar_path = Some(sidecar);
+}
+
+#[then("the sidecar should be one UTF-8 JSON document for that object")]
+fn sidecar_is_one_document(world: &mut MetadataWorld) {
+    let doc = parse_json(&sidecar_text(world)).expect("one JSON object document");
+    assert_eq!(doc.object_id, JSON_OBJECT_ID);
+}
+
+#[then("it should carry the object identifier and the SHA-256 digest of the file")]
+fn sidecar_binds_id_and_digest(world: &mut MetadataWorld) {
+    let doc = parse_json(&sidecar_text(world)).expect("sidecar");
+    assert_eq!(doc.object_id, JSON_OBJECT_ID);
+    assert_eq!(doc.digest_algorithm, "sha256");
+    assert_eq!(doc.digest, sha256_hex(JSON_FILE_BYTES));
+}
+
+#[then("each statement should have a namespace, term, and value")]
+fn sidecar_statements_are_triples(world: &mut MetadataWorld) {
+    let doc = parse_json(&sidecar_text(world)).expect("sidecar");
+    let title = doc
+        .statements
+        .iter()
+        .find(|s| s.namespace == "dcterms" && s.term == "title")
+        .expect("dcterms title statement");
+    assert_eq!(title.value, "Harbour");
+}
+
+#[when("I import that sidecar into an empty object holding the same file")]
+fn import_into_same_file(world: &mut MetadataWorld) {
+    import_into_target(world, object_with_file(JSON_FILE_BYTES));
+}
+
+#[when("I import that sidecar into an object whose file has different bytes")]
+fn import_into_changed_file(world: &mut MetadataWorld) {
+    let target = object_with_file(b"edited-pixels");
+    let mut record = Record::default();
+    record
+        .set(MetadataNamespace::Dcterms, "title", "Before")
+        .expect("set title");
+    save(&target, &record).expect("save metadata.md");
+    import_into_target(world, target);
+}
+
+#[then("the imported metadata.md should hold the same statements")]
+fn imported_statements_match(world: &mut MetadataWorld) {
+    assert_eq!(world.json_error, None, "import should succeed");
+    let source = load(world.object_dir.as_ref().expect("source")).expect("source");
+    let target = load(world.target_dir.as_ref().expect("target")).expect("target");
+    assert_eq!(target.statements, source.statements);
+}
+
+#[then("the import should be rejected for a digest mismatch")]
+fn import_rejected_for_digest(world: &mut MetadataWorld) {
+    let err = world.json_error.as_ref().expect("import rejected");
+    assert!(err.contains("digest"), "{err}");
+}
+
+#[then("that object's metadata.md should be unchanged")]
+fn target_unchanged(world: &mut MetadataWorld) {
+    let target = world.target_dir.as_ref().expect("target");
+    let after = fs::read_to_string(target.join(METADATA_MD)).expect("metadata.md");
+    assert_eq!(after, world.target_before);
+}
+
+#[when(expr = "I import a JSON sidecar holding {word}")]
+fn import_json_holding(world: &mut MetadataWorld, curie: String) {
+    let (namespace, term) = curie.split_once(':').expect("prefix:term");
+    let digest = sha256_hex(JSON_FILE_BYTES);
+    let text = format!(
+        "{{\"objectId\":\"{JSON_OBJECT_ID}\",\"digestAlgorithm\":\"sha256\",\
+         \"digest\":\"{digest}\",\"statements\":[{{\"namespace\":\"{namespace}\",\
+         \"term\":\"{term}\",\"value\":\"x\"}}]}}"
+    );
+    let target = JsonTarget {
+        object_id: JSON_OBJECT_ID,
+        digest: &digest,
+    };
+    let mut record = Record::default();
+    world.json_error = apply_json(&text, &target, &mut record)
+        .err()
+        .map(|err| err.to_string());
+}
+
+#[then("the JSON import should be rejected")]
+fn json_import_rejected(world: &mut MetadataWorld) {
+    assert!(world.json_error.is_some(), "JSON import should be rejected");
+}
+
+#[then(expr = "the JSON import should be rejected naming the prefix {word}")]
+fn json_import_names_prefix(world: &mut MetadataWorld, prefix: String) {
+    let err = world.json_error.as_ref().expect("JSON import rejected");
+    assert!(err.contains(&prefix), "{err} should name {prefix}");
+}
+
+#[then("metadata.md should remain the canonical store in the object")]
+fn metadata_md_stays_canonical(world: &mut MetadataWorld) {
+    let dir = world.object_dir.as_ref().expect("object dir");
+    let names: Vec<String> = fs::read_dir(dir)
+        .expect("object dir")
+        .map(|entry| {
+            entry
+                .expect("entry")
+                .file_name()
+                .to_string_lossy()
+                .into_owned()
+        })
+        .collect();
+    assert!(names.iter().any(|name| name == METADATA_MD));
+    assert!(!names.iter().any(|name| name.ends_with(".json")));
+    let record = load(dir).expect("load metadata.md");
+    assert_eq!(record.get("dcterms:title").expect("title").value, "Harbour");
 }
 
 /// Read a file from the crate root.
@@ -232,7 +445,7 @@ fn inspect_interchange(world: &mut MetadataWorld) {
     world.inspected = format!("{}{}", read_crate_sources(), library_dependencies());
 }
 
-#[then("CSV, XMP sidecar, and embedded extract should be available")]
+#[then("CSV, JSON sidecar, XMP sidecar, and embedded extract should be available")]
 fn interchange_round_trips(world: &mut MetadataWorld) {
     let mut record = Record::default();
     record
@@ -244,7 +457,21 @@ fn interchange_round_trips(world: &mut MetadataWorld) {
         from_sidecar.get("dcterms:creator").expect("xmp").value,
         "George"
     );
+    assert_json_round_trip(&record);
     assert!(world.inspected.contains("pub fn extract_into"));
+}
+
+/// Export `record` as a JSON sidecar, import it, and compare the statements.
+fn assert_json_round_trip(record: &Record) {
+    let digest = sha256_hex(JSON_FILE_BYTES);
+    let text = to_json(JSON_OBJECT_ID, &digest, record);
+    let target = JsonTarget {
+        object_id: JSON_OBJECT_ID,
+        digest: &digest,
+    };
+    let mut imported = Record::default();
+    apply_json(&text, &target, &mut imported).expect("json import");
+    assert_eq!(imported.statements, record.statements);
 }
 
 #[then("MODS and SQL should be absent")]

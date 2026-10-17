@@ -12,7 +12,7 @@ license: CC-BY
 ## The loop
 
 1. **Open the PR.** When a task is complete and `bash scripts/pre-commit.sh` exits 0, push the task branch and open a pull request against `main`. Follow [pr-documentation-update.md](./pr-documentation-update.md) first.
-2. **Wait for Cubic.** Subscribe to the PR's activity and wait for Cubic's review of the current head commit. Do not poll with `sleep`. Cubic reviews each new head commit on its own; if no review of the head commit has appeared after about an hour, re-trigger it with the "Re-trigger cubic" link in its last review or by mentioning `@cubic-dev-ai` in a PR comment.
+2. **Wait for Cubic.** Subscribe to the PR's activity so Cubic's review wakes the agent the moment it is posted, and keep a fallback check-in about 10 minutes out in case an event is lost. Do not poll with `sleep`. Cubic reviews each new head commit on its own; if no review of the head commit has appeared 15 minutes after the push, re-trigger it with the "Re-trigger cubic" link in its last review or by mentioning `@cubic-dev-ai` in a PR comment.
 3. **Fix every Cubic comment.** For each open Cubic review thread:
    - Fix it in code or documentation, following every other rule in `.agents/rules/` (TDD, lint, docs, links).
    - If the finding is wrong, reply on the thread with the reasoning and evidence. Never dismiss a finding silently.

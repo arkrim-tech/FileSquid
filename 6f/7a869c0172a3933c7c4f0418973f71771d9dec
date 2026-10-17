@@ -1,0 +1,27 @@
+apps/filesquid/crates/metadata/resources/tasks/Task-MD-0.5-Walkthrough.md
+  s_36c7854d004a03::t_e779b41536fd55 14,298-356
+apps/filesquid/crates/metadata/src/cli.rs
+  s_36c7854d004a03::t_a3dfe5590b12c9 42-46,79-81,86,96-100,104-105,109-111,118,141,154,177,199-214,218,225,252,300
+apps/filesquid/crates/metadata/tests/unit/cli.rs
+  s_36c7854d004a03::t_582b58efc8dd0d 217-220,229-282
+apps/filesquid/crates/metadata/tests/unit/json.rs
+  s_36c7854d004a03::t_abeaf63fb6b588 244-246
+resources/product-vision.md
+  s_36c7854d004a03::t_a7ffbd7314fe5c 94,97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6f7a869c0172a3933c7c4f0418973f71771d9dec",
+  "prompts": {},
+  "sessions": {
+    "s_36c7854d004a03": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3e5a56ec-076e-421c-8ee2-a21631a21ec2",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    }
+  }
+}

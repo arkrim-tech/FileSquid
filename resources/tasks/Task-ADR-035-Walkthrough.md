@@ -145,3 +145,7 @@ checked 146 documents: 0 link(s) cross the FileSquid/ImageSquid boundary
 ✅ Lint and test validation passed.
 ✅ All Pre-Commit Hooks Passed!
 ```
+
+## PR #5 second review fix
+
+Cubic flagged that moving MD-0.5 to F3R left MD-0.7 (Task FS-1.3, phase F1) depending on post-MVP work. MD-0.5 and global Task 0.16 were completed and merged in PR #4, so `main` was merged into this branch and Task 0.16 returned to F0 as a completed task, depending only on Task 0.14. JSON sidecars stay outside the MVP scope in the PRD. The Summary Timeline moves 8 hours from F3R (432 → 424) to F0 (356 → 364), so the MVP phases now total about 858 hours. Three status lines that named nonexistent phases F1R and F2R now name F3R. `bash scripts/pre-commit.sh` passed.

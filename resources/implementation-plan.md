@@ -235,6 +235,15 @@ Product switch, module foundations (OCFL read, validate, write and change model;
   - **Related Tests:** [`reusable_metadata_engine_F-052.feature`](../apps/filesquid/crates/metadata/tests/features/reusable_metadata_engine_F-052.feature), [`../apps/filesquid/crates/metadata/tests/unit/isolation.rs`](../apps/filesquid/crates/metadata/tests/unit/isolation.rs)
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task 0.15. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-metadata (module directory apps/filesquid/crates/metadata/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/metadata/resources/tasks/Task-0.15-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/metadata/resources/plan.md and this file. Then commit your changes and push the branch to origin.`
 
+- [x] **Task 0.16: filesquid-metadata JSON sidecar**
+  - **Status:** Completed before the MVP (PR #4). JSON sidecars stay outside the MVP scope ([ADR 035](./architecture/035-macos-first-desktop-mvp.md)), so the MVP gate does not rely on them; MD-0.7 in Task FS-1.3 builds on this task.
+  - **Description:** Ship JSON sidecar interchange (`export json`, `import json`): one UTF-8 JSON document per OCFL object binding `{namespace, term, value}` statements to the OCFL object identifier and SHA-256 digest. Import applies the `/terms/` register and rejects a digest mismatch. `metadata.md` stays canonical. Like CSV and XMP in Task 0.14, the CLI reads and writes the object-directory `metadata.md` store; Task 2.2 ([MD-0.2](../apps/filesquid/crates/metadata/resources/plan.md)) moves all interchange, JSON included, onto `filesquid-ocfl` persistence. MODS and SQL MUST NOT appear. Execute [MD-0.5](../apps/filesquid/crates/metadata/resources/plan.md).
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task 0.14
+  - **Related Requirements:** [F-052](./prd.md#f-052-metadata-module), [C-049](./product-vision.md#module-rules), [ADR 022](./architecture/022-dublin-core-descriptive-metadata.md), [ADR 024](./architecture/024-filesquid-metadata-engine.md)
+  - **Related Tests:** [`reusable_metadata_engine_F-052.feature`](../apps/filesquid/crates/metadata/tests/features/reusable_metadata_engine_F-052.feature), [`../apps/filesquid/crates/metadata/tests/unit/json.rs`](../apps/filesquid/crates/metadata/tests/unit/json.rs), [`../apps/filesquid/crates/metadata/tests/unit/cli.rs`](../apps/filesquid/crates/metadata/tests/unit/cli.rs)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task 0.16. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-metadata (module directory apps/filesquid/crates/metadata/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/metadata/resources/tasks/Task-0.16-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/metadata/resources/plan.md and this file. Then commit your changes and push the branch to origin.`
+
 - [ ] **Task 0.17: filesquid-c2pa read and validate**
   - **Description:** Scaffold the from-scratch C2PA engine with isolation tests, crypto-backend trait, `wasm32` build and `c2patool` oracle harness; parse JUMBF/CBOR manifest stores; validate hard bindings, signatures, certificate chains against caller-supplied trust lists and timestamps; ship CLI `read` and `verify`. Execute [CP-0.1](../apps/filesquid/crates/c2pa/resources/plan.md) through [CP-0.5](../apps/filesquid/crates/c2pa/resources/plan.md) ([ADR 026](./architecture/026-filesquid-provenance-engine.md)).
   - **Estimated Time:** 80 hours
@@ -422,7 +431,7 @@ Everything the first consumer release needs that the MVP deferred ([ADR 035](./a
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task FS-3.10. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-api and -p filesquid-server. Write integration tests that reach the same routes through both hosts, and tests against PostgreSQL with two users and two groups, including denied cross-library access. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-FS-3.10-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown boxes locally in the module plan.md files and this file. Then commit your changes and push the branch to origin.`
 
 - [ ] **Task FS-2.3: Users, groups and sharing UI on filesquid-server**
-  - **Status:** Moved from phase F2 to phase F2R (post-MVP) by [ADR 035](./architecture/035-macos-first-desktop-mvp.md).
+  - **Status:** Moved from phase F2 to phase F3R (post-MVP) by [ADR 035](./architecture/035-macos-first-desktop-mvp.md).
   - **Description:** Sign-in, user and group administration, personal and group-owned libraries, collection permissions and a plain statement of what the server operator can see. Execute [UI-F2.6](../apps/filesquid/ui/resources/plan.md).
   - **Estimated Time:** 24 hours
   - **Dependencies:** Task FS-3.10, Task FS-2.2
@@ -440,7 +449,7 @@ Everything the first consumer release needs that the MVP deferred ([ADR 035](./a
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task FS-2.7. Work module by module in the order API-F2.4, SV-F1.4, UI-F2.10, UI-F2.12. Write failing tests first in each crate and package; run Cargo from apps/filesquid/ (cargo fmt --all --check; cargo clippy --workspace --all-targets --locked -- -D warnings; cargo test --workspace --locked) and npm in apps/filesquid/ui. Update crates/api/openapi.json and regenerate ui/src/api/schema.d.ts. Upon completion, generate apps/filesquid/crates/api/resources/tasks/Task-FS-2.7-Walkthrough.md with SRS IDs and full titles, delete Plan.md and ToDos.md, check off the module boxes and this box, then commit and push.`
 
 - [ ] **Task FS-2.6: Virtual exhibits through the API and the default UI**
-  - **Status:** Moved from phase F2 to phase F2R (post-MVP) by [ADR 035](./architecture/035-macos-first-desktop-mvp.md).
+  - **Status:** Moved from phase F2 to phase F3R (post-MVP) by [ADR 035](./architecture/035-macos-first-desktop-mvp.md).
   - **Description:** Virtual exhibits as a FileSquid capability: create, rename, populate, reorder, cover-select and delete an exhibit owned by a user on a repository, spanning collections across libraries and public references on other repositories; membership limited to public files (hidden media, private collections and private shared libraries excluded); no exhibit stores bytes; private evidence envelopes never disclosed; UUID v4 identifiers ([API-F2.6](../apps/filesquid/crates/api/resources/plan.md)). The default UI shows an exhibit with the same grid, order, cover and inspector features as a collection and calls it a virtual exhibit through the label table ([UI-F2.13](../apps/filesquid/ui/resources/plan.md)). Added 2026-10-16 by the traceability sweep: F-053 is release-1 scope but no task delivered it.
   - **Estimated Time:** 28 hours
   - **Dependencies:** Task FS-1.2, Task FS-1.4, Task FS-2.2, Task FS-3.9
@@ -449,22 +458,13 @@ Everything the first consumer release needs that the MVP deferred ([ADR 035](./a
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task FS-2.6. Work module by module in the order API-F2.6, UI-F2.13. Write failing tests first in each crate and package; run Cargo from apps/filesquid/ (cargo fmt --all --check; cargo clippy --workspace --all-targets --locked -- -D warnings; cargo test --workspace --locked) and npm in apps/filesquid/ui. Update crates/api/openapi.json and regenerate ui/src/api/schema.d.ts. Upon completion, generate apps/filesquid/crates/api/resources/tasks/Task-FS-2.6-Walkthrough.md with SRS IDs and full titles, delete Plan.md and ToDos.md, check off the module boxes and this box, then commit and push.`
 
 - [ ] **Task FS-1.5: Distribution manifest and module switches**
-  - **Status:** Moved from phase F1 to phase F1R (post-MVP) by [ADR 035](./architecture/035-macos-first-desktop-mvp.md). The MVP ships one distribution.
+  - **Status:** Moved from phase F1 to phase F3R (post-MVP) by [ADR 035](./architecture/035-macos-first-desktop-mvp.md). The MVP ships one distribution.
   - **Description:** The API reads the active distribution manifest (`distribution.json`: name, bundle identifier, enabled modules, default UI path) and exposes which modules and capabilities are enabled, so a UI never offers a disabled capability. Every capability a distribution needs is a FileSquid module behind the API and is switchable per distribution. Execute [API-F1.8](../apps/filesquid/crates/api/resources/plan.md).
   - **Estimated Time:** 12 hours
   - **Dependencies:** Task FS-1.1, Task FS-3.9
   - **Related Requirements:** [F-058](./prd.md#f-058-white-label-distributions), [SRS-F-058](./srs.md#srs-f-058-white-label-distributions), FileSquid [U-24](./product-vision.md#one-api-hosts-and-distributions), [U-25](./product-vision.md#one-api-hosts-and-distributions), [ADR 029](./architecture/029-filesquid-unified-product-and-distributions.md), [F-056](./prd.md#f-056-single-filesquid-api)
   - **Related Tests:** [`composable_filesquid_ui_F-055.feature`](../apps/filesquid/ui/tests/features/composable_filesquid_ui_F-055.feature)
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task FS-1.5. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-api. A distribution MUST NOT contain backend code. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/api/resources/tasks/Task-FS-1.5-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/api/resources/plan.md and this file. Then commit your changes and push the branch to origin.`
-
-- [ ] **Task 0.16: filesquid-metadata JSON sidecar**
-  - **Status:** Moved from phase F0 to phase F0R (post-MVP) by [ADR 035](./architecture/035-macos-first-desktop-mvp.md).
-  - **Description:** Ship JSON sidecar interchange (`export json`, `import json`): one UTF-8 JSON document per OCFL object binding `{namespace, term, value}` statements to the OCFL object identifier and SHA-256 digest. Import applies the `/terms/` register and rejects a digest mismatch. `metadata.md` stays canonical. Like CSV and XMP in Task 0.14, the CLI reads and writes the object-directory `metadata.md` store; Task 2.2 ([MD-0.2](../apps/filesquid/crates/metadata/resources/plan.md)) moves all interchange, JSON included, onto `filesquid-ocfl` persistence. MODS and SQL MUST NOT appear. Execute [MD-0.5](../apps/filesquid/crates/metadata/resources/plan.md).
-  - **Estimated Time:** 8 hours
-  - **Dependencies:** Task 0.14, Task FS-3.9
-  - **Related Requirements:** [F-052](./prd.md#f-052-metadata-module), [C-049](./product-vision.md#module-rules), [ADR 022](./architecture/022-dublin-core-descriptive-metadata.md), [ADR 024](./architecture/024-filesquid-metadata-engine.md)
-  - **Related Tests:** [`reusable_metadata_engine_F-052.feature`](../apps/filesquid/crates/metadata/tests/features/reusable_metadata_engine_F-052.feature), `apps/filesquid/crates/metadata/tests/unit/json.rs` (planned), [`../apps/filesquid/crates/metadata/tests/unit/cli.rs`](../apps/filesquid/crates/metadata/tests/unit/cli.rs)
-  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task 0.16. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-metadata (module directory apps/filesquid/crates/metadata/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/metadata/resources/tasks/Task-0.16-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/metadata/resources/plan.md and this file. Then commit your changes and push the branch to origin.`
 
 - [ ] **Task FS-3.12: filesquid-c2pa signing and embedding**
   - **Status:** Split from Task 0.18 by [ADR 035](./architecture/035-macos-first-desktop-mvp.md); the MVP records unsigned import records only.
@@ -1068,7 +1068,7 @@ Every module task appears in exactly one global Description. `through` ranges in
 | F0 | 0.13 | MD-0.1 |
 | F0 | 0.14 | MD-0.3 |
 | F0 | 0.15 | MD-0.4 |
-| F3R | 0.16 | MD-0.5 |
+| F0 | 0.16 | MD-0.5 |
 | F0 | 0.17 | CP-0.1–CP-0.5 |
 | F0 | 0.18 | CP-0.6 |
 | F3R | FS-3.12 | CP-0.7 |
@@ -1159,11 +1159,11 @@ Estimated developer hours per phase (numeric `Estimated Time` values only; super
 
 | Phase | Hours |
 |---|---|
-| Phase F0: FileSquid foundation | 356 |
+| Phase F0: FileSquid foundation | 364 |
 | Phase F1: FileSquid API | 150 |
 | Phase F2: FileSquid default UI | 292 |
 | Phase F3: FileSquid MVP (macOS desktop) | 52 |
-| Phase F3R: FileSquid release 1 (post-MVP) | 432 |
+| Phase F3R: FileSquid release 1 (post-MVP) | 424 |
 | Phase F4: Encrypted backup and sync (`*.filesquid.tech`) | 256 |
 | Phase F5: Encrypted browser host (roadmap) | 100 |
 | Phase I1: FileSquid capabilities for the ImageSquid MVP | 108 |
@@ -1177,6 +1177,6 @@ Estimated developer hours per phase (numeric `Estimated Time` values only; super
 | Phase L: Later candidates | 98 |
 | Phase V: Verification, documentation and architecture synthesis | 52 |
 
-- **Total Estimated Time:** about 2,562 developer hours of FileSquid work. The MVP (phases F0 to F3, closed by Task FS-3.9) is about 850 hours, including tasks already done. ImageSquid view hours are in the ImageSquid distribution plan. Phase A and phase L stay gated by Task 9.0.
+- **Total Estimated Time:** about 2,562 developer hours of FileSquid work. The MVP (phases F0 to F3, closed by Task FS-3.9) is about 858 hours, including tasks already done. ImageSquid view hours are in the ImageSquid distribution plan. Phase A and phase L stay gated by Task 9.0.
 - **Critical Path:** product switch (FS-0.0) → module foundations (OCFL write and change model, metadata WASM, C2PA read/mint) → API contract and transports → file operations, metadata and credentials through the API → jobs, events and the authorisation layer → default UI shell, browser and panels → drive-parity views, search and version restore → macOS early-access DMG and performance → **FileSquid MVP (Task FS-3.9)** → server host, accounts, groups and sharing, Linux and Windows installers, signing, server container, published crates → FileSquid release 1 → ciphertext-only hosted service, keys, sync and backup, hosted OCFL, hosted-protection readiness close → published UI package and API contract, ImageSquid extracted to its own repository → gallery queries, organize, export and inspection capabilities → archive and migration → editing recipes and render workers → discovery indexes and BYO AI → collaboration and project rendering → advanced media workers → publication and Article 50 disclosure → post-ImageSquid order decision → Arkrim modules and dashboard → architecture synthesis.
 - **Parallelism:** module foundations (F0) MAY run beside API contract work once FS-0.0 is merged. Task 0.12 spikes MAY run beside F1–F3. F5 MAY run beside I1–I7 unless the owner makes it a gate. Discovery indexes and editing recipes MAY proceed independently after shared foundations and recipe/color prototypes. F-041 MAY run beside archive work. M-B PhotoKit MUST NOT gate Linux/web. Task 5.3 billing MAY run beside Task 5.2 sync. C-7 base publication MAY launch after studio, clipping and billing without family libraries. Article 50 professional disclosure waits on the hosted-protection readiness close.

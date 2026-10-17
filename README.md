@@ -156,4 +156,4 @@ FileSquid and the ImageSquid distribution are licensed under the [MIT License](.
 
 # Open Agent Dev
 
-This project is developed using the [Open Agent Dev](https://github.com/peterVG/open-agent-dev/) tooling developed by [@peterVG](https://vangarderen.net)
+This project is developed with Claude Code and Grok Build using the [Open Agent Dev](https://github.com/peterVG/open-agent-dev/) tooling developed by [@peterVG](https://vangarderen.net)

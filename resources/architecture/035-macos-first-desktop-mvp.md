@@ -10,7 +10,7 @@ macOS-first desktop target and a desktop-only FileSquid MVP
 
 Accepted
 
-Accepted: 2026-10-17. Amends [ADR 002](./002-tauri2-desktop-shell.md), [ADR 006](./006-libvips-native-stills-not-imagemagick.md), [ADR 013](./013-cargo-svelte-workspaces.md) and [ADR 020](./020-distribution-web-and-tauri.md) where they name Linux desktop as the first target. Does not change the release order of [ADR 029](./029-filesquid-unified-product-and-distributions.md); it inserts an early-access MVP before the first consumer release.
+Accepted: 2026-10-17. Amends [ADR 002](./002-tauri2-desktop-shell.md), [ADR 006](./006-libvips-native-stills-not-imagemagick.md) (its Linux-first profile statement only; libvips workers stay in the MVP), [ADR 013](./013-cargo-svelte-workspaces.md) and [ADR 020](./020-distribution-web-and-tauri.md) where they name Linux desktop as the first target. Does not change the release order of [ADR 029](./029-filesquid-unified-product-and-distributions.md); it inserts an early-access MVP before the first consumer release.
 
 ## Context / Requirement Reference
 
@@ -25,34 +25,31 @@ Accepted: 2026-10-17. Amends [ADR 002](./002-tauri2-desktop-shell.md), [ADR 006]
 1. **macOS is the first desktop target.** Installers, packaged-desktop performance evidence and native-window tests start on macOS (WKWebView). Linux (WebKitGTK) and Windows (WebView2) follow the MVP, before the first consumer release.
 2. **The FileSquid MVP is desktop-only.** The MVP ships the default distribution on the macOS desktop host with the scope in [C-056](../product-vision.md#release-sequence). `filesquid-server`, its HTTP binding, accounts, groups, sharing, the container image and the multi-user load test move after the MVP. `filesquid-api` stays transport-agnostic ([ADR 030](./030-filesquid-api-and-transports.md)); nothing in the MVP may assume a single transport.
 3. **Unsigned early-access DMG.** The MVP installer is a `.dmg` built by the Tauri bundler, not signed with a Developer ID and not notarized. On Apple silicon the bundle MUST still carry an ad-hoc signature so it can launch; the exact Tauri configuration is verified in DE-F3.1 before it is documented ([command-verification](../../.agents/rules/command-verification.md)). The app and the download page label the build "early access", and the install guide states how to open an app Gatekeeper blocks. Developer ID signing, notarization and the updater remain gated by a signing ADR (Task 8.5).
-4. **No bundled native media libraries in the MVP.** Previews in the MVP use the decoders of the system webview (WKWebView) on originals served through ranged reads. libvips workers ([ADR 006](./006-libvips-native-stills-not-imagemagick.md)) move after the MVP, so the MVP DMG bundles no third-party native media library and the [ADR 011](./011-native-media-adapters-and-ffmpeg-license.md) installer review is not on the MVP path. Formats WKWebView cannot render show the existing unsupported-preview state; their bytes are still preserved exactly ([C-027](../product-vision.md#release-sequence)).
-5. **Native-window tests on macOS use the WebdriverIO Tauri service.** `tauri-driver` is not used on macOS.
+4. **Native-window tests on macOS use the WebdriverIO Tauri service.** `tauri-driver` is not used on macOS.
 
 ## Rationale
 
 - The owner's first users are on macOS, so validating there first gives the earliest useful feedback.
 - A desktop-only MVP removes the server host, multi-user authorisation and sharing, roughly a third of the release-1 work, without changing the API boundary that the server will mount later.
-- An unsigned DMG and no bundled native libraries remove two external dependencies (Apple Developer Program enrolment and the installer licence review) from the MVP's critical path.
+- An unsigned DMG removes an external dependency (Apple Developer Program enrolment and a signing ADR) from the MVP's critical path.
 
 ## Assumptions
 
 - MVP users accept an early-access build and can follow the documented steps to open an unsigned app.
-- WKWebView's built-in decoders cover the common preview formats (JPEG, PNG, GIF, HEIC, WebP, PDF, H.264 video) on supported macOS versions; anything else falls back to the unsupported-preview state.
-- Proposed performance budgets for the MVP are measured on originals without derivatives; if they fail, libvips workers move back into the MVP by owner decision.
 
 ## Alternatives Considered
 
 - **Keep Linux first.** Rejected by the owner: the first users are on macOS.
 - **Signed and notarized DMG for the MVP.** Rejected for the MVP to avoid waiting on a Developer ID and a signing ADR; it remains required before the first consumer release.
 - **Keep a single-user `filesquid-server` in the MVP.** Rejected: it adds a second transport, storage-root configuration and deployment work that MVP users do not need.
-- **Keep libvips workers in the MVP.** Deferred: it pulls the installer licence review and native bundling onto the MVP path for a gain the webview already provides for common formats.
 
 ## Consequences / Implications
 
-- Easier: one platform, one host and no signing or licence-review dependency before the MVP.
+- Easier: one platform, one host and no signing dependency before the MVP.
 - Harder: WebKitGTK and WebView2 differences surface later; the Linux and Windows installers and their native-window suites become post-MVP work that MUST pass before the first consumer release. Developers on Linux or Windows can build and test the workspace but cannot produce or smoke-test the MVP DMG, which needs a macOS machine.
 - Gatekeeper warnings on the unsigned DMG make the MVP unsuitable for a general public launch; the PRD gate says so.
-- The implementation plan splits Phase F3 into the MVP gate (Task FS-3.5) and a post-MVP completion phase that restores the deferred scope before the first consumer release.
+- libvips workers ([ADR 006](./006-libvips-native-stills-not-imagemagick.md)) stay in the MVP, so the MVP DMG bundles native libraries. [ADR 011](./011-native-media-adapters-and-ffmpeg-license.md) requires a licence and patent review of the linked installer before a public desktop binary; whether distributing the early-access DMG counts as public is an open owner decision.
+- The implementation plan splits Phase F3 into the MVP gate (Task FS-3.9) and a post-MVP completion phase that restores the deferred scope before the first consumer release.
 
 ## Related Decisions / Notes
 

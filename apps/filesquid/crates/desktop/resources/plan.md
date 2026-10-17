@@ -28,8 +28,6 @@ Logs: stdout JSON ([DE-S-003](./srs.md)). Default: checkpoint-on-quit. `bundle.a
 
 ## Phase F0: Catalog, jobs, OCFL coordinator (global Task 0.5)
 
-DE-0.5 (libvips workers) runs in global Task FS-3.13 after the MVP ([ADR 035](../../../../../resources/architecture/035-macos-first-desktop-mvp.md)).
-
 - [ ] **Task DE-0.1: Capability expansion (deny-by-default)**
   - **Description:** Add scoped filesystem and SQL capabilities as explicit permissions. No fs/shell/sql plugins beyond named commands. `health_ping` is replaced by the API route (DE-F0.1). Put `#[tauri::command]` in submodules, not next to `generate_handler` in `lib.rs`. Do not weaken authorization merely to compile. Prove allowed/denied commands with WebdriverIO/Tauri-service on a packaged window.
   - **Estimated Time:** 8 hours

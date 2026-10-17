@@ -52,7 +52,7 @@ Cargo commands run from `apps/filesquid/` with `-p filesquid-server` (and `-p` f
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F1.4. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write failing authorisation tests first: every role boundary, deny-by-default, expired and revoked links, and each administrator switch. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F1.4-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
 
 
-## Phase F3R: Release-1 container and performance (global Tasks FS-3.2, FS-3.14)
+## Phase F3R: Release-1 container and performance (global Tasks FS-3.2, FS-3.13)
 
 - [ ] **Task SV-F3.1: Container image and Compose service**
   - **Description:** Container image and root Compose service `filesquid-server`, serving the selected distribution's UI, with operator documentation (storage root, PostgreSQL, TLS termination at a proxy, backups, upgrades). Every documented command is executed first.

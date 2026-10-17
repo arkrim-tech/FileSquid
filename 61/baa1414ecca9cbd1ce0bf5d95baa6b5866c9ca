@@ -1,0 +1,45 @@
+apps/filesquid/crates/api/resources/plan.md
+  s_36c7854d004a03::t_ee5c18551b3774 245
+apps/filesquid/crates/c2pa/resources/plan.md
+  s_36c7854d004a03::t_a63fd2cafa3b60 58,68-69,112
+apps/filesquid/crates/desktop/resources/plan.md
+  s_36c7854d004a03::t_6e10d2c79a82d7 406
+apps/filesquid/crates/metadata/resources/plan.md
+  s_36c7854d004a03::t_289c9846bd5c3d 18,76
+apps/filesquid/crates/ocfl/resources/plan.md
+  s_36c7854d004a03::t_75e186aef980de 141,195
+apps/filesquid/crates/server/resources/plan.md
+  s_36c7854d004a03::t_ac26be051ab668 66,73,143
+apps/filesquid/ui/resources/plan.md
+  s_36c7854d004a03::t_3f2023787f8c72 40,189,192,199-200
+resources/architecture.md
+  s_36c7854d004a03::t_de906610a97f4b 790
+resources/architecture/006-libvips-native-stills-not-imagemagick.md
+  s_36c7854d004a03::t_53c70db91334e7 62
+resources/architecture/013-cargo-svelte-workspaces.md
+  s_36c7854d004a03::t_5c7e2e55a511bb 39
+resources/architecture/020-distribution-web-and-tauri.md
+  s_36c7854d004a03::t_eea8f87c6ed2d3 24,26
+resources/architecture/README.md
+  s_36c7854d004a03::t_ecac20c782c4c1 28
+resources/prd.md
+  s_36c7854d004a03::t_c515e14d426756 802,854,1490,1498,1583
+resources/tasks/Task-ADR-035-Walkthrough.md
+  s_36c7854d004a03::t_b55aeb7d5a04ca 67-147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "61baa1414ecca9cbd1ce0bf5d95baa6b5866c9ca",
+  "prompts": {},
+  "sessions": {
+    "s_36c7854d004a03": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3e5a56ec-076e-421c-8ee2-a21631a21ec2",
+        "model": "unknown"
+      },
+      "human_author": "Peter Van Garderen <vangarderen.peter@gmail.com>"
+    }
+  }
+}

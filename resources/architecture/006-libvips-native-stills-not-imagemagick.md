@@ -12,6 +12,8 @@ Accepted
 
 Accepted: 2026-09-16T01:01:07Z. Revised: 2026-09-22T04:34:37Z. Revised: 2026-10-15T05:24:52Z. Amended by [ADR 026](./026-filesquid-provenance-engine.md): C2PA is the from-scratch `filesquid-c2pa` client engine, not the official `c2pa` crate.
 
+Amended 2026-10-17 by [ADR 035](./035-macos-first-desktop-mvp.md): macOS is the first desktop target and the FileSquid MVP is desktop-only; Linux and Windows desktop follow the MVP. The MVP bundles no libvips workers; previews use the system webview's decoders until libvips workers land after the MVP.
+
 ## Context / Requirement Reference
 
 Desktop workers MUST generate thumbnails and display-sized previews with bounded memory while the UI stays responsive ([U-11](../product-vision.md#platform-ownership-and-access), [T-010](../product-vision.md#performance-acceptance), [T-015](../product-vision.md#interactive-rendering), [U-26](../product-vision.md#one-api-hosts-and-distributions)). Originals stay byte-exact; conversions are linked renditions ([C-028](../product-vision.md#platforms-originals-and-service-limits), [FE-001](../product-vision.md#independent-library)). The owner asked whether libvips fully replaces ImageMagick and stated that only one of the two may be installed.

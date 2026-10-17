@@ -12,6 +12,8 @@ Accepted
 
 Accepted: 2026-09-16T22:24:57Z. Revised: 2026-09-25T21:00:00Z. Revised: 2026-10-15T06:14:23Z. Amended by [ADR 028](./028-filesquid-ui-packages-and-panel-composition.md): each filesquid engine directory holds its own npm UI package under `ui/`.
 
+Amended 2026-10-17 by [ADR 035](./035-macos-first-desktop-mvp.md): macOS is the first desktop target and the FileSquid MVP is desktop-only; Linux and Windows desktop follow the MVP.
+
 Amended 2026-10-15 by [ADR 029](./029-filesquid-unified-product-and-distributions.md) and [ADR 031](./031-vanilla-typescript-ui-and-white-label-theming.md): one product-local Cargo workspace at `apps/filesquid/` with crates under `apps/filesquid/crates/`; UIs are Vite and TypeScript without Svelte (`apps/filesquid/ui/`, `apps/imagesquid/`). The per-engine `apps/filesquid-*/ui/` packages were never created and are superseded.
 
 ## Context / Requirement Reference

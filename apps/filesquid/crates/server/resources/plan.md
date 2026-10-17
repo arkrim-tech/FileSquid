@@ -17,7 +17,7 @@ Cargo commands run from `apps/filesquid/` with `-p filesquid-server` (and `-p` f
   - **Related Tests:** [`health.feature`](../tests/features/health.feature), [`health.rs`](../tests/integration/health.rs)
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F0.1. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Execute every documented command before writing it into a README. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F0.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
 
-## Phase F1: Multi-user host (global Tasks FS-1.1, FS-1.2, FS-1.4, FS-2.5)
+## Phase F3R: Multi-user host (global Tasks FS-3.10 and FS-2.7; not in the macOS desktop MVP)
 
 - [ ] **Task SV-F1.1: HTTP and event-channel transport**
   - **Description:** Serve the API over HTTP plus the event channel chosen by ADR 030 (WebSocket by default), proxy-safe, with `Range` support for content reads and streaming uploads. Clients reread durable state after a disconnect; no correctness depends on receiving every event.
@@ -52,7 +52,7 @@ Cargo commands run from `apps/filesquid/` with `-p filesquid-server` (and `-p` f
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F1.4. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write failing authorisation tests first: every role boundary, deny-by-default, expired and revoked links, and each administrator switch. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F1.4-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
 
 
-## Phase F3: Release-1 container and performance (global Tasks FS-3.2, FS-3.4)
+## Phase F3R: Release-1 container and performance (global Tasks FS-3.2, FS-3.14)
 
 - [ ] **Task SV-F3.1: Container image and Compose service**
   - **Description:** Container image and root Compose service `filesquid-server`, serving the selected distribution's UI, with operator documentation (storage root, PostgreSQL, TLS termination at a proxy, backups, upgrades). Every documented command is executed first.
@@ -96,7 +96,7 @@ Cargo commands run from `apps/filesquid/` with `-p filesquid-server` (and `-p` f
   - **Related Tests:** [`recovery_and_service_reliability_NFR-005.feature`](../tests/features/recovery_and_service_reliability_NFR-005.feature)
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F4.2. Then begin development, running Cargo from apps/filesquid/ with -p for the hosted-service crate. Invent no SLA. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F4.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
 
-## Phase F4: Hosted-service isolation and operational foundation (global Task 0.6; BE-0.6 in global Task 0.8)
+## Phase F4: Hosted-service isolation and operational foundation (global Task 0.6; BE-0.6 in global Task FS-3.10)
 
 - [ ] **Task BE-0.1: Isolation gate**
   - **Status:** Re-scoped: the gate applies to the ciphertext-only hosted-service binary (SV-F4.1). `filesquid-server` links `filesquid-api` and the modules by design.

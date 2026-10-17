@@ -12,6 +12,8 @@ Accepted
 
 Accepted: 2026-09-22T07:00:00Z.
 
+Amended 2026-10-17 by [ADR 035](./035-macos-first-desktop-mvp.md): macOS is the first desktop target and the FileSquid MVP is desktop-only; Linux and Windows desktop follow the MVP. The MVP desktop installer is an unsigned, not-notarized macOS `.dmg` labelled early access; the updater stays out of scope until the signing ADR.
+
 ## Context / Requirement Reference
 
 [ADR 002](./002-tauri2-desktop-shell.md) and [ADR 004](./004-axum-hosted-ciphertext-mailbox.md). Public desktop binaries require FOSS/patent review ([ADR 011](./011-native-media-adapters-and-ffmpeg-license.md)). SPA-asset signing is a later gate ([T-034](../product-vision.md#later-gates)).

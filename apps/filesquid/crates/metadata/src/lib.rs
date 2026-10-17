@@ -11,6 +11,7 @@
 pub mod cli;
 pub mod csv;
 pub mod extract;
+pub mod json;
 pub mod markdown;
 pub mod record;
 pub mod store;

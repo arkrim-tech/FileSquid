@@ -38,8 +38,42 @@ Feature: Reusable filesquid-metadata engine
 
   Scenario: Interchange excludes MODS and SQL
     When I inspect filesquid-metadata interchange
-    Then CSV, XMP sidecar, and embedded extract should be available
+    Then CSV, JSON sidecar, XMP sidecar, and embedded extract should be available
     And MODS and SQL should be absent
+
+  # MD-S-010: JSON sidecar import/export
+  Scenario: JSON sidecar binds statements to the object and file digest
+    Given an OCFL object with a logical file and dcterms:title Harbour
+    When I export the object's JSON sidecar
+    Then the sidecar should be one UTF-8 JSON document for that object
+    And it should carry the object identifier and the SHA-256 digest of the file
+    And each statement should have a namespace, term, and value
+
+  Scenario: JSON sidecar export then import reproduces the statements
+    Given an OCFL object with a logical file and dcterms:title Harbour
+    When I export the object's JSON sidecar
+    And I import that sidecar into an empty object holding the same file
+    Then the imported metadata.md should hold the same statements
+
+  Scenario: JSON sidecar import rejects a digest mismatch
+    Given an OCFL object with a logical file and dcterms:title Harbour
+    When I export the object's JSON sidecar
+    And I import that sidecar into an object whose file has different bytes
+    Then the import should be rejected for a digest mismatch
+    And that object's metadata.md should be unchanged
+
+  Scenario: JSON sidecar import applies the /terms/ register
+    When I import a JSON sidecar holding dcterms:name
+    Then the JSON import should be rejected
+
+  Scenario: JSON sidecar import rejects an unregistered namespace
+    When I import a JSON sidecar holding rico:title
+    Then the JSON import should be rejected naming the prefix rico
+
+  Scenario: JSON sidecar does not replace metadata.md
+    Given an OCFL object with a logical file and dcterms:title Harbour
+    When I export the object's JSON sidecar
+    Then metadata.md should remain the canonical store in the object
 
   Scenario: Stand-alone FOSS product
     When I inspect filesquid-metadata product identity
@@ -63,6 +97,8 @@ Feature: Reusable filesquid-metadata engine
   # Source
   # - resources/prd.md F-052
   # - resources/srs.md SRS-F-052
+  # - apps/filesquid/crates/metadata/resources/srs.md MD-S-010 JSON sidecar import/export
+  # - resources/architecture/022-dublin-core-descriptive-metadata.md (Sidecar JSON)
   # - resources/architecture/024-filesquid-metadata-engine.md
   # - resources/architecture/025-client-side-filesquid-engines.md
   # - resources/architecture/028-filesquid-ui-packages-and-panel-composition.md

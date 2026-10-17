@@ -2,9 +2,12 @@
 
 use std::path::{Path, PathBuf};
 
+use filesquid_ocfl::read_logical_file;
+
 use crate::csv::{apply_csv, to_csv};
 use crate::extract::extract_into;
-use crate::record::parse_curie;
+use crate::json::{apply_json, sha256_hex, to_json, JsonTarget};
+use crate::record::{parse_curie, Record};
 use crate::reject_file_dcterms_term;
 use crate::store::{load, save};
 use crate::xmp::{from_xmp, to_xmp};
@@ -20,10 +23,14 @@ Commands:
   extract <file>          Extract EXIF/ID3 from a media file into metadata.md
   get [prefix:term]       Print populated statements (or one CURIE)
   set <prefix:term> <val> Set a statement and write metadata.md
-  export csv|xmp <path>   Write CSV or XMP interchange
-  import csv|xmp <path>   Read CSV or XMP into metadata.md
+  export csv|xmp|json <path>  Write CSV, XMP or JSON sidecar interchange
+  import csv|xmp|json <path>  Read CSV, XMP or JSON sidecar into metadata.md
   validate <prefix:term>  Check a dcterms: term against the /terms/ register
   help                    Show this help
+
+JSON sidecars also take --id <object-id> --file <logical-path>: the OCFL
+object identifier and the logical file whose SHA-256 digest binds the
+sidecar. Import rejects a sidecar whose identifier or digest differs.
 
 Canonical store: <object>/metadata.md (YAML front matter + Markdown body).
 ";
@@ -31,6 +38,9 @@ Canonical store: <object>/metadata.md (YAML front matter + Markdown body).
 const COMMANDS: &[&str] = &[
     "extract", "get", "set", "export", "import", "validate", "help",
 ];
+
+/// Flags that take a value; their values are never positional arguments.
+const VALUE_FLAGS: &[&str] = &["--object", "--id", "--file"];
 
 /// Run the CLI. Returns a process exit code.
 pub fn run(args: &[String]) -> Result<i32, String> {
@@ -62,29 +72,34 @@ fn is_help(arg: &str) -> bool {
     arg == "-h" || arg == "--help" || arg == "help"
 }
 
-fn object_dir(args: &[String]) -> PathBuf {
+/// Return the value following `flag`, if present.
+fn flag_value<'a>(args: &'a [String], flag: &str) -> Option<&'a str> {
     args.windows(2)
-        .find(|w| w[0] == "--object")
-        .map(|w| PathBuf::from(&w[1]))
+        .find(|w| w[0] == flag)
+        .map(|w| w[1].as_str())
+}
+
+/// Return the object directory from `--object`, defaulting to `.`.
+fn object_dir(args: &[String]) -> PathBuf {
+    flag_value(args, "--object")
+        .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("."))
 }
 
+/// Return the arguments that are neither value flags nor their values.
 fn positional(args: &[String]) -> Vec<&str> {
     let mut out = Vec::new();
-    let mut skip = 0;
-    for (i, a) in args.iter().enumerate() {
-        if skip > 0 {
-            skip -= 1;
+    let mut skip_next = false;
+    for arg in args {
+        if skip_next {
+            skip_next = false;
             continue;
         }
-        if a == "--object" {
-            skip = 1;
+        if VALUE_FLAGS.contains(&arg.as_str()) {
+            skip_next = true;
             continue;
         }
-        if i + 1 < args.len() && args[i] == "--object" {
-            continue;
-        }
-        out.push(a.as_str());
+        out.push(arg.as_str());
     }
     out
 }
@@ -163,23 +178,95 @@ fn cmd_set(rest: &[String]) -> Result<i32, String> {
     Ok(0)
 }
 
+/// The OCFL object identifier and logical-file digest a JSON sidecar binds.
+struct JsonBinding {
+    /// OCFL object identifier from `--id`.
+    object_id: String,
+    /// Hex SHA-256 of the logical file named by `--file`.
+    digest: String,
+}
+
+/// Read `--id` and hash the `--file` logical file of `object` (file I/O).
+///
+/// The file is read through `filesquid-ocfl`, which applies the Git guard and
+/// rejects paths that escape the object.
+fn read_json_binding(rest: &[String], object: &Path) -> Result<JsonBinding, String> {
+    let (Some(object_id), Some(logical_path)) =
+        (flag_value(rest, "--id"), flag_value(rest, "--file"))
+    else {
+        return Err("json requires --id <object-id> and --file <logical-path>".into());
+    };
+    let bytes = read_logical_file(object, logical_path).map_err(|e| e.to_string())?;
+    Ok(JsonBinding {
+        object_id: object_id.to_string(),
+        digest: sha256_hex(&bytes),
+    })
+}
+
+/// Render `record` in the requested interchange format.
+fn render_export(
+    fmt: &str,
+    rest: &[String],
+    object: &Path,
+    record: &Record,
+) -> Result<String, String> {
+    match fmt {
+        "csv" => Ok(to_csv(&object.display().to_string(), record)),
+        "xmp" => Ok(to_xmp(record)),
+        "json" => {
+            let binding = read_json_binding(rest, object)?;
+            Ok(to_json(&binding.object_id, &binding.digest, record))
+        }
+        _ => Err("export format must be csv, xmp or json".into()),
+    }
+}
+
 fn cmd_export(rest: &[String]) -> Result<i32, String> {
     let pos = positional(rest);
     let fmt = pos.first().copied().unwrap_or("");
     let path = pos.get(1).copied().unwrap_or("");
     if path.is_empty() {
-        return Err("export requires csv|xmp and a path".into());
+        return Err("export requires csv|xmp|json and a path".into());
     }
     let object = object_dir(rest);
     let record = load(&object).map_err(|e| e.to_string())?;
-    let body = match fmt {
-        "csv" => to_csv(&object.display().to_string(), &record),
-        "xmp" => to_xmp(&record),
-        _ => return Err("export format must be csv or xmp".into()),
-    };
+    let body = render_export(fmt, rest, &object, &record)?;
     std::fs::write(path, body).map_err(|e| e.to_string())?;
     println!("exported {fmt} to {path}");
     Ok(0)
+}
+
+/// Merge XMP statements into `record`.
+fn apply_xmp(text: &str, record: &mut Record) -> Result<(), String> {
+    for s in from_xmp(text).statements {
+        record
+            .set(s.namespace, &s.term, s.value)
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+/// Merge interchange `text` in the requested format into `record`.
+fn apply_import(
+    fmt: &str,
+    text: &str,
+    rest: &[String],
+    object: &Path,
+    record: &mut Record,
+) -> Result<(), String> {
+    match fmt {
+        "csv" => apply_csv(text, record).map_err(|e| format!("{e:?}")),
+        "xmp" => apply_xmp(text, record),
+        "json" => {
+            let binding = read_json_binding(rest, object)?;
+            let target = JsonTarget {
+                object_id: &binding.object_id,
+                digest: &binding.digest,
+            };
+            apply_json(text, &target, record).map_err(|e| e.to_string())
+        }
+        _ => Err("import format must be csv, xmp or json".into()),
+    }
 }
 
 fn cmd_import(rest: &[String]) -> Result<i32, String> {
@@ -187,23 +274,12 @@ fn cmd_import(rest: &[String]) -> Result<i32, String> {
     let fmt = pos.first().copied().unwrap_or("");
     let path = pos.get(1).copied().unwrap_or("");
     if path.is_empty() {
-        return Err("import requires csv|xmp and a path".into());
+        return Err("import requires csv|xmp|json and a path".into());
     }
     let object = object_dir(rest);
     let text = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
     let mut record = load(&object).map_err(|e| e.to_string())?;
-    match fmt {
-        "csv" => apply_csv(&text, &mut record).map_err(|e| format!("{e:?}"))?,
-        "xmp" => {
-            let incoming = from_xmp(&text);
-            for s in incoming.statements {
-                record
-                    .set(s.namespace, &s.term, s.value)
-                    .map_err(|e| e.to_string())?;
-            }
-        }
-        _ => return Err("import format must be csv or xmp".into()),
-    }
+    apply_import(fmt, &text, rest, &object, &mut record)?;
     save(&object, &record).map_err(|e| e.to_string())?;
     println!("imported {fmt} from {path}");
     Ok(0)

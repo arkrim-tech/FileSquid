@@ -69,7 +69,7 @@ code{font-size:13px}
 <main>
 <h1>filesquid-metadata component diagram</h1>
 <p class="meta">Metadata module of FileSquid · <code>apps/filesquid/crates/metadata</code> · drawn against the code on <code>filesquid-product</code> · 2026-10-15</p>
-<p>filesquid-metadata is the <code>metadata</code> module of FileSquid for namespaced file metadata, and it is still installable on its own: it extracts embedded technical metadata and creates and edits Dublin Core and Schema.org description (ADRs 024, 029). FileSquid UIs reach it only through the one FileSquid API (<code>filesquid-api</code>, ADR 030), served by the <code>filesquid-desktop</code> and <code>filesquid-server</code> hosts. Its core works today: the <code>/terms/</code> register, CSV, the <code>metadata.md</code> codec and the CLI. Extraction is path-based, XMP is partial, and the pluggable stores, WASM build, JSON sidecar, API routes and the <code>&lt;fs-metadata-panel&gt;</code> custom element in <code>@filesquid/ui</code> are planned.</p>
+<p>filesquid-metadata is the <code>metadata</code> module of FileSquid for namespaced file metadata, and it is still installable on its own: it extracts embedded technical metadata and creates and edits Dublin Core and Schema.org description (ADRs 024, 029). FileSquid UIs reach it only through the one FileSquid API (<code>filesquid-api</code>, ADR 030), served by the <code>filesquid-desktop</code> and <code>filesquid-server</code> hosts. Its core works today: the <code>/terms/</code> register, CSV, the JSON sidecar, the <code>metadata.md</code> codec and the CLI. Extraction is path-based, XMP is partial, and the pluggable stores, WASM build, API routes and the <code>&lt;fs-metadata-panel&gt;</code> custom element in <code>@filesquid/ui</code> are planned.</p>
 <ul class="legend" aria-label="Legend">
 <li><span class="sw built"></span>Built · working code and tests</li>
 <li><span class="sw scaffold"></span>Scaffold · stub or partial</li>
@@ -120,16 +120,16 @@ code{font-size:13px}
 <text class="name" x="700" y="101">XMP sidecar</text>
 <text class="sub" x="700" y="119">dcterms only</text>
 </g>
-<g class="box planned">
+<g class="box built">
 <rect x="880" y="80" width="160" height="52" rx="6"/>
-<text class="badge" x="1032" y="95" text-anchor="end">PLANNED</text>
+<text class="badge" x="1032" y="95" text-anchor="end">BUILT</text>
 <text class="name" x="890" y="101">JSON sidecar</text>
-<text class="sub" x="890" y="119">Task 0.16</text>
+<text class="sub" x="890" y="119">objectId · SHA-256 bound</text>
 </g>
 <polyline class="edge" points="400,132 400,190" marker-end="url(#m1)"/>
 <polyline class="edge" points="605,132 605,190" marker-end="url(#m1)"/>
 <polyline class="edge" points="775,132 775,190" marker-end="url(#m1)"/>
-<polyline class="edge planned-edge" points="960,132 960,190" marker-end="url(#m1)"/>
+<polyline class="edge" points="960,132 960,190" marker-end="url(#m1)"/>
 <text class="elabel" x="408" y="166" text-anchor="start">set</text>
 <g class="box scaffold">
 <rect x="290" y="190" width="750" height="52" rx="6"/>
@@ -237,7 +237,7 @@ code{font-size:13px}
 <tr><td>Extract</td><td>file path → <code>std::fs</code> → EXIF, ID3 adapters → <code>Record::set</code> → <code>store::save</code> → <code>metadata.md</code></td><td>built (path-based); bytes and <code>FileRef</code> planned</td></tr>
 <tr><td>Author</td><td>CLI <code>set</code> → <code>parse_curie</code> (<code>dc:</code> → <code>dcterms:</code>) → register check → <code>Record::set</code> → <code>to_markdown</code> → <code>save</code></td><td>built</td></tr>
 <tr><td>Read</td><td><code>load</code> → <code>read_logical_file</code> → <code>from_markdown</code> → Record</td><td>built</td></tr>
-<tr><td>Import</td><td>CSV or XMP file → <code>apply_csv</code> or <code>from_xmp</code> → register checks → <code>save</code></td><td>CSV built, XMP partial, JSON planned</td></tr>
+<tr><td>Import</td><td>CSV, XMP or JSON sidecar file → <code>apply_csv</code>, <code>from_xmp</code> or <code>apply_json</code> (object identifier and SHA-256 digest checks) → register checks → <code>save</code></td><td>CSV and JSON built, XMP partial</td></tr>
 <tr><td>Rebuild an index</td><td><code>metadata.md</code> → any catalog; never the only copy</td><td>built (codec round trip)</td></tr>
 </tbody></table></div>
 <h2>Components and tasks</h2>
@@ -256,7 +256,7 @@ code{font-size:13px}
 <tr><td>WASM build, extraction from bytes and <code>FileRef</code></td><td>none</td><td><span class="tag planned">PLANNED</span></td><td><a href="./plan.md">MD-0.4</a></td><td>0.15</td><td>MD-S-009</td></tr>
 <tr><td><code>MetadataStore</code> trait with sidecar and ocfl stores</td><td>none</td><td><span class="tag planned">PLANNED</span></td><td><a href="./plan.md">MD-0.4</a></td><td>0.15</td><td>MD-S-003</td></tr>
 <tr><td>SQLite store and index</td><td>none</td><td><span class="tag planned">PLANNED</span></td><td>later</td><td>—</td><td>MD-S-003</td></tr>
-<tr><td>JSON sidecar (<code>export json</code>, <code>import json</code>)</td><td>none</td><td><span class="tag planned">PLANNED</span></td><td><a href="./plan.md">MD-0.5</a></td><td>0.16</td><td>MD-S-010</td></tr>
+<tr><td>JSON sidecar (<code>export json</code>, <code>import json</code>)</td><td><code>json.rs</code></td><td><span class="tag built">BUILT</span></td><td><a href="./plan.md">MD-0.5</a></td><td>0.16</td><td>MD-S-010</td></tr>
 <tr><td>Versioned persistence through the OCFL API</td><td>none</td><td><span class="tag planned">PLANNED</span></td><td><a href="./plan.md">MD-0.2</a></td><td>FS-1.3</td><td>MD-S-003, -008</td></tr>
 <tr><td>Properties through <code>filesquid-api</code>; <code>&lt;fs-metadata-panel&gt;</code> in <code>@filesquid/ui</code></td><td>none</td><td><span class="tag planned">PLANNED</span></td><td><a href="./plan.md">MD-0.6</a> (superseded by D4)</td><td>FS-1.3, FS-2.2</td><td>MD-S-011</td></tr>
 </tbody></table></div>

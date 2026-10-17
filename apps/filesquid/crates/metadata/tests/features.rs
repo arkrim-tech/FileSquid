@@ -412,7 +412,7 @@ fn forbidden_deps_absent(world: &mut MetadataWorld) {
     }
 }
 
-#[when("I run filesquid-metadata help")]
+#[when("I run fsquid metadata help")]
 fn run_help(world: &mut MetadataWorld) {
     let code = filesquid_metadata::cli::run(&["help".into()]).expect("help");
     assert_eq!(code, 0);

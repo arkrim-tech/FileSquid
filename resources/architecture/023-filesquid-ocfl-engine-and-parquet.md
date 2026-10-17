@@ -14,6 +14,8 @@ Accepted: 2026-09-25T22:00:00Z. Revised: 2026-09-25T23:00:00Z. Owner confirmed `
 
 Superseded in part 2026-10-15 by [ADR 029](./029-filesquid-unified-product-and-distributions.md): `filesquid-ocfl` is a module of FileSquid in this repository, not a separate product with its own repository; module independence and publication on its own remain, and the technical content is unchanged. The private-client layer planned as `apps/client` is now planned in `filesquid-api` ([filesquid-api plan](../../apps/filesquid/crates/api/resources/plan.md)). Amended by [ADR 032](./032-hosting-and-privacy-model.md): the crate MAY run in `filesquid-server`.
 
+Amended 2026-10-17 by [ADR 036](./036-single-fsquid-cli.md): every FileSquid CLI is the one `fsquid` binary built by `filesquid-cli`; this module's commands run there and the crate ships no binary of its own.
+
 ## Context / Requirement Reference
 
 [ADR 016](./016-rust-ocfl-library.md) already names `filesquid-ocfl` as FileSquid’s authored OCFL library. The crate is intended for use by institutions and other programs without FileSquid types, application catalogs, or UI nouns ([U-40](../product-vision.md#ocfl-module), [FE-069](../product-vision.md#independent-library), [C-044](../product-vision.md#module-rules)). FileSquid package releases MUST pin a corresponding `filesquid-ocfl` version ([T-040](../product-vision.md#canonical-ocfl-state-and-evidence)).

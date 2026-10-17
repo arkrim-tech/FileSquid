@@ -63,14 +63,14 @@ Cargo commands run from `apps/filesquid/` with `-p filesquid-server` (and `-p` f
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F3.1. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Do not Dockerize Tauri. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F3.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
 
 - [ ] **Task SV-F3.2: Multi-user load test**
-  - **Description:** k6 against `filesquid-server` for concurrent users browsing, previewing (Range reads) and uploading on a declared server profile. Disclose sizing. A test, not a capacity promise.
+  - **Description:** k6 against `filesquid-server` for concurrent users browsing, previewing (Range reads) and uploading on a declared server profile, plus warm browse and preview p95 and first useful folder view for the production UI build the server serves (deferred from UI-F3.1 by ADR 035). Disclose sizing. A test, not a capacity promise.
   - **Estimated Time:** 8 hours
   - **Dependencies:** SV-F3.1
   - **Related Requirements:** [NFR-002](../../../../../resources/prd.md#nfr-002-benchmark-envelope-and-responsiveness), [RC-002](../../../../../resources/prd.md#rc-002-performance-and-resource-bounds), FileSquid [U-11](../../../../../resources/product-vision.md#platform-ownership-and-access), [ADR 017](../../../../../resources/architecture/017-test-runners-and-reporting.md)
   - **Related Tests:** [`benchmark_envelope_and_responsiveness_NFR-002.feature`](../tests/features/benchmark_envelope_and_responsiveness_NFR-002.feature)
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F3.2. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Record sample sizes and percentiles. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F3.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
 
-## Phase F3: Optional OTLP export (global Task FS-3.6)
+## Phase F3R: Optional OTLP export (global Task FS-3.6; not in the macOS desktop MVP)
 
 - [ ] **Task SV-F3.3: Store-and-forward OTLP export and reference observability profile**
   - **Description:** OTLP exporter reading the activity journal through a persisted cursor (off by default; resumes after outages without loss) plus metrics export; tested against the Compose `observability` profile (VictoriaLogs OTLP ingestion, VictoriaMetrics scraping `/metrics`). No broker, collector or dashboard server ([ADR 033](../../../../../resources/architecture/033-activity-journal-and-live-health-monitoring.md)).
@@ -140,7 +140,7 @@ Cargo commands run from `apps/filesquid/` with `-p filesquid-server` (and `-p` f
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-0.5. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-0.5-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
 
 - [ ] **Task BE-0.6: Allure reporting and static SPA serving**
-  - **Status:** Dispatched by global Task 0.8 (phase F0); it applies to `filesquid-server`.
+  - **Status:** Dispatched by global Task FS-3.10 (phase F3R, after the macOS desktop MVP); it applies to `filesquid-server`.
   - **Description:** Allure/JUnit under `tests/allure-results/` (cleared before each run). Static file serving of the selected distribution UI (`FILESQUID_UI_DIR`) by `filesquid-server`, without rendering private metadata into HTML.
   - **Estimated Time:** 4 hours
   - **Dependencies:** Task BE-0.2

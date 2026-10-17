@@ -25,7 +25,7 @@ Product requirements remain in the [FileSquid vision](../product-vision.md); the
 | [017](./017-test-runners-and-reporting.md) | Accepted | cargo test, Vitest, Playwright; Allure under each app |
 | [018](./018-inline-docs-generators.md) | Accepted (revised 2026-10-15) | rustdoc for Rust; TSDoc comments in TypeScript built with Vite; no separate TS doc generator |
 | [019](./019-coding-style-and-lint.md) | Accepted | rustfmt, Clippy, ESLint, Prettier; cargo-deny later |
-| [020](./020-distribution-web-and-tauri.md) | Accepted; amended by 035 | Axum container/binary; Tauri installers later; updater out of scaffold |
+| [020](./020-distribution-web-and-tauri.md) | Accepted; amended by 035 | Axum container/binary; unsigned early-access macOS DMG for the MVP (035), signed Tauri installers later; updater out of scaffold |
 | [021](./021-uuid-v4-identifiers.md) | Accepted | RFC 4122/9562 UUID version 4 for newly generated domain IDs |
 | [022](./022-dublin-core-descriptive-metadata.md) | Accepted | ISO 15836-2 `/terms/` (`dcterms:`) for owner-authored descriptive metadata; Schema.org overflow |
 | [023](./023-filesquid-ocfl-engine-and-parquet.md) | Accepted; superseded in part by 029 | `filesquid-ocfl` is a stand-alone FOSS OCFL 1.1 product and its own tool; extractable to its own Git repository; FileSquid is a caller; later optional same-crate Parquet projection |

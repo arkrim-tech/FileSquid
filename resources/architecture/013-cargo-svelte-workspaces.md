@@ -36,7 +36,7 @@ No `mix.exs`, no Phoenix, no Python application backend, no language manifest at
 
 **Versions:** current stable **Rust** and **TypeScript** at first implementation, pinned in lockfiles (`Cargo.lock`, UI lockfile). This ADR does not freeze patch numbers. Minimum: a stable Rust toolchain that builds Tauri 2.
 
-Linux desktop + independent web are the first CI targets ([FE-017](../product-vision.md#cross-platform-access), [U-34](../product-vision.md#one-api-hosts-and-distributions)).
+Linux and the independent web are CI build-and-test targets from the start ([FE-017](../product-vision.md#cross-platform-access), [U-34](../product-vision.md#one-api-hosts-and-distributions)). CI coverage does not set the desktop release order: amended by [ADR 035](./035-macos-first-desktop-mvp.md), macOS is the first desktop install target, and the Linux and Windows desktop installers follow the MVP.
 
 ## Rationale
 

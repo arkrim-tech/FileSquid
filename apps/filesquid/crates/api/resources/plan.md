@@ -242,7 +242,7 @@ Cargo commands run from `apps/filesquid/` with `-p filesquid-api` (`cargo test -
   - **Related Tests:** [`virtual_exhibit_F-053.feature`](../../../ui/tests/features/virtual_exhibit_F-053.feature)
   - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task API-F2.6. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-api (module directory apps/filesquid/crates/api/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/api/resources/tasks/Task-API-F2.6-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/api/resources/plan.md. Then commit your changes and push the branch to origin.`
 
-## Phase F3: Versioned API contract (global Task FS-3.7)
+## Phase F3R: Versioned API contract (global Task FS-3.7, after the MVP)
 
 - [ ] **Task API-F3.1: Version and publish the API contract**
   - **Description:** Give `crates/api/openapi.json` a semver version, publish it as a release asset on every FileSquid release tag, and add a CI check that fails when a breaking change (removed route, removed or retyped field, narrowed enum) lands without a major version bump. A distribution in another repository pins a contract version and generates its types from it.

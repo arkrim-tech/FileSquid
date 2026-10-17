@@ -59,7 +59,7 @@ Shipping libraries inside per-OS installers is the cross-platform path: one shar
 
 ## Assumptions
 
-- libvips plus declared loaders cover JPEG, PNG, TIFF and WebP on the **desktop** Linux-first profiles, with HEIF/RAW behind explicit adapters. Desktop libvips TIFF (or any native decode) does **not** establish browser decoding; ADR 008 excludes that native pipeline from WASM. Browser viewing uses prepared, browser-decodable derivatives or a visible unsupported state.
+- libvips plus declared loaders cover JPEG, PNG, TIFF and WebP on the **desktop** profiles, macOS first (the MVP DMG, [ADR 035](./035-macos-first-desktop-mvp.md)) and then Linux and Windows, with HEIF/RAW behind explicit adapters. This coverage is unverified on every OS until the libvips worker tests ([DE-0.5](../../apps/filesquid/crates/desktop/resources/plan.md)) pass against the packaged loaders of that OS; the enabled loaders are recorded in a later implementation ADR. Desktop libvips TIFF (or any native decode) does **not** establish browser decoding; ADR 008 excludes that native pipeline from WASM. Browser viewing uses prepared, browser-decodable derivatives or a visible unsupported state.
 - Static or bundled linking of native deps is achievable in CI for each supported target; FFmpeg license/codec flags get their own ADR before video processing ships.
 - Unsupported formats remain preserved originals with a visible capability state.
 

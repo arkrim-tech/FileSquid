@@ -64,3 +64,84 @@ checked 146 documents: 0 link(s) cross the FileSquid/ImageSquid boundary
 ✅ Lint and test validation passed.
 ✅ All Pre-Commit Hooks Passed!
 ```
+
+## PR #5 review fixes
+
+Cubic review of PR #5 raised fourteen findings, all fixed. Each one aligned a document with ADR 035's macOS-first, desktop-only MVP:
+
+- **ADRs:** ADR 013 and ADR 020 separate CI build-and-test coverage (Linux and the independent web from the start) from the desktop release order (macOS first). ADR 020's installer bullet names the unsigned early-access macOS DMG for the MVP. ADR 006's loader-coverage assumption names macOS first and states that coverage is unverified on each OS until the DE-0.5 libvips worker tests pass there. The ADR index summary for ADR 020 distinguishes the MVP DMG from later signed installers.
+- **PRD:** F-037 has an MVP exception for the unsigned DMG without an updater. F-040's delivery order, RC-005's initial target, the Foundation gate profile and the release-gate note on sequencing are macOS-first; the Foundation gate validates the in-process desktop transport and leaves the HTTP binding to `filesquid-server` after the MVP.
+- **Architecture:** the CI/CD target stages mark signed distributables and staged update/rollback verification as post-MVP.
+- **Module plans:** phase headings match the global F3/F3R split. UI-F2.10, UI-F2.12 (FS-2.7) and UI-F2.13 (FS-2.6) are marked post-MVP. UI-F3.1 measures only the packaged macOS webview, and the server-served build measurement moves to SV-F3.2 (FS-3.13). UI-F3.2, API-F3.1, CP-0.7, the publish-crate phases (FS-3.3) and SV-F3.3 (FS-3.6) sit under F3R. BE-0.6's status names FS-3.10. The desktop Summary Timeline is 558 hours (550 unchecked).
+
+The ocfl plan's anchor link to its renamed F3R heading was updated.
+
+```text
+$ bash scripts/pre-commit.sh
+✅ Branch Validation passed.
+🔍 Validating ./apps/filesquid/ui (Vite)...
+✅ ./apps/filesquid/ui uniquely bound to 5173
+✅ ./apps/filesquid/ui uniquely bound to 4173
+🔍 Validating ./apps/imagesquid (Vite)...
+✅ ./apps/imagesquid uniquely bound to 5174
+✅ ./apps/imagesquid uniquely bound to 4174
+🔍 Validating filesquid-server (default bind)...
+✅ filesquid-server uniquely bound to 8083
+✅ Traceability Validation passed: 95 PRD requirements, 81 resolved SRS references.
+✅ Workspace Boundary validation passed.
+✅ Logging rule validation passed (no relevant staged files).
+🔍 Validating Rust formatting in ./apps/filesquid...
+✅ ./apps/filesquid is properly formatted.
+🔍 Validating Prettier formatting in ./apps/filesquid/ui...
+✅ ./apps/filesquid/ui is properly formatted.
+🔍 Validating Prettier formatting in ./apps/imagesquid...
+✅ ./apps/imagesquid is properly formatted.
+✅ Format validation passed.
+🔍 ADR structure (ISO 42010)...
+✅ ADR structure (ISO 42010) passed.
+🔍 PRD allocation...
+FileSquid: 259 vision IDs, 259 allocated, 129 allocation rows
+ImageSquid: 29 vision IDs, 29 allocated, 19 allocation rows
+OK: every vision ID is allocated
+✅ PRD allocation passed.
+🔍 Plan traceability...
+OK: every requirement is accounted for in a plan task
+✅ Plan traceability passed.
+🔍 Relative links and anchors...
+checked 140 Markdown files: 0 broken link(s)
+✅ Relative links and anchors passed.
+🔍 FileSquid and ImageSquid document boundary...
+checked 146 documents: 0 link(s) cross the FileSquid/ImageSquid boundary
+✅ FileSquid and ImageSquid document boundary passed.
+🔍 Task cleanup...
+✅ Task cleanup passed.
+✅ Documentation validation passed.
+🔍 Clippy (apps/filesquid)...
+✅ Clippy passed.
+🔍 Workspace tests (apps/filesquid)...
+✅ Workspace tests passed.
+🔍 Module crate alone: filesquid-core (apps/filesquid)...
+✅ Module crate alone: filesquid-core passed.
+🔍 Module crate alone: filesquid-ocfl (apps/filesquid)...
+✅ Module crate alone: filesquid-ocfl passed.
+🔍 Module crate alone: filesquid-metadata (apps/filesquid)...
+✅ Module crate alone: filesquid-metadata passed.
+🔍 Module crate alone: filesquid-api (apps/filesquid)...
+✅ Module crate alone: filesquid-api passed.
+🔍 Rustdoc (apps/filesquid)...
+✅ Rustdoc passed.
+🔍 ESLint (apps/filesquid/ui)...
+✅ ESLint passed.
+🔍 TypeScript (apps/filesquid/ui)...
+✅ TypeScript passed.
+🔍 Vitest (apps/filesquid/ui)...
+✅ Vitest passed.
+🔍 ESLint (apps/imagesquid)...
+✅ ESLint passed.
+🔍 TypeScript (apps/imagesquid)...
+✅ TypeScript passed.
+🔍 Vitest (apps/imagesquid)...
+✅ Vitest passed.
+✅ Lint and test validation passed.
+✅ All Pre-Commit Hooks Passed!
+```

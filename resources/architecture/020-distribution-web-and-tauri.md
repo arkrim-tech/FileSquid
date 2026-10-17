@@ -21,9 +21,9 @@ Amended 2026-10-17 by [ADR 035](./035-macos-first-desktop-mvp.md): macOS is the 
 ## Decision
 
 - The owner-operated server ships as an Axum binary and optional container (`apps/filesquid/crates/server/Dockerfile`, crate `filesquid-server`). The ciphertext-only `*.filesquid.tech` mailbox is a separate deployable ([ADR 032](./032-hosting-and-privacy-model.md)). Compose MAY run the server container; it MUST NOT containerize `apps/filesquid/crates/desktop`.
-- Desktop ships later as Tauri 2 installers (NSIS/MSI, dmg/app, AppImage/deb/rpm) after the installer legal review. `bundle.active` is **false** in the scaffold.
+- Desktop ships as Tauri 2 installers after the installer legal review. `bundle.active` is **false** in the scaffold. Amended by [ADR 035](./035-macos-first-desktop-mvp.md): the MVP installer is an unsigned, not-notarized macOS dmg/app labelled early access; NSIS/MSI and AppImage/deb/rpm follow the MVP, before the first consumer release.
 - The updater plugin is **out of scope** until a signing ADR exists.
-- Linux desktop and independent web are the first CI targets.
+- Linux and the independent web are CI build-and-test targets from the start. Amended by [ADR 035](./035-macos-first-desktop-mvp.md): this does not make Linux the first desktop target; macOS is.
 
 ## Rationale
 

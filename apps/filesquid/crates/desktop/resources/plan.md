@@ -403,5 +403,5 @@ Logs: stdout JSON ([DE-S-003](./srs.md)). Default: checkpoint-on-quit. `bundle.a
 
 ## Summary Timeline
 
-- **Total Estimated Time:** 550 hours (542 hours unchecked plus 8 hours for completed DE-F0.1; excluding superseded DE-D.1)
+- **Total Estimated Time:** 558 hours (550 hours unchecked plus 8 hours for completed DE-F0.1; excluding superseded DE-D.1)
 - **Critical Path:** custom URI scheme and transport → capabilities (WebdriverIO) → SQLite I/O → OCFL reconcile → jobs/workers → import/gallery → organize/export/C2PA → M-A → F-041 recorder → recipes → keys/vectors → hosted OCFL → installers and overlays → C-7 publication → Article 50 after hosted-protection readiness → performance

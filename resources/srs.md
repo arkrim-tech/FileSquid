@@ -784,6 +784,7 @@ The system MUST implement [PRD F-050](./prd.md#f-050-filesquid-platform-and-dist
 - Every distribution MUST reuse FileSquid through the FileSquid API. A distribution MUST NOT introduce a third application language or a backend of its own ([C-026](./product-vision.md#release-sequence)).
 - FileSquid MUST upload, store and give access to any file type. Unknown types MUST remain exact-byte preservable with disclosed interpretation limits. FileSquid MUST NOT promise a working viewer, editor or metadata mapper for every format, and a FileSquid release MUST NOT wait for one ([C-027](./product-vision.md#release-sequence), [FileSquid U-15](./product-vision.md#platform-ownership-and-access)).
 - The FileSquid default UI MUST use the internal names (repository, library, collection, virtual collection, virtual exhibit, file) ([SRS-F-049](#srs-f-049-product-component-terminology-and-item-type)).
+- Every FileSquid command-line tool MUST be invoked as `fsquid` ([C-057](./product-vision.md#module-rules), [ADR 036](./architecture/036-single-fsquid-cli.md)). The `filesquid-cli` crate (`apps/filesquid/crates/cli/`) MUST build the only `fsquid` binary, with every module's commands, by routing to each module library's command runner; no other workspace crate except the `filesquid-desktop` and `filesquid-server` hosts MAY declare a binary. Routing: `fsquid <command>` when exactly one module defines the command and it is not qualifier-only; `fsquid <module> <command>` always; `fsquid <module>` prints that module's help; `validate` is qualifier-only and `fsquid validate` MUST fail with exit code 2 and name the grouped forms. A test MUST fail when two modules define the same command name that is not qualifier-only, when a module name equals a command name, or when another CLI binary name is declared.
 - No crate or package under `apps/filesquid/` MAY import code from a distribution directory (for example `apps/imagesquid/`). `apps/filesquid/` MUST stay extractable to its own repository. Each distribution MUST be extractable to its own repository and MUST consume FileSquid only through the published API and UI package.
 
 **Source**
@@ -819,7 +820,7 @@ The system MUST implement [PRD F-051](./prd.md#f-051-ocfl-module) with the accep
 - Given a working state and a base version, the engine MUST compute the change set by digest (added, changed, renamed, deleted, reinstated) and MUST write only bytes whose digest is not already in the object's manifest.
 - Revert and reinstate MUST create a new version and MUST NOT modify earlier versions. Staging and checkout MUST NOT write inside the storage root.
 - Native builds, WebAssembly builds and every version-producing API operation MUST use this change model.
-- `fsquid` (stage, status, diff, commit, log, checkout, revert, reinstate, validate) MUST use only the public API.
+- The OCFL commands of `fsquid` (stage, status, diff, commit, log, checkout, revert, reinstate, list, cat, and `fsquid ocfl validate`) MUST use only the public API.
 
 **Placement and dependencies**
 - The crate MUST run natively in `filesquid-desktop` and `filesquid-server`, and MUST build for `wasm32-unknown-unknown` for the encrypted browser host. On the ciphertext-only `*.filesquid.tech` service it MUST NOT process private content. Browser storage MUST NOT be a canonical root ([C-053](./product-vision.md#module-rules)).
@@ -827,7 +828,7 @@ The system MUST implement [PRD F-051](./prd.md#f-051-ocfl-module) with the accep
 - The crate MUST NOT take a default dependency on another module crate. It MUST build and test alone (`cargo test -p filesquid-ocfl`) ([T-052](./product-vision.md#api-and-hosts)).
 
 **Independence and release**
-- `filesquid-ocfl` MUST stay installable and usable on its own as a FOSS library and CLI under the MIT license, without the FileSquid app. It MUST be independently publishable to crates.io without other FileSquid crates, and callers outside the workspace MUST pin published versions ([C-047](./product-vision.md#module-rules), [T-042](./product-vision.md#canonical-ocfl-state-and-evidence)).
+- `filesquid-ocfl` MUST stay installable and usable on its own as a FOSS library under the MIT license, with its commands in the `fsquid` CLI, without the FileSquid app. It MUST be independently publishable to crates.io without other FileSquid crates, and callers outside the workspace MUST pin published versions ([C-047](./product-vision.md#module-rules), [T-042](./product-vision.md#canonical-ocfl-state-and-evidence)).
 - FileSquid hosts MUST link the crate. They MUST NOT shell out to `fsquid` for canonical OCFL I/O ([T-043](./product-vision.md#canonical-ocfl-state-and-evidence)).
 - Each FileSquid packaged release MUST declare the exact `filesquid-ocfl` version in its lockfile and release notes ([T-040](./product-vision.md#canonical-ocfl-state-and-evidence)).
 
@@ -861,7 +862,7 @@ The system MUST implement [PRD F-052](./prd.md#f-052-metadata-module) with the a
 **Records and stores**
 - The canonical record MUST be `metadata.md`: YAML front matter grouped by namespace map (`dcterms:`, `exif:`, `schema:`, and one map per registered extension namespace) plus an optional Markdown body ([T-046](./product-vision.md#canonical-ocfl-state-and-evidence)).
 - Persistence MUST go through a pluggable store interface: `sidecar` (native only), `ocfl` (feature; native and WebAssembly; writes `metadata.md` through `filesquid-ocfl` so each edit is a new OCFL version), `sqlite` (feature, native only), or a caller's own store. The core MUST NOT depend on a particular store ([ADR 027](./architecture/027-filesquid-metadata-pluggable-stores.md)).
-- FileSquid, and therefore every distribution, MUST use the `ocfl` store as canonical. The crate MUST NOT reimplement OCFL layout or `vN` publication. FileSquid MUST NOT keep a parallel metadata extract or write path, and MUST NOT shell out to a metadata CLI for canonical writes ([C-048](./product-vision.md#module-rules)).
+- FileSquid, and therefore every distribution, MUST use the `ocfl` store as canonical. The crate MUST NOT reimplement OCFL layout or `vN` publication. FileSquid MUST NOT keep a parallel metadata extract or write path, and MUST NOT shell out to `fsquid` for canonical writes ([C-048](./product-vision.md#module-rules)).
 - An optional SQLite index MUST be rebuildable from the canonical store and MUST NOT be the only copy, except when the caller explicitly chooses the `sqlite` store. Other indexes (PostgreSQL, Elasticsearch) MUST also be rebuildable from `metadata.md`.
 
 **Interchange and CLI**
@@ -869,15 +870,15 @@ The system MUST implement [PRD F-052](./prd.md#f-052-metadata-module) with the a
 - XMP sidecar read/write MUST ship with CSV.
 - JSON sidecar import/export MUST ship with CSV and XMP: one UTF-8 JSON document per OCFL object that binds statements to the OCFL object identifier and the SHA-256 digest of the described logical file, exposed as `export json` and `import json`. Import MUST apply the `/terms/` register checks and MUST reject a sidecar whose digest does not match the target file. A JSON sidecar MUST NOT replace `metadata.md` as canonical.
 - Interchange MUST NOT include MODS or SQL ([C-049](./product-vision.md#module-rules)).
-- The crate MUST ship a native CLI with `extract`, `get`, `set`, `export`, `import`, and `validate`, usable without the FileSquid app ([T-045](./product-vision.md#canonical-ocfl-state-and-evidence)).
+- The crate's commands `extract`, `get`, `set`, `export`, `import` and `fsquid metadata validate` MUST be available in the native `fsquid` CLI, usable without the FileSquid app; the crate ships no binary of its own ([T-045](./product-vision.md#canonical-ocfl-state-and-evidence)).
 
 **Properties API and panel**
 - The module MUST provide a properties API: populated key/value rows with prefixes, and an Add property search across `/terms/`, then Schema.org, then registered extension namespaces, with an option to add a key in a declared custom namespace. FileSquid MUST expose it through the FileSquid API and present it in the Metadata panel ([SRS-F-055](#srs-f-055-default-ui-and-panel-composition), [SRS-F-046](#srs-f-046-media-metadata-inspection-correction-and-privacy-exports)).
 
 **Placement, dependencies and independence**
-- The crate MUST run natively in `filesquid-desktop` and `filesquid-server`, and MUST build for `wasm32-unknown-unknown`. Extract adapters MUST read bytes supplied by the store, not filesystem paths. The CLI and file-path helpers are native-only. On the ciphertext-only `*.filesquid.tech` service it MUST NOT be linked or process private content ([C-053](./product-vision.md#module-rules)).
+- The crate MUST run natively in `filesquid-desktop` and `filesquid-server`, and MUST build for `wasm32-unknown-unknown`. Extract adapters MUST read bytes supplied by the store, not filesystem paths. The `fsquid` command logic and file-path helpers are native-only. On the ciphertext-only `*.filesquid.tech` service it MUST NOT be linked or process private content ([C-053](./product-vision.md#module-rules)).
 - Default dependencies MUST exclude Axum, Tauri, SQLite, distributions and other module crates (except the optional `ocfl` store). Format extract adapters belong to this crate and MUST NOT pull native media processing. The crate MUST build and test alone ([T-052](./product-vision.md#api-and-hosts)).
-- `filesquid-metadata` MUST stay installable as a FOSS library and CLI under the MIT license, without the FileSquid app, and MUST be independently publishable to crates.io.
+- `filesquid-metadata` MUST stay installable as a FOSS library under the MIT license, with its commands in the `fsquid` CLI, without the FileSquid app, and MUST be independently publishable to crates.io.
 
 **Source**
 - [F-052](./prd.md#f-052-metadata-module)
@@ -933,7 +934,7 @@ The system MUST implement [PRD F-054](./prd.md#f-054-c2pa-module) with the accep
 **Placement, dependencies and independence**
 - The crate MUST run natively in `filesquid-desktop` and `filesquid-server`, and MUST build for `wasm32-unknown-unknown`. On the ciphertext-only `*.filesquid.tech` service it MUST NOT be linked or process private content ([C-053](./product-vision.md#module-rules), [C-054](./product-vision.md#module-rules)).
 - Default dependencies MUST exclude `filesquid-ocfl`, other FileSquid crates, distributions, Axum, Tauri, SQLite, libvips and FFmpeg. The crate MUST build and test alone ([T-052](./product-vision.md#api-and-hosts)).
-- It MUST ship a native CLI (`read`, `verify`, `sign`, `edit`, `embed`, `report`). It MUST stay usable without the FileSquid app under the MIT license and MUST be independently publishable to crates.io.
+- Its commands `read`, `verify`, `sign`, `edit`, `embed` and `report` MUST be available in the native `fsquid` CLI; the crate ships no binary of its own. It MUST stay usable without the FileSquid app under the MIT license and MUST be independently publishable to crates.io.
 - FileSquid MUST expose credential summaries and validation reports through the FileSquid API and present them in the Content Credentials panel ([SRS-F-055](#srs-f-055-default-ui-and-panel-composition)).
 
 **Source**

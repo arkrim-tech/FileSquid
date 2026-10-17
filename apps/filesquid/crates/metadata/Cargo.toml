@@ -1,0 +1,53 @@
+[package]
+name = "filesquid-metadata"
+version = "0.1.0"
+edition = "2021"
+description = "FileSquid metadata module: extract, CRUD and interchange with Dublin Core and Schema.org; OCFL store through filesquid-ocfl. Installable without the FileSquid app."
+license = "MIT"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+filesquid-ocfl = { path = "../ocfl" }
+id3 = "1"
+kamadak-exif = "0.5"
+thiserror = "2"
+
+[[bin]]
+name = "filesquid-metadata"
+path = "src/bin/filesquid-metadata.rs"
+
+[[test]]
+name = "unit_register"
+path = "tests/unit/register.rs"
+
+[[test]]
+name = "unit_isolation"
+path = "tests/unit/isolation.rs"
+
+[[test]]
+name = "unit_csv"
+path = "tests/unit/csv.rs"
+
+[[test]]
+name = "unit_cli"
+path = "tests/unit/cli.rs"
+
+[[test]]
+name = "unit_markdown"
+path = "tests/unit/markdown.rs"
+
+[[test]]
+name = "unit_store"
+path = "tests/unit/store.rs"
+
+[[test]]
+name = "features"
+path = "tests/features.rs"
+harness = false
+
+[dev-dependencies]
+cucumber = { version = "0.23", features = ["macros", "output-junit"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

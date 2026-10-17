@@ -1,0 +1,71 @@
+services:
+  # ----------------------------------------------------
+  # Distributed Datastores
+  # ----------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: dev_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - TZ=UTC
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./data/postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------
+  # FileSquid server host
+  # ----------------------------------------------------
+  filesquid-server:
+    build:
+      context: .
+      dockerfile: apps/filesquid/crates/server/Dockerfile
+    container_name: filesquid_server
+    environment:
+      - TZ=UTC
+      - FILESQUID_BIND=0.0.0.0:8083
+      - FILESQUID_UI_DIR=/srv/filesquid-ui
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ----------------------------------------------------
+  # Optional external telemetry sinks (ADR 033). FileSquid's own activity
+  # journal and Monitor dashboard are the core; these are opt-in:
+  #   docker compose --profile observability up -d
+  # ----------------------------------------------------
+  victorialogs:
+    image: victoriametrics/victoria-logs:v1.53.0
+    profiles: ["observability"]
+    environment:
+      - TZ=UTC
+    command:
+      - -storageDataPath=/victoria-logs-data
+      - -retentionPeriod=1y
+    ports:
+      - "127.0.0.1:9428:9428"
+    volumes:
+      - ./data/victorialogs_data:/victoria-logs-data
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.154.0
+    profiles: ["observability"]
+    environment:
+      - TZ=UTC
+    command:
+      - -storageDataPath=/victoria-metrics-data
+      - -retentionPeriod=1y
+      - -promscrape.config=/etc/victoriametrics/scrape.yml
+    ports:
+      - "127.0.0.1:8428:8428"
+    volumes:
+      - ./data/victoriametrics_data:/victoria-metrics-data
+      - ./config/victoriametrics/scrape.yml:/etc/victoriametrics/scrape.yml:ro

@@ -1,0 +1,6 @@
+{
+  "identifier": "default",
+  "description": "Main window: event listen/unlisten only. The FileSquid API is served through the filesquid:// scheme; there are no custom IPC commands. Deny-by-default for fs/shell/sql.",
+  "windows": ["main"],
+  "permissions": ["core:event:allow-listen", "core:event:allow-unlisten"]
+}

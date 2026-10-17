@@ -1,0 +1,9 @@
+# VictoriaMetrics scrape configuration (Prometheus file format) for the optional
+# observability profile. Scrapes filesquid-server's /metrics (ADR 033).
+scrape_configs:
+  - job_name: filesquid-server
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["filesquid-server:8083"]
+        labels:
+          app: filesquid-server

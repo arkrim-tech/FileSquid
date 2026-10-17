@@ -1,0 +1,127 @@
+# Architecture Decision Record - FileSquid
+
+030-filesquid-api-and-transports.md
+
+## Title
+
+One versioned FileSquid API owned by filesquid-api, served in-process on the desktop through a Tauri custom URI scheme and over HTTP on filesquid-server, with one event channel for push
+
+## Status
+
+Accepted
+
+Accepted: 2026-10-15, for the transport structure (HTTP resources plus one event channel, custom URI scheme on the desktop, Axum on the server), after transport spike S1; see **S1 results** under Related Decisions / Notes. S1 items (a) and (d) remain open gates, listed there. Proposed: 2026-10-15. It stayed Proposed until transport spike S1 (plan stage E) had run; S1 confirmed the working recommendation in Decision 4. Amends [ADR 002](./002-tauri2-desktop-shell.md) (the desktop still opens no TCP listener) and supersedes the per-engine view-API transport parts of [ADR 028](./028-filesquid-ui-packages-and-panel-composition.md) (Decisions 2 and 4).
+
+## Context / Requirement Reference
+
+FileSquid has one Rust backend and several plain HTML, CSS and TypeScript UIs ([ADR 029](./029-filesquid-unified-product-and-distributions.md), [ADR 031](./031-vanilla-typescript-ui-and-white-label-theming.md)). The UIs MUST reach every feature through one versioned API ([FE-074](../product-vision.md#platform-api-and-hosts), [U-16](../product-vision.md#one-api-hosts-and-distributions)). That API MUST be served by the desktop host and by `filesquid-server` ([FE-075](../product-vision.md#platform-api-and-hosts)), and later by an encrypted browser host ([ADR 032](./032-hosting-and-privacy-model.md)).
+
+Constraints:
+
+- The contract MUST be versioned, owned by `filesquid-api`, published in the repository, with generated TypeScript types and a drift test ([T-048](../product-vision.md#api-and-hosts)).
+- The desktop host MUST serve the API in-process without a TCP port, unless an ADR records otherwise ([T-049](../product-vision.md#api-and-hosts), [U-18](../product-vision.md#one-api-hosts-and-distributions), [FE-064](../product-vision.md#desktop-host-isolation), [ADR 002](./002-tauri2-desktop-shell.md)).
+- The API MUST provide an event channel. HTTP and WebSocket MUST be evaluated against previews and ranged reads, uploads, push, the no-TCP-port rule, and Service Worker interception for the browser host ([T-050](../product-vision.md#api-and-hosts), [U-17](../product-vision.md#one-api-hosts-and-distributions)).
+- `filesquid-server` is multi-user: it MUST authenticate users and enforce group and collection permissions on every call ([T-053](../product-vision.md#api-and-hosts), [U-06](../product-vision.md#platform-ownership-and-access)).
+
+Before this record, the desktop UI called Rust through Tauri IPC commands (`health_ping`), the Axum service exposed its own `/health` route, and ADR 028 planned a separate view API and client adapter per engine.
+
+## Decision
+
+**1. One API, owned by `filesquid-api`.** The crate `filesquid-api` (`apps/filesquid/crates/api/`) owns every route, request and response type, error, auth check and event type. Hosts mount it; they add no routes of their own except static UI files on `filesquid-server`. Paths are versioned under `/api/v1/`. The first route is `GET /api/v1/health`, which replaces the desktop `health_ping` command and the server's `/health` route. Modules expose Rust APIs only; they never define HTTP routes.
+
+**2. Contract.** The API contract is an **OpenAPI 3.1** document checked into `apps/filesquid/crates/api/`. TypeScript types for `@filesquid/ui` MUST be generated from it. A test MUST fail when the Rust routes, the OpenAPI document and the generated types drift. This is ADR 001's "versioned operation schemas, generated bindings" rule applied to the new boundary. The generator crates and npm packages are chosen at implementation and MUST be verified then (see Assumptions).
+
+**3. Transport-agnostic router.** `filesquid-api` exposes its routes as one `tower::Service` over `http::Request`/`http::Response`. It MUST NOT bind sockets or depend on Tauri. Each host adapts that one service:
+
+| Host | How the UI reaches the API | Base URL |
+|---|---|---|
+| `filesquid-desktop` (Tauri 2) | A custom URI scheme registered with `tauri::Builder::register_asynchronous_uri_scheme_protocol`. The handler passes each webview request to the router in-process. No TCP port is opened. | `filesquid://localhost/api/v1/...` on macOS, iOS and Linux; `http://filesquid.localhost/api/v1/...` on Windows and Android |
+| `filesquid-server` (Axum) | The router is mounted on an Axum `Router` and served over HTTP on a TCP port, next to the selected distribution's static UI files ([ADR 032](./032-hosting-and-privacy-model.md)) | Same origin as the UI (`/api/v1/...`) |
+| Encrypted browser host (roadmap) | The router compiled to WebAssembly, reached through a Service Worker or a worker plus a client shim ([ADR 032](./032-hosting-and-privacy-model.md)) | Same origin |
+
+**4. Transport evaluation and working recommendation.** These criteria come from existing requirements:
+
+| Criterion | HTTP resources | WebSocket only | HTTP + WebSocket events |
+|---|---|---|---|
+| `<img>` and `<video src>` previews, `Range` reads, browser caching ([U-11](../product-vision.md#platform-ownership-and-access)) | Native | Needs blob URLs; no `Range`, no HTTP cache | Native |
+| Streaming uploads of large originals | Native (chunked or multipart) | Binary frames; custom resume | Native |
+| Push: job progress, change notifications, multi-window refresh | Polling or server-sent events | Native | Native |
+| Desktop with no TCP port ([ADR 002](./002-tauri2-desktop-shell.md)) | Custom URI scheme works | Not possible without a loopback port | Requests through the custom scheme; events through a Tauri channel, behind one client interface |
+| Future encrypted browser host through a Service Worker | `fetch` is interceptable | Service Workers cannot intercept the WebSocket handshake | Requests interceptable; events need an in-page shim |
+| Server deployment behind proxies | Standard | Needs upgrade-aware proxy configuration | Both |
+
+Working recommendation, to be confirmed or overturned by S1:
+
+- **Requests and bytes** use the HTTP resource API on every host.
+- **Push** uses **one event channel**: a WebSocket at `GET /api/v1/events` on `filesquid-server` (Axum `ws` feature), and a `tauri::ipc::Channel` on the desktop.
+- The TypeScript client `FileSquidClient` in `@filesquid/ui` hides which transport answered. Its interface is `request()`, `read()`, `upload()` and `subscribe()`. Views MUST NOT call `fetch`, `WebSocket` or Tauri APIs directly.
+
+S1 MUST measure: (a) `Range` reads of a 100 MB file into `<img>` and `<video>` through the Tauri custom scheme on each desktop webview; (b) event push through a Tauri channel versus a loopback WebSocket guarded by a token; (c) WebSocket and HTTP on `filesquid-server`; (d) whether `EventSource` or streamed `fetch` answered by a Service Worker can carry events for the browser host. S1 MUST also measure a **loopback-port alternative** for the desktop (the same HTTP and WebSocket everywhere, guarded by a per-launch token). If that alternative wins, this ADR MUST say explicitly that it overturns ADR 002's no-local-server rule and T-049.
+
+**5. Authentication and authorisation.** Every call is authorised by `filesquid-api` before it touches files, SQL or keys, deny-by-default ([U-18](../product-vision.md#one-api-hosts-and-distributions)).
+
+- **Desktop:** one local owner. The host generates a per-launch token and gives it only to its own webviews. Requests without it are refused. Tauri capabilities stay deny-by-default ([ADR 002](./002-tauri2-desktop-shell.md)).
+- **`filesquid-server`:** multi-user from the start. Users authenticate. Users belong to groups. Libraries are owned by a user or a group, and access is granted per collection. Group membership MUST NOT grant ownership of another member's libraries, and billing administration MUST grant no access to private libraries ([U-06](../product-vision.md#platform-ownership-and-access)). The account store, session format and password or federated login choice are left to a later ADR.
+- The UI receives opaque handles, never raw filesystem paths or SQL.
+
+**6. Errors.** Every route returns typed errors defined in the contract. A failed request MUST NOT crash a host ([U-26](../product-vision.md#one-api-hosts-and-distributions)).
+
+## Rationale
+
+One router means one implementation of every feature and one place to test it. A `tower::Service` is the common interface Axum already uses, so the server host is a thin mount and the desktop host is a thin adapter.
+
+HTTP resources keep the browser's native handling of previews, `Range` requests, caching and uploads, which matter for collection-scale performance. A WebSocket-only API would rebuild all of that by hand, could not run on the desktop without a port, and could not be intercepted by a Service Worker. One event channel adds push where HTTP is weak. Hiding the transport in `FileSquidClient` keeps the choice reversible after S1.
+
+The custom URI scheme keeps ADR 002's privacy property (no listener another local process could reach) while letting the desktop UI use the same HTTP API as the server UI.
+
+## Assumptions
+
+Verified at writing (2026-10-15):
+
+- Tauri 2 provides `Builder::register_uri_scheme_protocol` and `Builder::register_asynchronous_uri_scheme_protocol`. Pages see `<scheme>://localhost/<path>` on macOS, iOS and Linux and `http://<scheme>.localhost/<path>` by default on Windows and Android, with an `https` option ([tauri 2.12.4 `Builder` docs](https://docs.rs/tauri/latest/tauri/struct.Builder.html)). The workspace currently pins `tauri` 2.11.5; the method is confirmed against the 2.12.4 docs, and the pinned version MUST be checked when the desktop handler is written.
+- `tauri::ipc::Channel` is "an IPC channel, used to stream values from Rust to the frontend" ([docs.rs](https://docs.rs/tauri/latest/tauri/ipc/struct.Channel.html)). Tauri documents channels as fast and ordered, and events as not designed for low latency or high throughput ([Calling the frontend from Rust](https://v2.tauri.app/develop/calling-frontend/)).
+- Axum WebSocket support is behind the crate feature `ws` (axum 0.8.9, [axum::extract::ws](https://docs.rs/axum/latest/axum/extract/ws/index.html)). The workspace uses axum 0.8 and tower 0.5.
+- The WebSocket opening handshake creates its request with service-workers mode "none", so a Service Worker never sees it ([WHATWG WebSockets, opening handshake](https://websockets.spec.whatwg.org/#websocket-opening-handshake)).
+- `EventSource` builds an ordinary fetch request without setting service-workers mode to "none" ([WHATWG HTML, server-sent events](https://html.spec.whatwg.org/multipage/server-sent-events.html)). Whether a Service Worker can usefully answer a long-lived event stream in every target browser is **not verified**; S1 item (d) measures it.
+
+Not yet verified:
+
+- Webview playback of `<video>` with `Range` requests answered by a custom scheme handler on WebKitGTK, WKWebView and WebView2. S1 item (a) measures it.
+- The OpenAPI generator crate and TypeScript generator. Candidates seen at writing are `utoipa` (crates.io 6.0.0) and `openapi-typescript` (npm 7.13.0). Neither is adopted by this record; the choice MUST be verified (`cargo search`, `npm info`) and recorded when the contract test is written.
+
+## Alternatives Considered
+
+- **Tauri IPC commands per feature (previous ADR 002 model):** A second API surface beside HTTP for the server, and no native `<img src>` or `Range` reads. Rejected.
+- **Per-engine view APIs and client adapters (ADR 028 Decisions 2 and 4):** Three contracts and three adapters per host. Rejected in favour of one API.
+- **WebSocket only:** Loses previews, `Range`, caching and Service Worker interception, and needs a loopback port on the desktop. Rejected unless S1 shows otherwise.
+- **Loopback HTTP server on the desktop with a per-launch token:** Same transport everywhere, but opens a port and breaks ADR 002. Kept as the S1 comparison, not adopted.
+- **GraphQL or gRPC-web:** Adds a second schema system and a runtime the browser does not need for file bytes. Rejected.
+
+## Consequences / Implications
+
+Easier: every UI and every host share one contract; adding a host means writing an adapter, not routes; the desktop and server UIs run the same code.
+
+Harder: `filesquid-api` needs a contract test and a code generator in CI; the desktop custom-scheme handler buffers each response body, so file-content endpoints MUST answer bounded, capped `Range` requests (S1 results); the event channel has two implementations (WebSocket and Tauri channel) behind one client interface; `filesquid-server` needs accounts, groups and collection permissions before multi-user release. The Origin differs per platform for custom schemes, so CORS and Content Security Policy settings MUST be tested on each OS.
+
+## Related Decisions / Notes
+
+- Amends: [ADR 002](./002-tauri2-desktop-shell.md). Supersedes in part: [ADR 028](./028-filesquid-ui-packages-and-panel-composition.md) (view-API transports). Applies the schema rule of [ADR 001](./001-shared-rust-core-with-tauri-and-axum-hosts.md).
+- Related: [ADR 029](./029-filesquid-unified-product-and-distributions.md), [ADR 031](./031-vanilla-typescript-ui-and-white-label-theming.md), [ADR 032](./032-hosting-and-privacy-model.md), [ADR 007](./007-durable-jobs-and-interactive-performance.md) (job progress events).
+- Requirements: [FE-074, FE-075](../product-vision.md#platform-api-and-hosts), [T-048–T-050, T-053](../product-vision.md#api-and-hosts), [U-16–U-18](../product-vision.md#one-api-hosts-and-distributions).
+- Open: S1 items (a) and (d), the generator choice, and the server account store.
+- PRD: [F-056](../prd.md#f-056-single-filesquid-api), [F-057](../prd.md#f-057-desktop-and-server-hosts).
+
+### S1 results (2026-10-15)
+
+Measured with automated tests in the `filesquid-product` branch (`apps/filesquid/crates/{api,server,desktop}/tests/`, `apps/filesquid/ui/tests/e2e/`):
+
+| S1 item | Result | Evidence |
+|---|---|---|
+| (c) HTTP and WebSocket on `filesquid-server` | **Pass.** `GET /api/v1/health` answers through Axum; a WebSocket client of `GET /api/v1/events` receives an event published on the API bus over a real TCP socket; static files answer `Range: bytes=0-99` with `206 Partial Content` and 100 bytes; unknown UI routes fall back to `index.html`. | `integration_health`, `integration_events`, `integration_static_ui`; Playwright `app.spec.ts` against the built UI served by the real server (3 tests, plus 2 for the ImageSquid distribution) |
+| Custom-scheme routing on the desktop | **Pass at the handler.** The same `filesquid_api::router` answers `filesquid://localhost/api/v1/health` and `http://filesquid.localhost/api/v1/health`; CORS is granted only to the app's own origins. | `filesquid-desktop` `integration_api_protocol` (6 tests) |
+| (b) Event push on the desktop | **Adopted: Tauri events.** API bus events are forwarded with `Emitter::emit` as `filesquid-event`; the UI subscribes through `@tauri-apps/api/event`. Latency was not benchmarked. A loopback WebSocket was not needed, so ADR 002's no-TCP-listener rule and T-049 stand. Tauri `ipc::Channel` remains the option if event throughput becomes a problem. | `crates/desktop/src/lib.rs`, `ui/src/api/host.ts` |
+| Custom-scheme response bodies | **Constraint found.** Tauri 2.12's `UriSchemeResponder::respond` takes a complete body (`Into<Cow<[u8]>>`), so desktop responses are buffered, not streamed. File-content endpoints MUST therefore answer `Range` requests with only the requested range and MUST cap range size, so memory stays bounded. | Tauri 2.12.4 source, `src/app.rs` |
+| (a) `<img>`/`<video>` `Range` playback through the custom scheme on WebKitGTK, WKWebView and WebView2 | **Open gate.** Not measured: it needs an interactive run of each desktop webview. It MUST pass before the F1 file-content endpoints are accepted. If it fails on a webview, the loopback-port alternative with a per-launch token is re-evaluated for media only, and this ADR is amended. | — |
+| (d) Service Worker answering `EventSource` or streamed `fetch` for the encrypted browser host | **Open gate.** Not measured. It MUST pass before the encrypted browser host (F5) is accepted; WebSocket cannot be intercepted by a Service Worker ([WHATWG WebSockets](https://websockets.spec.whatwg.org/#websocket-opening-handshake)). | — |
+| Contract and generated types | **Pass.** `crates/api/openapi.json` (OpenAPI 3.1) is the contract; `openapi-typescript` 7.13 generates `ui/src/api/schema.d.ts`; a Rust test fails if a documented path is not routed or the health schema drifts from `filesquid-core`, and a Vitest test fails if the generated types drift from the contract. | `unit_contract`, `ui/tests/unit/contract.test.ts` |
+

@@ -1,0 +1,366 @@
+<!doctype html>
+<!--
+  FileSquid promo splash page.
+  Single static page (HTML + inline CSS + inline JS) for GitHub Pages hosting from docs/.
+  Copy is drawn from the FileSquid and ImageSquid product visions in resources/ and
+  apps/imagesquid/resources/. No external scripts, fonts or trackers.
+-->
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FileSquid – Open-source, local-first file manager you own</title>
+  <meta name="description" content="FileSquid is a free, open-source, local-first file platform that keeps your files in an archival standard you own, with descriptions and provenance attached.">
+  <link rel="canonical" href="https://filesquid.tech/">
+  <!-- Icons: square mark-only SVG for modern browsers, ICO (16/32/48) fallback, 180px touch icon. -->
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" href="assets/FileSquid-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#16AC49">
+  <!-- Social previews: platforms do not render SVG, so og:image is a 1200x630 PNG. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FileSquid">
+  <meta property="og:url" content="https://filesquid.tech/">
+  <meta property="og:title" content="FileSquid – Open-source, local-first file manager you own">
+  <meta property="og:description" content="A free, open-source file platform that keeps your files in an archival standard you own, with descriptions and provenance attached.">
+  <meta property="og:image" content="https://filesquid.tech/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="FileSquid logo with the tagline: your files, private, preserved, traceable, portable">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- Structured data: the product and its publisher, for search engines. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://iona.ltd/#organization",
+        "name": "Iona Systems Ltd",
+        "url": "https://iona.ltd"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://filesquid.tech/#software",
+        "name": "FileSquid",
+        "url": "https://filesquid.tech/",
+        "description": "A free, open-source, local-first file platform that keeps your files in an archival standard you own, with descriptions and provenance attached.",
+        "image": "https://filesquid.tech/assets/og-image.png",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "license": "https://opensource.org/licenses/MIT",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "codeRepository": "https://github.com/arkrim-tech/FileSquid",
+        "sameAs": ["https://github.com/arkrim-tech/FileSquid"],
+        "publisher": { "@id": "https://iona.ltd/#organization" }
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* Design tokens: the four logo colours plus neutral ink and paper. */
+    :root {
+      --green: #16AC49;
+      --red: #FD1E23;
+      --yellow: #FCD805;
+      --blue: #007AF9;
+      --link: #0066D6; /* Darker blue for text links: 5.4:1 on white, 5.0:1 on --tint (WCAG AA). */
+      --ink: #111111;
+      --muted: #555555;
+      --paper: #FFFFFF;
+      --tint: #F5F6F4;
+      --line: #E3E5E1;
+      --radius: 14px;
+      --max: 1080px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--link); }
+
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+
+    /* Top bar */
+    .bar { position: sticky; top: 0; z-index: 10; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+    .bar .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .brand { font-weight: 800; letter-spacing: -0.02em; font-size: 1.15rem; color: var(--ink); text-decoration: none; }
+    .bar nav { display: flex; gap: 22px; }
+    .bar nav a { color: var(--muted); text-decoration: none; font-size: 0.95rem; }
+    .bar nav a:hover { color: var(--ink); }
+
+    /* Hero: the logo is transparent; the hero stays white so its black outlines read clearly. */
+    .hero { text-align: center; padding: 56px 0 72px; }
+    .hero img { width: min(440px, 86vw); height: auto; display: block; margin: 0 auto 8px; }
+    .hero h1 { font-size: clamp(1.9rem, 4.6vw, 3.1rem); line-height: 1.12; letter-spacing: -0.03em; margin: 0 auto 18px; max-width: 18ch; }
+    .rotator { display: inline-block; min-width: 6.5ch; text-align: left; transition: opacity 0.35s ease; }
+    .lede { font-size: 1.15rem; color: var(--muted); max-width: 60ch; margin: 0 auto 30px; }
+    .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-block; padding: 12px 22px; border-radius: 999px; font-weight: 600; text-decoration: none; border: 2px solid var(--ink); }
+    .btn.primary { background: var(--ink); color: var(--paper); }
+    .btn.ghost { color: var(--ink); }
+    .btn:hover { transform: translateY(-1px); }
+    .status { margin-top: 22px; font-size: 0.85rem; color: var(--muted); }
+
+    /* Sections */
+    section { padding: 72px 0; }
+    section.alt { background: var(--tint); }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); letter-spacing: -0.02em; margin: 0 0 12px; }
+    .kicker { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.78rem; font-weight: 700; color: var(--green); margin: 0 0 8px; }
+    .intro { color: var(--muted); max-width: 64ch; margin: 0 0 36px; }
+
+    /* Feature grid with logo-shape markers */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+    .card h3 { margin: 14px 0 6px; font-size: 1.1rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.97rem; }
+    .shape { width: 26px; height: 26px; display: block; }
+    .shape.square { background: var(--red); border-radius: 4px; }
+    .shape.circle { background: var(--blue); border-radius: 50%; }
+    .shape.triangle { width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 26px solid var(--yellow); }
+    .shape.half { background: var(--green); border-radius: 26px 26px 0 0; height: 14px; margin-top: 12px; }
+
+    /* Archive layers diagram */
+    .layers { display: grid; gap: 10px; max-width: 760px; }
+    .layer { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: var(--radius); background: var(--paper); border-left: 6px solid var(--c); }
+    .layer strong { min-width: 9.5rem; }
+    .layer span { color: var(--muted); font-size: 0.95rem; }
+
+    /* Distributions */
+    .dists { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .dist { border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+    .dist .when { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+    .dist h3 { margin: 6px 0; }
+    .dist p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    /* Promise band */
+    .promise { background: var(--ink); color: var(--paper); text-align: center; }
+    .promise h2 { font-size: clamp(1.6rem, 3.6vw, 2.5rem); }
+    .promise p { color: #CFCFCF; max-width: 62ch; margin: 0 auto; }
+    .dots { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .dots i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+
+    footer { padding: 28px 0 40px; color: var(--muted); font-size: 0.88rem; border-top: 1px solid var(--line); }
+    footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    footer a { color: inherit; }
+    footer .gh { display: flex; padding: 4px; margin: -4px; border-radius: 6px; }
+    footer .gh:hover { color: var(--ink); }
+
+    /* Scroll reveal; content stays visible when JS is off or motion is reduced. */
+    .js .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .js .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .js .reveal { opacity: 1; transform: none; transition: none; }
+      .rotator { transition: none; }
+    }
+
+    @media (max-width: 640px) {
+      .bar nav { display: none; }
+      .layer { flex-direction: column; align-items: flex-start; gap: 4px; }
+      section { padding: 56px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <div class="wrap">
+      <a class="brand" href="#top">FileSquid</a>
+      <nav aria-label="Sections">
+        <a href="#why">Why</a>
+        <a href="#how">How it works</a>
+        <a href="#family">Distributions</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <img src="assets/FileSquid-logo.svg" alt="FileSquid logo: a green squid whose tentacles reach into a red square, a yellow triangle and a blue circle" width="1327" height="1186" fetchpriority="high">
+        <!-- Static accessible name; the rotating word is decorative so screen readers are not re-announced every cycle. -->
+        <h1 aria-label="Your files. Private, preserved, traceable, portable.">Your files. <span class="rotator" id="rotator" aria-hidden="true">Private.</span></h1>
+        <p class="lede">A free, open-source file platform that keeps your files in an archival standard you own, with descriptions and provenance attached: on your own computer, on your own server, or in an encrypted cloud you can leave at any time.</p>
+        <div class="cta">
+          <a class="btn primary" href="#why">Why FileSquid</a>
+          <a class="btn ghost" href="#how">How it works</a>
+          <a class="btn ghost" href="https://github.com/arkrim-tech/FileSquid">View on GitHub</a>
+        </div>
+        <p class="status">In development. Open source under the MIT licence.</p>
+      </div>
+    </section>
+
+    <section id="why" class="alt">
+      <div class="wrap">
+        <p class="kicker">Why</p>
+        <h2 class="reveal">Leave any service and keep the whole story</h2>
+        <p class="intro reveal">Cloud drives hand back the bytes when you leave, not the versions, descriptions and sharing history. Archives keep that context, but they are built for institutions. FileSquid brings archival discipline to everyday files, without asking you to become an archivist or a system administrator.</p>
+        <div class="grid">
+          <article class="card reveal">
+            <span class="shape square" aria-hidden="true"></span>
+            <h3>Local-first and offline</h3>
+            <p>Your library lives on your machine and works without a connection. Optional hosting and sync add convenience, never dependence.</p>
+          </article>
+          <article class="card reveal">
+            <span class="shape triangle" aria-hidden="true"></span>
+            <h3>Full ownership</h3>
+            <p>Originals, edits, dates, descriptions, organisation and relationships stay together, so your files keep their meaning.</p>
+          </article>
+          <article class="card reveal">
+            <span class="shape circle" aria-hidden="true"></span>
+            <h3>Portable by design</h3>
+            <p>Move between providers, recover from mistakes, or stop using FileSquid altogether, without losing originals or the work you added.</p>
+          </article>
+          <article class="card reveal">
+            <span class="shape half" aria-hidden="true"></span>
+            <h3>Traceable provenance</h3>
+            <p>Every import starts a C2PA Content Credentials record, with a PROV-O audit trail of who did what, so files can show where they came from and whether AI was involved.</p>
+          </article>
+          <article class="card reveal">
+            <span class="shape square" aria-hidden="true"></span>
+            <h3>Your AI, your choice</h3>
+            <p>Connect a local model or your own provider account. You pick the model per task and pay the provider directly; backup never sees inference traffic.</p>
+          </article>
+          <article class="card reveal">
+            <span class="shape triangle" aria-hidden="true"></span>
+            <h3>Fast at any size</h3>
+            <p>Browsing, previews and search stay responsive in large libraries while imports, indexing and provenance scans run in the background.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="wrap">
+        <p class="kicker">How it works</p>
+        <h2 class="reveal">A familiar drive on top, an archive underneath</h2>
+        <p class="intro reveal">Folders, previews, a details sidebar, version history and sharing, like the cloud drives you know. Underneath, every file is stored the way archives store them, so the collection stays readable with ordinary file tools and can be rebuilt from disk if the app's indexes are ever lost.</p>
+        <div class="layers">
+          <div class="layer reveal" style="--c: var(--blue)"><strong><a href="https://ocfl.io/">OCFL</a> storage</strong><span>Versioned files and inventories in the Oxford Common File Layout, the archives' standard for keeping files on disk.</span></div>
+          <div class="layer reveal" style="--c: var(--yellow)"><strong><a href="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/">Dublin Core</a> metadata</strong><span>Descriptions in an ISO standard vocabulary, alongside the native EXIF and file facts.</span></div>
+          <div class="layer reveal" style="--c: var(--red)"><strong><a href="https://c2pa.org/specifications/">C2PA</a> + <a href="https://www.w3.org/TR/prov-o/">PROV-O</a></strong><span>Signed Content Credentials and a machine-readable history of every change.</span></div>
+          <div class="layer reveal" style="--c: var(--green)"><strong>Any host</strong><span>Desktop app on Windows, macOS and Linux, a server you run, or an encrypted browser host.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="family" class="alt">
+      <div class="wrap">
+        <p class="kicker">One platform, several faces</p>
+        <h2 class="reveal">Distributions share one open archive</h2>
+        <p class="intro reveal">Each distribution is a user interface over the same FileSquid API and modules. A library made in one opens in the others.</p>
+        <div class="dists">
+          <article class="dist reveal">
+            <span class="when">First</span>
+            <h3>FileSquid</h3>
+            <p>The platform and its Drive-style interface, with OCFL, metadata and C2PA.</p>
+          </article>
+          <article class="dist reveal">
+            <span class="when">Then</span>
+            <h3>Encrypted backup &amp; sync</h3>
+            <p>Hosted at <code>*.filesquid.tech</code>. The service stores ciphertext only and never holds your keys.</p>
+          </article>
+          <article class="dist reveal">
+            <span class="when">Second consumer release</span>
+            <h3><a href="https://imagesquid.app">ImageSquid</a></h3>
+            <p>A photo and video manager for reclaiming your memories from Apple, Google, Microsoft and social platforms.</p>
+          </article>
+          <article class="dist reveal">
+            <span class="when">Later</span>
+            <h3><a href="https://arkrim.tech">Arkrim</a></h3>
+            <p>A digital-archives interface for records management across documents, email, datasets and media.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="promise">
+      <div class="wrap">
+        <div class="dots" aria-hidden="true">
+          <i style="background: var(--red)"></i><i style="background: var(--yellow)"></i><i style="background: var(--blue)"></i><i style="background: var(--green)"></i>
+        </div>
+        <h2 class="reveal">Private, preserved, traceable, portable.</h2>
+        <p class="reveal">Leave a hosting provider, work offline, recover from mistakes, or leave FileSquid entirely, at any time, without losing your original files, enhancements or metadata. That is the rule the product is built around.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>&copy; <span id="year">2026</span> <a href="https://iona.ltd">Iona Systems Ltd</a></span>
+      <!-- GitHub mark (Octicons mark-github, MIT licence). -->
+      <a class="gh" href="https://github.com/arkrim-tech/filesquid/" aria-label="FileSquid on GitHub">
+        <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    /**
+     * Page behaviour: hero word rotation, scroll reveal and footer year.
+     * Pure presentation; the page is fully readable with JavaScript disabled.
+     */
+    (function () {
+      "use strict";
+
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      document.documentElement.classList.add("js");
+
+      /**
+       * Cycles the hero word through the four brand promises.
+       * @param {HTMLElement} el - The span whose text is replaced.
+       * @param {string[]} words - Words to show, in order.
+       * @returns {void}
+       */
+      function startRotator(el, words) {
+        var index = 0;
+        window.setInterval(function () {
+          index = (index + 1) % words.length;
+          el.style.opacity = "0";
+          window.setTimeout(function () {
+            el.textContent = words[index];
+            el.style.opacity = "1";
+          }, reduceMotion ? 0 : 350);
+        }, 2400);
+      }
+
+      /**
+       * Fades in elements marked .reveal as they enter the viewport.
+       * Falls back to showing everything when IntersectionObserver is unavailable.
+       * @param {NodeListOf<Element>} nodes - Elements to reveal.
+       * @returns {void}
+       */
+      function startReveal(nodes) {
+        if (!("IntersectionObserver" in window) || reduceMotion) {
+          nodes.forEach(function (n) { n.classList.add("in"); });
+          return;
+        }
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) { return; }
+            entry.target.classList.add("in");
+            observer.unobserve(entry.target);
+          });
+        }, { threshold: 0.15 });
+        nodes.forEach(function (n) { observer.observe(n); });
+      }
+
+      startRotator(document.getElementById("rotator"), ["Private.", "Preserved.", "Traceable.", "Portable."]);
+      startReveal(document.querySelectorAll(".reveal"));
+      document.getElementById("year").textContent = String(new Date().getFullYear());
+    })();
+  </script>
+</body>
+</html>

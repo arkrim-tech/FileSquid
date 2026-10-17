@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="272" height="112" viewBox="-2 -1.5 38 18" role="img" aria-labelledby="title desc">
+  <title id="title">ImageSquid origin chip — AI</title>
+  <desc id="desc">Frosted pill used on library provenance tiles for AI-origin media. Amber status dot and the two-letter label AI, matching the v4 gallery chip. Letterforms are outlined from JetBrains Mono Medium. Default non-hover state; does not include the Grok hover expansion.</desc>
+  <defs>
+    <filter id="chip-shadow" x="-30%" y="-40%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <g filter="url(#chip-shadow)">
+    <rect x="0" y="0" width="34" height="14" rx="7" fill="#F9F9FF"/>
+  </g>
+  <circle cx="9" cy="7" r="3" fill="#F59E0B"/>
+  <g fill="#1A1C23" aria-hidden="true">
+    <path d="M16.46 10.6 18.35 3.3H19.66L21.54 10.6H20.53L20.07 8.7H17.93L17.47 10.6ZM18.12 7.88H19.87L19.34 5.7Q19.2 5.1 19.11 4.68Q19.02 4.26 19 4.11Q18.98 4.26 18.89 4.68Q18.8 5.1 18.66 5.69Z"/>
+    <path d="M23.01 10.6V9.7H24.5V4.2H23.01V3.3H26.99V4.2H25.5V9.7H26.99V10.6Z"/>
+  </g>
+</svg>

@@ -1,0 +1,71 @@
+[package]
+name = "filesquid-core"
+version = "0.1.0"
+edition = "2021"
+description = "Portable FileSquid domain contracts: identifiers, files, collections, command/job/crypto/provenance types, and health. No HTTP, Tauri, codecs, or OCFL I/O."
+license = "MIT"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+cucumber = { version = "0.23", features = ["macros", "output-junit"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[[test]]
+name = "unit_ids"
+path = "tests/unit/ids.rs"
+
+[[test]]
+name = "unit_item"
+path = "tests/unit/item.rs"
+
+[[test]]
+name = "unit_file"
+path = "tests/unit/file.rs"
+
+[[test]]
+name = "unit_collection"
+path = "tests/unit/collection.rs"
+
+[[test]]
+name = "unit_health"
+path = "tests/unit/health.rs"
+
+[[test]]
+name = "unit_isolation"
+path = "tests/unit/isolation.rs"
+
+[[test]]
+name = "unit_library"
+path = "tests/unit/library.rs"
+
+[[test]]
+name = "unit_command"
+path = "tests/unit/command.rs"
+
+[[test]]
+name = "unit_job"
+path = "tests/unit/job.rs"
+
+[[test]]
+name = "unit_crypto"
+path = "tests/unit/crypto.rs"
+
+[[test]]
+name = "unit_provenance"
+path = "tests/unit/provenance.rs"
+
+[[test]]
+name = "unit_capability"
+path = "tests/unit/capability.rs"
+
+[[test]]
+name = "features"
+path = "tests/features.rs"
+harness = false

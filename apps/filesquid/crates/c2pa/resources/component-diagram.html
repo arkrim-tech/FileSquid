@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>filesquid-c2pa Components</title>
+<style>
+:root{--bg:#fbfbfa;--fg:#1d1f22;--muted:#626870;--panel:#f1f2f0;--line:#c9ccc8;
+--built:#1f7a4d;--built-bg:#e3f2ea;--runs:#1d6b8f;--runs-bg:#e2eff5;
+--scaf:#9a6400;--scaf-bg:#fbf0dc;--plan:#7a8088;--slot:#5b62c9;--actor-bg:#ffffff;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e7e8;--muted:#a1a6ad;
+--panel:#1d2024;--line:#3a3f45;--built:#5cc493;--built-bg:#183026;--runs:#6cb8de;--runs-bg:#172a33;
+--scaf:#e4ab4c;--scaf-bg:#33270f;--plan:#8f959c;--slot:#9da3ff;--actor-bg:#24282d;}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e7e8;--muted:#a1a6ad;--panel:#1d2024;--line:#3a3f45;
+--built:#5cc493;--built-bg:#183026;--runs:#6cb8de;--runs-bg:#172a33;--scaf:#e4ab4c;--scaf-bg:#33270f;
+--plan:#8f959c;--slot:#9da3ff;--actor-bg:#24282d;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,"Segoe UI",
+Roboto,sans-serif}
+main{max-width:1240px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:28px;margin:0 0 4px}h2{font-size:20px;margin:40px 0 8px}
+.meta{color:var(--muted);margin:0 0 20px}
+p{max-width:820px}
+a{color:inherit}
+figure{margin:16px 0 0;overflow-x:auto}
+figcaption{color:var(--muted);font-size:14px;max-width:880px;margin-top:8px}
+svg.diagram{width:100%;min-width:900px;height:auto;color:var(--fg);display:block}
+.panel{fill:var(--panel);stroke:var(--line)}
+.ptitle{font-size:15px;font-weight:700;fill:currentColor}
+.psub,.small{font-size:10.5px;fill:var(--muted)}
+.box rect{stroke-width:1.5}
+.built rect{fill:var(--built-bg);stroke:var(--built)}
+.runs rect{fill:var(--runs-bg);stroke:var(--runs)}
+.scaffold rect{fill:var(--scaf-bg);stroke:var(--scaf);stroke-dasharray:7 4}
+.planned rect{fill:var(--bg);stroke:var(--plan);stroke-dasharray:2 4}
+.actor rect{fill:var(--actor-bg);stroke:var(--fg);stroke-width:1}
+.badge{font-size:9px;font-weight:700;letter-spacing:.06em}
+.built .badge{fill:var(--built)}.runs .badge{fill:var(--runs)}
+.scaffold .badge{fill:var(--scaf)}.planned .badge{fill:var(--plan)}
+.name{font-size:13px;font-weight:650;fill:currentColor}
+.sub{font-size:10.5px;fill:var(--muted)}
+.edge{fill:none;stroke:currentColor;stroke-width:1.4}
+.planned-edge{stroke-dasharray:5 4}
+.elabel{font-size:10.5px;fill:currentColor}
+.note{font-size:12px;fill:var(--muted)}
+.group{fill:none;stroke:var(--line);stroke-dasharray:4 4}
+.slot{fill:none;stroke:var(--slot);stroke-width:1.5;stroke-dasharray:6 3}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin:8px 0 0;padding:0;list-style:none;font-size:14px}
+.legend li{display:flex;align-items:center;gap:8px}
+.sw{display:inline-block;width:28px;height:16px;border-radius:4px;border:1.5px solid}
+.sw.built{background:var(--built-bg);border-color:var(--built)}
+.sw.runs{background:var(--runs-bg);border-color:var(--runs)}
+.sw.scaffold{background:var(--scaf-bg);border-color:var(--scaf);border-style:dashed}
+.sw.planned{background:transparent;border-color:var(--plan);border-style:dotted}
+.sw.actor{background:var(--actor-bg);border-color:var(--fg);border-width:1px}
+.ln{display:inline-block;width:28px;border-top:1.5px solid var(--fg)}
+.ln.dash{border-top-style:dashed}
+table{border-collapse:collapse;width:100%;margin-top:8px;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}
+code{font-size:13px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.05em}
+.tag.built{color:var(--built)}.tag.runs{color:var(--runs)}.tag.scaffold{color:var(--scaf)}.tag.planned{color:var(--plan)}
+.table-wrap{overflow-x:auto}
+@media (max-width:640px){h1{font-size:23px}}
+</style>
+</head>
+<body>
+<main>
+<h1>filesquid-c2pa component diagram</h1>
+<p class="meta">C2PA module of FileSquid · <code>apps/filesquid/crates/c2pa</code> · drawn against the code on <code>filesquid-product</code> · 2026-10-15</p>
+<p>filesquid-c2pa is the <code>c2pa</code> module of FileSquid (renamed from <code>filesquid-provenance</code>, ADR 029): an engine that reads, validates, mints, edits and embeds Content Credentials, implemented from scratch in Rust and still publishable on its own (ADR 026). FileSquid UIs reach it only through the one FileSquid API (<code>filesquid-api</code>, ADR 030), served by the <code>filesquid-desktop</code> and <code>filesquid-server</code> hosts. Nothing is built yet: this directory holds the README, plan, SRS and feature file, and the crate is not a workspace member. The only C2PA code in the repository is the portable record types in <code>filesquid-core</code> (<code>provenance.rs</code>).</p>
+<ul class="legend" aria-label="Legend">
+<li><span class="sw built"></span>Built · working code and tests</li>
+<li><span class="sw scaffold"></span>Scaffold · stub or partial</li>
+<li><span class="sw planned"></span>Planned · documented, no code</li>
+<li><span class="sw actor"></span>Outside this engine</li>
+<li><span class="ln"></span>works today</li>
+<li><span class="ln dash"></span>planned interaction</li>
+</ul>
+<h2>Inside the engine</h2>
+<figure>
+<svg class="diagram" viewBox="0 0 1320 520" role="img" aria-label="filesquid-c2pa internals: format handlers, JUMBF parser, manifest store, validators and report for reading; builder, hard binding, COSE signing and embedding for minting; Rust API, CLI, view API routed by filesquid-api and the credentials panel in @filesquid/ui as surfaces; all planned."><defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+<rect class="panel" x="270" y="20" width="790" height="490" rx="10"/><text class="ptitle" x="290" y="47">filesquid-c2pa · Rust library</text><text class="psub" x="1040" y="47" text-anchor="end">all planned · Tasks 0.17, 0.18, 2.6</text>
+<text class="small" x="20" y="62" text-anchor="start">Callers</text>
+<g class="box actor"><rect x="20" y="80" width="220" height="52" rx="6"/>
+<text class="name" x="30" y="101">filesquid-api</text>
+<text class="sub" x="30" y="119">desktop and server hosts</text>
+</g>
+<g class="box actor"><rect x="20" y="150" width="220" height="52" rx="6"/>
+<text class="name" x="30" y="171">Other apps</text>
+<text class="sub" x="30" y="189">browser, edge, capture tools</text>
+</g>
+<g class="box actor"><rect x="20" y="220" width="220" height="52" rx="6"/>
+<text class="name" x="30" y="241">Archives and scripts</text>
+<text class="sub" x="30" y="259">batch verify and report</text>
+</g>
+<line class="edge planned-edge" x1="240" y1="106" x2="255" y2="106"/>
+<line class="edge planned-edge" x1="240" y1="176" x2="255" y2="176"/>
+<line class="edge planned-edge" x1="240" y1="246" x2="255" y2="246"/>
+<polyline class="edge planned-edge" points="255,106 255,365 290,365" marker-end="url(#c1)"/>
+<text class="elabel" x="247" y="300" text-anchor="end">Rust API / CLI</text>
+<g class="box built">
+<rect x="20" y="340" width="220" height="52" rx="6"/>
+<text class="badge" x="232" y="355" text-anchor="end">BUILT</text>
+<text class="name" x="30" y="361">filesquid-core types</text>
+<text class="sub" x="30" y="379">C2paImportRecord, status</text>
+</g>
+<polyline class="edge planned-edge" points="290,380 240,380" marker-end="url(#c1)"/>
+<text class="elabel" x="247" y="410" text-anchor="end">mapped by filesquid-api</text>
+<text class="small" x="290" y="70" text-anchor="start">Read and validate</text>
+<g class="box planned">
+<rect x="290" y="80" width="130" height="52" rx="6"/>
+
+<text class="name" x="300" y="101">Format handlers</text>
+<text class="sub" x="300" y="119">JPEG APP11, PNG caBX</text>
+</g>
+<g class="box planned">
+<rect x="450" y="80" width="120" height="52" rx="6"/>
+
+<text class="name" x="460" y="101">JUMBF parser</text>
+<text class="sub" x="460" y="119">superbox, desc box</text>
+</g>
+<g class="box planned">
+<rect x="600" y="80" width="140" height="52" rx="6"/>
+
+<text class="name" x="610" y="101">Manifest store</text>
+<text class="sub" x="610" y="119">claims, CBOR assertions</text>
+</g>
+<g class="box planned">
+<rect x="770" y="80" width="130" height="100" rx="6"/>
+
+<text class="name" x="780" y="101">Validators</text>
+<text class="sub" x="780" y="119">hard-binding hashes</text>
+</g>
+<text class="sub" x="780" y="135" text-anchor="start">COSE_Sign1 signature</text>
+<text class="sub" x="780" y="151" text-anchor="start">X.509 chain, RFC 3161</text>
+<text class="sub" x="780" y="167" text-anchor="start">revocation, ingredients</text>
+<g class="box planned">
+<rect x="930" y="80" width="110" height="52" rx="6"/>
+
+<text class="name" x="940" y="101">Report</text>
+<text class="sub" x="940" y="119">status codes</text>
+</g>
+<polyline class="edge planned-edge" points="420,106 450,106" marker-end="url(#c1)"/>
+<polyline class="edge planned-edge" points="570,106 600,106" marker-end="url(#c1)"/>
+<polyline class="edge planned-edge" points="740,106 770,106" marker-end="url(#c1)"/>
+<polyline class="edge planned-edge" points="900,106 930,106" marker-end="url(#c1)"/>
+<text class="small" x="290" y="220" text-anchor="start">Mint, sign and embed</text>
+<g class="box planned">
+<rect x="290" y="230" width="150" height="52" rx="6"/>
+
+<text class="name" x="300" y="251">Manifest builder</text>
+<text class="sub" x="300" y="269">actions, ingredients, AI</text>
+</g>
+<g class="box planned">
+<rect x="470" y="230" width="120" height="52" rx="6"/>
+
+<text class="name" x="480" y="251">Hard binding</text>
+<text class="sub" x="480" y="269">hash asset bytes</text>
+</g>
+<g class="box planned">
+<rect x="620" y="230" width="140" height="52" rx="6"/>
+
+<text class="name" x="630" y="251">COSE_Sign1</text>
+<text class="sub" x="630" y="269">via caller Signer</text>
+</g>
+<g class="box planned">
+<rect x="790" y="230" width="250" height="52" rx="6"/>
+
+<text class="name" x="800" y="251">Embed or sidecar</text>
+<text class="sub" x="800" y="269">JPEG/PNG manifest · .c2pa sidecar</text>
+</g>
+<polyline class="edge planned-edge" points="440,256 470,256" marker-end="url(#c1)"/>
+<polyline class="edge planned-edge" points="590,256 620,256" marker-end="url(#c1)"/>
+<polyline class="edge planned-edge" points="760,256 790,256" marker-end="url(#c1)"/>
+<text class="note" x="290" y="316" text-anchor="start">Edit writes a new manifest with the prior asset as parent ingredient; never in place.</text>
+<g class="box planned">
+<rect x="290" y="330" width="170" height="60" rx="6"/>
+
+<text class="small" x="300" y="346">filesquid_c2pa</text>
+<text class="name" x="300" y="365">Rust API</text>
+<text class="sub" x="300" y="381">read, validate, mint, edit</text>
+</g>
+<g class="box planned">
+<rect x="490" y="330" width="170" height="60" rx="6"/>
+
+<text class="small" x="500" y="346">native only</text>
+<text class="name" x="500" y="365">CLI</text>
+<text class="sub" x="500" y="381">read, verify, sign, embed</text>
+</g>
+<g class="box planned">
+<rect x="690" y="330" width="140" height="60" rx="6"/>
+
+<text class="small" x="700" y="346">via filesquid-api</text>
+<text class="name" x="700" y="365">View API</text>
+<text class="sub" x="700" y="381">summary + report</text>
+</g>
+<g class="box planned">
+<rect x="880" y="330" width="160" height="60" rx="6"/>
+
+<text class="small" x="890" y="346">@filesquid/ui</text>
+<text class="name" x="890" y="365">fs-credentials-panel</text>
+<text class="sub" x="890" y="381">Content Credentials panel</text>
+</g>
+<polyline class="edge planned-edge" points="830,360 880,360" marker-end="url(#c1)"/>
+<text class="elabel" x="855" y="354" text-anchor="middle">renders</text>
+<g class="box planned">
+<rect x="290" y="430" width="340" height="52" rx="6"/>
+
+<text class="name" x="300" y="451">Crypto backend trait</text>
+<text class="sub" x="300" y="469">established crates · never hand-rolled</text>
+</g>
+<g class="box planned">
+<rect x="660" y="430" width="380" height="52" rx="6"/>
+
+<text class="name" x="670" y="451">Byte source / sink · fetcher</text>
+<text class="sub" x="670" y="469">async, caller-provided · no std::fs or network in core</text>
+</g>
+<text class="small" x="1090" y="62" text-anchor="start">Supplied by the caller</text>
+<g class="box actor"><rect x="1090" y="80" width="210" height="52" rx="6"/>
+<text class="name" x="1100" y="101">Trust lists</text>
+<text class="sub" x="1100" y="119">no implicit trust store</text>
+</g>
+<polyline class="edge planned-edge" points="1090,96 1070,96 1070,70 835,70 835,80" marker-end="url(#c1)"/>
+<text class="elabel" x="952" y="64" text-anchor="middle">trust anchors</text>
+<g class="box actor"><rect x="1090" y="150" width="210" height="52" rx="6"/>
+<text class="name" x="1100" y="171">Remote refs, OCSP</text>
+<text class="sub" x="1100" y="189">reached through the fetcher</text>
+</g>
+<polyline class="edge planned-edge" points="1090,170 900,170" marker-end="url(#c1)"/>
+<text class="elabel" x="995" y="164" text-anchor="middle">fetches</text>
+<g class="box actor"><rect x="1090" y="230" width="210" height="52" rx="6"/>
+<text class="name" x="1100" y="251">Signer · HSM · TSA</text>
+<text class="sub" x="1100" y="269">local key, hardware or remote</text>
+</g>
+<polyline class="edge planned-edge" points="1090,270 1075,270 1075,300 690,300 690,282" marker-end="url(#c1)"/>
+<text class="elabel" x="885" y="296" text-anchor="middle">signs the claim</text>
+<g class="box actor"><rect x="1090" y="430" width="210" height="52" rx="6"/>
+<text class="name" x="1100" y="451">Official c2pa · c2patool</text>
+<text class="sub" x="1100" y="469">CI oracle only, never runtime</text>
+</g></svg>
+<figcaption>Reading runs left to right: a format handler locates the manifest, the JUMBF parser and manifest store model decode it, and the validators check bindings, signatures, certificate chains against the caller's trust lists, timestamps, revocation and ingredients before producing a report with spec status codes. Minting builds a claim, binds it to the asset hash, signs it only through a caller-supplied Signer, and embeds it or writes a sidecar. The engine has no file system, network or trust store of its own.</figcaption>
+</figure>
+<h2>How FileSquid uses it</h2>
+<figure>
+<svg class="diagram" viewBox="0 0 1320 270" role="img" aria-label="How FileSquid uses filesquid-c2pa: filesquid-api reads bytes through filesquid-ocfl, validates or mints with filesquid-c2pa, stores the manifest back as a new OCFL version, and maps the report to filesquid-core types."><defs><marker id="c2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+<g class="box scaffold">
+<rect x="40" y="60" width="240" height="60" rx="6"/>
+<text class="badge" x="272" y="94" text-anchor="end">SCAFFOLD</text>
+<text class="small" x="50" y="76">filesquid-</text>
+<text class="name" x="50" y="95">ocfl</text>
+<text class="sub" x="50" y="111">asset bytes, sidecars, versions</text>
+</g>
+<g class="box planned">
+<rect x="540" y="60" width="240" height="60" rx="6"/>
+<text class="badge" x="772" y="75" text-anchor="end">PLANNED</text>
+<text class="small" x="550" y="76">filesquid-</text>
+<text class="name" x="550" y="95">api</text>
+<text class="sub" x="550" y="111">routes, jobs · desktop and server</text>
+</g>
+<g class="box planned">
+<rect x="1040" y="60" width="240" height="60" rx="6"/>
+<text class="badge" x="1272" y="94" text-anchor="end">PLANNED</text>
+<text class="small" x="1050" y="76">filesquid-</text>
+<text class="name" x="1050" y="95">c2pa</text>
+<text class="sub" x="1050" y="111">validate · mint · embed</text>
+</g>
+<polyline class="edge planned-edge" points="280,80 540,80" marker-end="url(#c2)"/>
+<text class="elabel" x="410" y="74" text-anchor="middle">1 · reads asset bytes</text>
+<polyline class="edge planned-edge" points="780,80 1040,80" marker-end="url(#c2)"/>
+<text class="elabel" x="910" y="74" text-anchor="middle">2 · validate or mint</text>
+<polyline class="edge planned-edge" points="1040,104 780,104" marker-end="url(#c2)"/>
+<text class="elabel" x="910" y="120" text-anchor="middle">3 · report or signed bytes</text>
+<polyline class="edge planned-edge" points="540,104 280,104" marker-end="url(#c2)"/>
+<text class="elabel" x="410" y="120" text-anchor="middle">4 · stores manifest as a new version</text>
+<g class="box built">
+<rect x="540" y="190" width="240" height="52" rx="6"/>
+<text class="badge" x="772" y="205" text-anchor="end">BUILT</text>
+<text class="name" x="550" y="211">filesquid-core types</text>
+<text class="sub" x="550" y="229">C2paImportRecord, ProvOSidecar</text>
+</g>
+<polyline class="edge planned-edge" points="660,120 660,190" marker-end="url(#c2)"/>
+<text class="elabel" x="668" y="160" text-anchor="start">5 · maps report</text>
+<g class="box planned">
+<rect x="1040" y="190" width="240" height="60" rx="6"/>
+<text class="badge" x="1272" y="205" text-anchor="end">PLANNED</text>
+<text class="small" x="1050" y="206">@filesquid/ui</text>
+<text class="name" x="1050" y="225">fs-credentials-panel</text>
+<text class="sub" x="1050" y="241">sidebar slot · ImageSquid C2PA tab</text>
+</g>
+<polyline class="edge planned-edge" points="1160,120 1160,190" marker-end="url(#c2)"/>
+<text class="elabel" x="1168" y="160" text-anchor="start">via the API</text>
+<text class="note" x="40" y="214" text-anchor="start">No dependency between filesquid-c2pa and filesquid-ocfl:</text>
+<text class="note" x="40" y="232" text-anchor="start">filesquid-api moves the bytes. *.filesquid.tech never links a module.</text></svg>
+<figcaption>The module and filesquid-ocfl never depend on each other. <code>filesquid-api</code>, linked by both hosts, reads asset bytes from OCFL, hands them to filesquid-c2pa, stores any new manifest or sidecar back as a new OCFL version, and maps the report to the record types in <code>filesquid-core</code>. The <code>&lt;fs-credentials-panel&gt;</code> custom element in <code>@filesquid/ui</code> fills the default UI's sidebar slot and the ImageSquid inspector's C2PA tab. The ciphertext-only <code>*.filesquid.tech</code> service never links the module.</figcaption>
+</figure>
+<h2>Components and tasks</h2>
+<div class="table-wrap"><table><thead><tr><th>Component</th><th>Module task</th><th>Global task</th><th>Status</th><th>Requirements</th></tr></thead><tbody>
+<tr><td>Scaffold, isolation tests, byte source/sink and fetcher traits</td><td><a href="./plan.md">CP-0.1</a></td><td>0.17</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-008</td></tr>
+<tr><td>Crypto backend trait (established crates)</td><td><a href="./plan.md">CP-0.1</a></td><td>0.17</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-006</td></tr>
+<tr><td>wasm32 build in CI</td><td><a href="./plan.md">CP-0.1</a></td><td>0.17</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-009</td></tr>
+<tr><td>JUMBF parser and manifest store model</td><td><a href="./plan.md">CP-0.2</a></td><td>0.17</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-001</td></tr>
+<tr><td>Format handlers (JPEG, PNG) and hard-binding validation</td><td><a href="./plan.md">CP-0.3</a></td><td>0.17</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-002, -005</td></tr>
+<tr><td>COSE_Sign1, X.509 chain, RFC 3161, revocation</td><td><a href="./plan.md">CP-0.4</a></td><td>0.17</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-002</td></tr>
+<tr><td>Validation report; CLI <code>read</code>, <code>verify</code></td><td><a href="./plan.md">CP-0.5</a></td><td>0.17</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-002, -010</td></tr>
+<tr><td>Manifest builder (actions, ingredients, AI assertions)</td><td><a href="./plan.md">CP-0.6</a></td><td>0.18</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-003</td></tr>
+<tr><td>Signer trait, COSE signing, embed and sidecar; CLI <code>sign</code>, <code>embed</code></td><td><a href="./plan.md">CP-0.7</a></td><td>0.18</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-003</td></tr>
+<tr><td>Credentials panel <code>&lt;fs-credentials-panel&gt;</code> in <code>@filesquid/ui</code></td><td><a href="./plan.md">CP-0.8</a> (superseded by D4)</td><td>FS-2.2</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-012</td></tr>
+<tr><td>Credentials through <code>filesquid-api</code> (summary and validation report)</td><td>ADR 030</td><td>FS-1.3</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-012</td></tr>
+<tr><td>Edit with parent ingredient, redaction; CLI <code>edit</code></td><td><a href="./plan.md">CP-2.1</a></td><td>2.6</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-004</td></tr>
+<tr><td>More formats (HEIF/AVIF, BMFF, WebP, TIFF/DNG)</td><td><a href="./plan.md">CP-2.2</a></td><td>2.6</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-005</td></tr>
+<tr><td>Bounded, resumable scan; CLI <code>report</code></td><td><a href="./plan.md">CP-2.3</a></td><td>2.6</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-002</td></tr>
+<tr><td>PROV-O JSON-LD projection (feature, off by default)</td><td><a href="./plan.md">CP-2.4</a></td><td>2.6</td><td><span class="tag planned">PLANNED</span></td><td>C2PA-S-011</td></tr>
+</tbody></table></div>
+<h2>Dependencies</h2>
+<div class="table-wrap"><table><thead><tr><th>Allowed</th><th>Never in default dependencies</th></tr></thead><tbody>
+<tr><td>Established crypto crates behind the backend trait; caller-supplied trust lists, Signer, byte sources and sinks, fetcher</td><td><code>filesquid-ocfl</code>, <code>filesquid-core</code>, <code>filesquid-api</code>, any distribution, Axum, Tauri, SQLite, libvips, FFmpeg, the official <code>c2pa</code> crate at runtime, <code>std::fs</code> or a network client in the core</td></tr>
+</tbody></table></div>
+<h2>Sources</h2>
+<p><a href="./srs.md">SRS</a> · <a href="./plan.md">plan</a> · <a href="../../../../../resources/product-vision.md#c2pa-module">FileSquid vision (C2PA module)</a> · <a href="../tests/features/reusable_provenance_engine_F-054.feature">F-054 scenarios</a> · ADRs <a href="../../../../../resources/architecture/015-prov-o-jsonld-and-c2pa-sdk.md">015</a>, <a href="../../../../../resources/architecture/025-client-side-filesquid-engines.md">025</a>, <a href="../../../../../resources/architecture/026-filesquid-provenance-engine.md">026</a>, <a href="../../../../../resources/architecture/028-filesquid-ui-packages-and-panel-composition.md">028</a>, <a href="../../../../../resources/architecture/029-filesquid-unified-product-and-distributions.md">029</a>, <a href="../../../../../resources/architecture/030-filesquid-api-and-transports.md">030</a> · <a href="../../../../../resources/architecture/component-diagram.html">FileSquid system diagram</a> · <a href="../README.md">README</a></p>
+</main>
+</body>
+</html>

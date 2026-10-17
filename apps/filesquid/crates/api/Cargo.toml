@@ -1,0 +1,78 @@
+[package]
+name = "filesquid-api"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "The single FileSquid API: versioned contract, transport-agnostic router and event bus shared by every FileSquid host."
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[features]
+default = ["sqlite"]
+# SQLite journal store (native hosts). Off for a future WebAssembly build.
+sqlite = ["dep:rusqlite"]
+
+[dependencies]
+axum = "0.8"
+filesquid-core = { path = "../core" }
+fs4 = "1"
+getrandom = "0.4"
+rusqlite = { version = "0.40", features = ["bundled"], optional = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+time = { version = "0.3", features = ["formatting", "parsing", "macros"] }
+tokio = { version = "1", features = ["sync", "rt"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", default-features = false, features = ["registry"] }
+
+[dev-dependencies]
+cucumber = { version = "0.23", features = ["macros", "output-junit"] }
+http-body-util = "0.1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+rusqlite = { version = "0.40", features = ["bundled"] }
+tower = { version = "0.5", features = ["util"] }
+
+[[test]]
+name = "unit_health"
+path = "tests/unit/health.rs"
+
+[[test]]
+name = "unit_contract"
+path = "tests/unit/contract.rs"
+
+[[test]]
+name = "unit_events"
+path = "tests/unit/events.rs"
+
+[[test]]
+name = "unit_journal"
+path = "tests/unit/journal.rs"
+required-features = ["sqlite"]
+
+[[test]]
+name = "unit_writer"
+path = "tests/unit/writer.rs"
+
+[[test]]
+name = "unit_registry"
+path = "tests/unit/registry.rs"
+
+[[test]]
+name = "unit_health_rules"
+path = "tests/unit/health_rules.rs"
+
+[[test]]
+name = "unit_metrics"
+path = "tests/unit/metrics.rs"
+
+[[test]]
+name = "unit_admin"
+path = "tests/unit/admin.rs"
+
+[[test]]
+name = "features"
+path = "tests/features.rs"
+required-features = ["sqlite"]
+harness = false

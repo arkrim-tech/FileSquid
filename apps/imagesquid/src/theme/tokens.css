@@ -1,0 +1,51 @@
+/*
+ * ImageSquid design tokens. Light values follow the current ImageSquid screenshots
+ * (apps/imagesquid/resources/ui-mockups/imagesquid-ui-mockups/): white canvas, cool grey sidebar,
+ * navy primary action ("Edit"), pale blue secondary ("Select"). Dark values are derived.
+ */
+:root {
+  --fs-surface: #ffffff;
+  --fs-surface-container: #f4f5f7;
+  --fs-on-surface: #1c1f24;
+  --fs-on-surface-variant: #5f6670;
+  --fs-outline: #e2e5ea;
+  --fs-primary: #1d3f73;
+  --fs-on-primary: #ffffff;
+  --fs-primary-container: #dce8fb;
+  --fs-on-primary-container: #0b4fae;
+  --fs-error: #b42318;
+  --fs-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fs-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --fs-radius: 10px;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --fs-surface: #121418;
+  --fs-surface-container: #1b1e24;
+  --fs-on-surface: #e6e8ec;
+  --fs-on-surface-variant: #a6adb8;
+  --fs-outline: #2c3038;
+  --fs-primary: #9cc0ff;
+  --fs-on-primary: #0b2a57;
+  --fs-primary-container: #24406b;
+  --fs-on-primary-container: #d6e4ff;
+  --fs-error: #ffb4ab;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fs-surface: #121418;
+    --fs-surface-container: #1b1e24;
+    --fs-on-surface: #e6e8ec;
+    --fs-on-surface-variant: #a6adb8;
+    --fs-outline: #2c3038;
+    --fs-primary: #9cc0ff;
+    --fs-on-primary: #0b2a57;
+    --fs-primary-container: #24406b;
+    --fs-on-primary-container: #d6e4ff;
+    --fs-error: #ffb4ab;
+    color-scheme: dark;
+  }
+}

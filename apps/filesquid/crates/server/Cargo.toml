@@ -1,0 +1,50 @@
+[package]
+name = "filesquid-server"
+version = "0.1.0"
+edition.workspace = true
+description = "FileSquid server host: serves the FileSquid API and a distribution UI over HTTP (Axum)."
+license.workspace = true
+publish = false
+
+[lib]
+name = "filesquid_server"
+path = "src/lib.rs"
+
+[[bin]]
+name = "filesquid-server"
+path = "src/main.rs"
+
+[dependencies]
+axum = { version = "0.8", features = ["ws"] }
+filesquid-api = { path = "../api" }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal", "time", "sync"] }
+tower-http = { version = "0.6", features = ["fs", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+
+[dev-dependencies]
+futures-util = "0.3"
+http-body-util = "0.1"
+tokio-tungstenite = "0.30"
+tower = { version = "0.5", features = ["util"] }
+
+[[test]]
+name = "unit_health"
+path = "tests/unit/health.rs"
+
+[[test]]
+name = "integration_health"
+path = "tests/integration/health.rs"
+
+[[test]]
+name = "integration_static_ui"
+path = "tests/integration/static_ui.rs"
+
+[[test]]
+name = "integration_events"
+path = "tests/integration/events.rs"
+
+[[test]]
+name = "integration_monitor"
+path = "tests/integration/monitor.rs"

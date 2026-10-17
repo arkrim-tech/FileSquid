@@ -1,0 +1,16 @@
+# FileSquid Cargo workspace. Product-local: the repository root has no Cargo.toml.
+# Each module crate MUST build and test on its own (`cargo test -p <crate>`).
+[workspace]
+resolver = "2"
+members = [
+    "crates/core",
+    "crates/api",
+    "crates/ocfl",
+    "crates/metadata",
+    "crates/server",
+    "crates/desktop",
+]
+
+[workspace.package]
+edition = "2021"
+license = "MIT"

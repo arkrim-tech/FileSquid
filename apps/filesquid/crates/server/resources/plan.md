@@ -1,0 +1,250 @@
+# Implementation Plan: server (`filesquid-server` and the ciphertext-only hosted service)
+
+This module plans two deployment types that MUST keep separate dependency graphs ([ADR 032](../../../../../resources/architecture/032-hosting-and-privacy-model.md)):
+
+1. **`filesquid-server`** (`SV` rows): the owner-operated, multi-user Axum host. It mounts the `filesquid-api` router, serves the selected distribution's static UI from `FILESQUID_UI_DIR`, keeps accounts, groups and sessions in PostgreSQL, and stores files in a local or S3-compatible OCFL root. Its operator can read the files it stores; the UI MUST say so ([FileSquid U-20](../../../../../resources/product-vision.md#one-api-hosts-and-distributions)).
+2. **The ciphertext-only hosted service at `*.filesquid.tech`** (`BE` rows, formerly the Axum mailbox): paid encrypted backup and sync. It stores and relays ciphertext only, authorises keys, fences OCFL head publication and records receipts. It MUST NOT depend on `filesquid_ocfl`, `filesquid_metadata`, `filesquid_c2pa`, the `filesquid-api` read paths over private plaintext, libvips or FFmpeg, MUST NOT parse OCFL and MUST NOT hold library keys ([BE-S-004](./srs.md), [TC-005](../../../../../resources/prd.md#tc-005-shared-rust-graph-hosted-mailbox-isolation-and-ocfl-writer), [T-054](../../../../../resources/product-vision.md#api-and-hosts)). Its binary and dependency-graph gate are created by SV-F4.1; Cargo features MUST NOT be the only boundary.
+
+Cargo commands run from `apps/filesquid/` with `-p filesquid-server` (and `-p` for the hosted-service crate once SV-F4.1 creates it). Default bind `FILESQUID_BIND=127.0.0.1:8083`. Logs unbuffered JSON on stdout. Promtail MUST NOT be the collector ([ADR 014](../../../../../resources/architecture/014-stdout-observability.md)). Static UI files only; MUST NOT server-render private pages. Do not Dockerize Tauri from this module. Global sequence: [implementation-plan.md](../../../../../resources/implementation-plan.md).
+
+## Phase F0: `filesquid-server` host (global Task FS-0.0)
+
+- [x] **Task SV-F0.1: Mount the API router and serve the selected UI**
+  - **Description:** Mount the `filesquid-api` router on Axum (`GET /api/v1/health` replaces `/health`) and serve the configured UI directory (`FILESQUID_UI_DIR`) as static files. Keep `/metrics` and unbuffered stdout JSON logs. Integration test boots the server on an ephemeral port and checks `/api/v1/health` and `index.html`.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** API-F0.1
+  - **Related Requirements:** [F-057](../../../../../resources/prd.md#f-057-desktop-and-server-hosts), [BE-S-001](./srs.md), [SV-S-002](./srs.md), FileSquid [U-19](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [ADR 030](../../../../../resources/architecture/030-filesquid-api-and-transports.md)
+  - **Related Tests:** [`health.feature`](../tests/features/health.feature), [`health.rs`](../tests/integration/health.rs)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F0.1. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Execute every documented command before writing it into a README. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F0.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase F1: Multi-user host (global Tasks FS-1.1, FS-1.2, FS-1.4, FS-2.5)
+
+- [ ] **Task SV-F1.1: HTTP and event-channel transport**
+  - **Description:** Serve the API over HTTP plus the event channel chosen by ADR 030 (WebSocket by default), proxy-safe, with `Range` support for content reads and streaming uploads. Clients reread durable state after a disconnect; no correctness depends on receiving every event.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** SV-F0.1, API-F1.2
+  - **Related Requirements:** [F-056](../../../../../resources/prd.md#f-056-single-filesquid-api), [F-057](../../../../../resources/prd.md#f-057-desktop-and-server-hosts), FileSquid [U-17](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [T-050](../../../../../resources/product-vision.md#api-and-hosts), [ADR 030](../../../../../resources/architecture/030-filesquid-api-and-transports.md)
+  - **Related Tests:** [`open_interfaces_and_product_exit_F-038.feature`](../tests/features/open_interfaces_and_product_exit_F-038.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F1.1. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests on an ephemeral port for Range reads, a streamed upload and an event subscription. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F1.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task SV-F1.2: Accounts, groups, sessions and collection permissions**
+  - **Description:** PostgreSQL (SQLx migrations) for users, groups, sessions, personal and group-owned libraries and collection-level permissions. Operational data only; canonical file state stays in OCFL. `filesquid-api` checks permissions on every call (API-F1.7). Group membership MUST NOT grant ownership of personal libraries. RFC 3339 UTC timestamps.
+  - **Estimated Time:** 20 hours
+  - **Dependencies:** SV-F0.1
+  - **Related Requirements:** [F-057](../../../../../resources/prd.md#f-057-desktop-and-server-hosts), [F-034](../../../../../resources/prd.md#f-034-family-accounts-and-shared-libraries), [SV-S-001](./srs.md), FileSquid [U-06](../../../../../resources/product-vision.md#platform-ownership-and-access), [T-053](../../../../../resources/product-vision.md#api-and-hosts), [ADR 005](../../../../../resources/architecture/005-sqlite-local-postgres-hosted.md)
+  - **Related Tests:** [`security_and_privacy_NFR-004.feature`](../tests/features/security_and_privacy_NFR-004.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F1.2. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests against PostgreSQL with two users and two groups. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F1.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task SV-F1.3: Storage root configuration**
+  - **Description:** Configure the server's OCFL storage root: local filesystem or S3-compatible (MinIO-tested), injected into `filesquid-ocfl` as a storage backend. Operational files and staging stay outside the root. The root MUST stay readable with ordinary tools and rebuildable without the database.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** SV-F0.1, global Task 0.4
+  - **Related Requirements:** [F-042](../../../../../resources/prd.md#f-042-ocfl-preservation-and-portable-recovery), [SV-S-003](./srs.md), [SV-S-007](./srs.md), FileSquid [U-03](../../../../../resources/product-vision.md#platform-ownership-and-access), [U-19](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [ADR 012](../../../../../resources/architecture/012-s3-compatible-ciphertext-storage.md)
+  - **Related Tests:** [`preservation_and_transactional_integrity_NFR-001.feature`](../tests/features/preservation_and_transactional_integrity_NFR-001.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F1.3. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests against a real directory and an S3-compatible fixture. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F1.3-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task SV-F1.4: Shares, roles, links, ownership transfer and administrator switches**
+  - **Description:** Share records (file, logical-path prefix or collection; user, group, team or public link; role viewer, commenter or editor; re-share flag; link password hash and expiry) evaluated deny-by-default with collection permissions on every call; public-link delivery with the outgoing metadata policy, journaled downloads, expiry and revocation; internal links that grant nothing; who-has-access listing and the shares view; offer-and-accept ownership transfer with a pending state; per-server administrator switches for public links, re-sharing and download, journaled and reported to the UI; billing administrators get no share or read access.
+  - **Estimated Time:** 24 hours
+  - **Dependencies:** SV-F1.2
+  - **Related Requirements:** [F-066](../../../../../resources/prd.md#f-066-file-and-folder-sharing-roles-links-and-shares-view), [SRS-F-066](../../../../../resources/srs.md#srs-f-066-file-and-folder-sharing-roles-links-and-shares-view), [SV-S-005](./srs.md), [SV-S-006](./srs.md), [F-057](../../../../../resources/prd.md#f-057-desktop-and-server-hosts), FileSquid [U-06](../../../../../resources/product-vision.md#platform-ownership-and-access)
+  - **Related Tests:** [`file_and_folder_sharing_F-066.feature`](../tests/features/file_and_folder_sharing_F-066.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F1.4. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write failing authorisation tests first: every role boundary, deny-by-default, expired and revoked links, and each administrator switch. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F1.4-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+
+## Phase F3: Release-1 container and performance (global Tasks FS-3.2, FS-3.4)
+
+- [ ] **Task SV-F3.1: Container image and Compose service**
+  - **Description:** Container image and root Compose service `filesquid-server`, serving the selected distribution's UI, with operator documentation (storage root, PostgreSQL, TLS termination at a proxy, backups, upgrades). Every documented command is executed first.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** SV-F1.2, SV-F1.3
+  - **Related Requirements:** [F-057](../../../../../resources/prd.md#f-057-desktop-and-server-hosts), [SV-S-004](./srs.md), [NFR-008](../../../../../resources/prd.md#nfr-008-maintainability-and-verified-engineering), [ADR 020](../../../../../resources/architecture/020-distribution-web-and-tauri.md)
+  - **Related Tests:** [`health.feature`](../tests/features/health.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F3.1. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Do not Dockerize Tauri. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F3.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task SV-F3.2: Multi-user load test**
+  - **Description:** k6 against `filesquid-server` for concurrent users browsing, previewing (Range reads) and uploading on a declared server profile. Disclose sizing. A test, not a capacity promise.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** SV-F3.1
+  - **Related Requirements:** [NFR-002](../../../../../resources/prd.md#nfr-002-benchmark-envelope-and-responsiveness), [RC-002](../../../../../resources/prd.md#rc-002-performance-and-resource-bounds), FileSquid [U-11](../../../../../resources/product-vision.md#platform-ownership-and-access), [ADR 017](../../../../../resources/architecture/017-test-runners-and-reporting.md)
+  - **Related Tests:** [`benchmark_envelope_and_responsiveness_NFR-002.feature`](../tests/features/benchmark_envelope_and_responsiveness_NFR-002.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F3.2. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Record sample sizes and percentiles. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F3.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase F3: Optional OTLP export (global Task FS-3.6)
+
+- [ ] **Task SV-F3.3: Store-and-forward OTLP export and reference observability profile**
+  - **Description:** OTLP exporter reading the activity journal through a persisted cursor (off by default; resumes after outages without loss) plus metrics export; tested against the Compose `observability` profile (VictoriaLogs OTLP ingestion, VictoriaMetrics scraping `/metrics`). No broker, collector or dashboard server ([ADR 033](../../../../../resources/architecture/033-activity-journal-and-live-health-monitoring.md)).
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** SV-F3.1, API-F2.1
+  - **Related Requirements:** [F-061](../../../../../resources/prd.md#f-061-activity-journal-and-live-health-monitoring), [FE-081](../../../../../resources/product-vision.md#platform-api-and-hosts), [T-056](../../../../../resources/product-vision.md#api-and-hosts)
+
+## Phase F4: Ciphertext-only hosted service binary (global Task FS-4.1)
+
+- [ ] **Task SV-F4.1: Hosted-service binary and dependency-graph gate**
+  - **Description:** Create the ciphertext-only hosted-service crate and binary for `*.filesquid.tech`, separate from `filesquid-server`, depending on `filesquid-core` hosted-safe types only. CI MUST fail if a module crate that processes private plaintext, `filesquid-api` read paths, libvips or FFmpeg enters its dependency graph; Cargo features are not the boundary. Hosted Tokio runtimes MUST NOT run blocking native media work. The BE rows below build on this binary.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** global Task FS-3.5
+  - **Related Requirements:** [F-059](../../../../../resources/prd.md#f-059-hosted-encrypted-backup-and-sync-service), [BE-S-004](./srs.md), FileSquid [U-30](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [U-31](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [U-32](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [T-054](../../../../../resources/product-vision.md#api-and-hosts), [ADR 004](../../../../../resources/architecture/004-axum-hosted-ciphertext-mailbox.md), [ADR 032](../../../../../resources/architecture/032-hosting-and-privacy-model.md)
+  - **Related Tests:** [`shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature`](../tests/features/shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F4.1. Then begin development, running Cargo from apps/filesquid/ with -p for the new hosted-service crate. Confirm the crate name in ADR 032 or record it there before adding Cargo.toml. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F4.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task SV-F4.2: `*.filesquid.tech` deployment**
+  - **Description:** Per-tenant isolation (one opaque prefix per user root), quotas, retention and cancellation windows, runbooks and redacted stdout observability for the hosted service. Named provider and geography stay later ADRs.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** SV-F4.1, Task BE-5.2
+  - **Related Requirements:** [F-059](../../../../../resources/prd.md#f-059-hosted-encrypted-backup-and-sync-service), [NFR-005](../../../../../resources/prd.md#nfr-005-recovery-and-service-reliability), [NFR-009](../../../../../resources/prd.md#nfr-009-observability-and-capacity-economics), FileSquid [U-12](../../../../../resources/product-vision.md#platform-ownership-and-access), [U-21](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [ADR 012](../../../../../resources/architecture/012-s3-compatible-ciphertext-storage.md), [ADR 014](../../../../../resources/architecture/014-stdout-observability.md)
+  - **Related Tests:** [`recovery_and_service_reliability_NFR-005.feature`](../tests/features/recovery_and_service_reliability_NFR-005.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task SV-F4.2. Then begin development, running Cargo from apps/filesquid/ with -p for the hosted-service crate. Invent no SLA. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-SV-F4.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase F4: Hosted-service isolation and operational foundation (global Task 0.6; BE-0.6 in global Task 0.8)
+
+- [ ] **Task BE-0.1: Isolation gate**
+  - **Status:** Re-scoped: the gate applies to the ciphertext-only hosted-service binary (SV-F4.1). `filesquid-server` links `filesquid-api` and the modules by design.
+  - **Description:** Tests against the hosted-service crate (not `filesquid-server`) that fail if its dependency graph includes `filesquid-ocfl`, `filesquid-metadata`, `filesquid-c2pa`, `filesquid-api` read paths over private plaintext, libvips, or FFmpeg. Keep hosted-safe modules only (envelopes, opaque IDs, job protocol, ciphertext transport). Extends the SV-F4.1 graph gate.
+  - **Estimated Time:** 3 hours
+  - **Dependencies:** Task SV-F4.1
+  - **Related Requirements:** [BE-S-004](./srs.md), [TC-005](../../../../../resources/prd.md#tc-005-shared-rust-graph-hosted-mailbox-isolation-and-ocfl-writer), [SRS-TC-005](../../../../../resources/srs.md#srs-tc-005-shared-rust-graph-hosted-mailbox-isolation-and-ocfl-writer), [ADR 004](../../../../../resources/architecture/004-axum-hosted-ciphertext-mailbox.md)
+  - **Related Tests:** [`shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature`](../tests/features/shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-0.1. Then begin development, running Cargo from apps/filesquid/ with -p for the hosted-service crate created by SV-F4.1 (not filesquid-server). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-0.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-0.2: Stdout JSON logs and Prometheus /metrics**
+  - **Description:** Unbuffered JSON on stdout. `/metrics` Prometheus text. No file logging. Activity is journaled by FileSquid itself and health comes from the process registry ([ADR 033](../../../../../resources/architecture/033-activity-journal-and-live-health-monitoring.md)); no external collector is required. Desktop never runs a telemetry server.
+  - **Estimated Time:** 4 hours
+  - **Dependencies:** Task BE-0.1
+  - **Related Requirements:** [BE-S-002](./srs.md), [BE-S-003](./srs.md), [NFR-009](../../../../../resources/prd.md#nfr-009-observability-and-capacity-economics), [SRS-NFR-009](../../../../../resources/srs.md#srs-nfr-009-observability-and-capacity-economics), [ADR 014](../../../../../resources/architecture/014-stdout-observability.md)
+  - **Related Tests:** [`observability_and_capacity_economics_NFR-009.feature`](../tests/features/observability_and_capacity_economics_NFR-009.feature), [`../tests/integration/health.rs`](../tests/integration/health.rs)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-0.2. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-0.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-0.3: PostgreSQL operational schema**
+  - **Description:** SQLx migrations for accounts, devices, membership, entitlements, ciphertext object receipts, hosted job rows. MUST NOT store private titles, captions, or plaintext media. UTC RFC 3339 timestamps.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task BE-0.1
+  - **Related Requirements:** [F-032](../../../../../resources/prd.md#f-032-accounts-entitlements-billing-and-cancellation), [ADR 005](../../../../../resources/architecture/005-sqlite-local-postgres-hosted.md), [architecture 4.2](../../../../../resources/architecture.md#42-database-decisions)
+  - **Related Tests:** [`accounts_entitlements_billing_and_cancellation_F-032.feature`](../../../ui/tests/features/accounts_entitlements_billing_and_cancellation_F-032.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-0.3. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests against Compose PostgreSQL. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-0.3-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-0.4: Hosted-safe core path dependency**
+  - **Description:** Path-depend on `filesquid-core` for opaque IDs, envelopes, and job protocol. Compile-fail if private catalog search types leak into hosted-service handlers.
+  - **Estimated Time:** 4 hours
+  - **Dependencies:** Task BE-0.1, global Task 0.2
+  - **Related Requirements:** [TC-005](../../../../../resources/prd.md#tc-005-shared-rust-graph-hosted-mailbox-isolation-and-ocfl-writer), [ADR 001](../../../../../resources/architecture/001-shared-rust-core-with-tauri-and-axum-hosts.md)
+  - **Related Tests:** [`shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature`](../tests/features/shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-0.4. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-0.4-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-0.5: Versioned HTTPS command/query surface**
+  - **Description:** Versioned routes for accounts/devices, ciphertext object sessions, encrypted change batches/cursors, snapshots, entitlements. Bounded ciphertext chunks only. WebSocket/SSE hints are optional; clients reread durable state.
+  - **Estimated Time:** 10 hours
+  - **Dependencies:** Task BE-0.3, Task BE-0.4
+  - **Related Requirements:** [F-038](../../../../../resources/prd.md#f-038-open-interfaces-and-product-exit), [TC-002](../../../../../resources/prd.md#tc-002-endpoint-processing-and-hosted-encryption), [architecture 3.3](../../../../../resources/architecture.md#33-backend-architecture)
+  - **Related Tests:** [`open_interfaces_and_product_exit_F-038.feature`](../tests/features/open_interfaces_and_product_exit_F-038.feature), [`endpoint_processing_and_hosted_encryption_TC-002.feature`](../tests/features/endpoint_processing_and_hosted_encryption_TC-002.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-0.5. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-0.5-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-0.6: Allure reporting and static SPA serving**
+  - **Status:** Dispatched by global Task 0.8 (phase F0); it applies to `filesquid-server`.
+  - **Description:** Allure/JUnit under `tests/allure-results/` (cleared before each run). Static file serving of the selected distribution UI (`FILESQUID_UI_DIR`) by `filesquid-server`, without rendering private metadata into HTML.
+  - **Estimated Time:** 4 hours
+  - **Dependencies:** Task BE-0.2
+  - **Related Requirements:** [NFR-008](../../../../../resources/prd.md#nfr-008-maintainability-and-verified-engineering), [F-036](../../../../../resources/prd.md#f-036-browser-and-mobile-web-experience), [ADR 003](../../../../../resources/architecture/003-svelte-client-rendered-ui.md), [ADR 017](../../../../../resources/architecture/017-test-runners-and-reporting.md)
+  - **Related Tests:** [`maintainability_and_verified_engineering_NFR-008.feature`](../tests/features/maintainability_and_verified_engineering_NFR-008.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-0.6. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-0.6-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase F5: Browser upload mailbox (global Task 1.8)
+
+- [ ] **Task BE-1.1: Ciphertext object sessions for browser uploads**
+  - **Description:** Resumable ciphertext transport for browser uploads: scoped presigned URLs for client-side `filesquid-ocfl` writes, and head-publication fencing. Accept only bounded ciphertext parts and opaque metadata; never parse OCFL ([ADR 025](../../../../../resources/architecture/025-client-side-filesquid-engines.md)). No plaintext decode, search, thumbnail, or AI worker.
+  - **Estimated Time:** 10 hours
+  - **Dependencies:** Task BE-0.5
+  - **Related Requirements:** [F-036](../../../../../resources/prd.md#f-036-browser-and-mobile-web-experience), [F-029](../../../../../resources/prd.md#f-029-client-encryption-and-key-custody), [TC-002](../../../../../resources/prd.md#tc-002-endpoint-processing-and-hosted-encryption)
+  - **Related Tests:** [`browser_and_mobileweb_experience_F-036.feature`](../../../ui/tests/features/browser_and_mobileweb_experience_F-036.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-1.1. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-1.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-1.2: Minimum account/device auth for browser uploads**
+  - **Description:** Minimum hosted account/device session for browser ciphertext uploads. Not full F-032 billing. Not library key custody.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task BE-0.5, Task BE-1.1
+  - **Related Requirements:** [F-032](../../../../../resources/prd.md#f-032-accounts-entitlements-billing-and-cancellation), [F-036](../../../../../resources/prd.md#f-036-browser-and-mobile-web-experience), [RC-003](../../../../../resources/prd.md#rc-003-security-privacy-and-independent-browser-operation)
+  - **Related Tests:** [`browser_and_mobileweb_experience_F-036.feature`](../../../ui/tests/features/browser_and_mobileweb_experience_F-036.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-1.2. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-1.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase F4: Accounts, sync relay, snapshots (global Tasks 5.2–5.5)
+
+- [ ] **Task BE-5.1: Encrypted change relay and snapshot receipts**
+  - **Description:** Encrypted change batches/cursors, immutable encrypted manifests, snapshot retention control. Commit acknowledgments describe durability level.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task BE-1.1
+  - **Related Requirements:** [F-030](../../../../../resources/prd.md#f-030-personal-synchronization-and-availability), [F-031](../../../../../resources/prd.md#f-031-encrypted-backup-and-verified-restore), [NFR-005](../../../../../resources/prd.md#nfr-005-recovery-and-service-reliability), [RC-006](../../../../../resources/prd.md#rc-006-backup-sync-and-collaboration-correctness)
+  - **Related Tests:** [`personal_synchronization_and_availability_F-030.feature`](../../../ui/tests/features/personal_synchronization_and_availability_F-030.feature), [`recovery_and_service_reliability_NFR-005.feature`](../tests/features/recovery_and_service_reliability_NFR-005.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-5.1. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-5.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-5.2: Accounts, entitlements, membership, and cancellation**
+  - **Description:** Accounts, devices, sessions, entitlements, cancellation, and independently testable publication job-billing contracts (F-032). Membership tables MAY land in the same schema; shared-album/family UX closes under global Task 5.6. Payment provider is a later ADR; use a test double. Cancellation does not revoke local functionality. Deny-by-default authorization.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task BE-0.3
+  - **Related Requirements:** [F-032](../../../../../resources/prd.md#f-032-accounts-entitlements-billing-and-cancellation), [F-033](../../../../../resources/prd.md#f-033-shared-albums-and-hosted-galleries), [F-034](../../../../../resources/prd.md#f-034-family-accounts-and-shared-libraries), [NFR-010](../../../../../resources/prd.md#nfr-010-accurate-public-claims)
+  - **Related Tests:** [`accounts_entitlements_billing_and_cancellation_F-032.feature`](../../../ui/tests/features/accounts_entitlements_billing_and_cancellation_F-032.feature), [`family_accounts_and_shared_libraries_F-034.feature`](../../../ui/tests/features/family_accounts_and_shared_libraries_F-034.feature), [`accurate_public_claims_NFR-010.feature`](../tests/features/accurate_public_claims_NFR-010.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-5.2. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Write integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-5.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-5.3: Hosted object-store receipts (no OCFL writer)**
+  - **Description:** Ciphertext object receipts and prefix isolation for per-user hosted roots. The hosted service authorizes keys and records receipts; desktop, server and browser hosts write OCFL via `filesquid-ocfl` ([ADR 025](../../../../../resources/architecture/025-client-side-filesquid-engines.md)).
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task BE-5.1
+  - **Related Requirements:** [F-042](../../../../../resources/prd.md#f-042-ocfl-preservation-and-portable-recovery), [TC-005](../../../../../resources/prd.md#tc-005-shared-rust-graph-hosted-mailbox-isolation-and-ocfl-writer), [ADR 012](../../../../../resources/architecture/012-s3-compatible-ciphertext-storage.md)
+  - **Related Tests:** [`shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature`](../tests/features/shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-5.3. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-5.3-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-5.5: Hosted-protection readiness operational evidence**
+  - **Description:** Hosted stdout observability, incident/recovery runbooks, and C-2 evidence packets (key recovery, restore, cancellation terms). Invent no SLA. Desktop/local MUST NOT require Grafana/Loki/Prometheus/Redpanda.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task BE-5.3, Task BE-5.2
+  - **Related Requirements:** [NFR-009](../../../../../resources/prd.md#nfr-009-observability-and-capacity-economics), [NFR-010](../../../../../resources/prd.md#nfr-010-accurate-public-claims), [RC-007](../../../../../resources/prd.md#rc-007-operational-readiness)
+  - **Related Tests:** [`accurate_public_claims_NFR-010.feature`](../tests/features/accurate_public_claims_NFR-010.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-5.5. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Do not invent an SLA. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-5.5-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phases I7 and V: Publication, extensions, load tests (global Tasks 8.2, 8.3, 10.1)
+
+- [ ] **Task BE-8.1: Publication job status API**
+  - **Description:** Job records for C-7 / F-044: frozen derivative handle, provider operation ID, validation report receipt. Callbacks authenticate; the hosted service never decrypts library content. Separate credentials from private preservation. Depends on F-032 billing from BE-5.2, not on family UX.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task BE-5.2
+  - **Related Requirements:** [F-044](../../../../../resources/prd.md#f-044-paid-c2pa-publishing-and-watermarking), [RC-011](../../../../../resources/prd.md#rc-011-paid-third-party-publishing-and-watermark-delivery)
+  - **Related Tests:** [`paid_c2pa_publishing_and_watermarking_F-044.feature`](../../../ui/tests/features/paid_c2pa_publishing_and_watermarking_F-044.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-8.1. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-8.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-8.2: Optional service entitlement stubs**
+  - **Description:** Entitlement flags for F-035 modules. Disabled-by-default. Core remains intact when disabled.
+  - **Estimated Time:** 4 hours
+  - **Dependencies:** Task BE-5.5
+  - **Related Requirements:** [F-035](../../../../../resources/prd.md#f-035-optional-service-extensions), [SRS-F-035](../../../../../resources/srs.md#srs-f-035-optional-service-extensions)
+  - **Related Tests:** [`optional_service_extensions_F-035.feature`](../tests/features/optional_service_extensions_F-035.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-8.2. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-8.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-10.1: k6 load tests**
+  - **Description:** k6 against the ciphertext-only hosted service for the proposed 100 concurrently active sessions with 20 concurrent resumable transfers. Disclose infrastructure sizing. This is a load test, not a capacity promise.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task BE-5.1
+  - **Related Requirements:** [NFR-002](../../../../../resources/prd.md#nfr-002-benchmark-envelope-and-responsiveness), [RC-002](../../../../../resources/prd.md#rc-002-performance-and-resource-bounds), [ADR 017](../../../../../resources/architecture/017-test-runners-and-reporting.md)
+  - **Related Tests:** [`benchmark_envelope_and_responsiveness_NFR-002.feature`](../tests/features/benchmark_envelope_and_responsiveness_NFR-002.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-10.1. Then write and execute Performance/Load tests using k6 as specified in ADR 017. Emit Allure under tests/allure-results/. Copy raw CLI output into apps/filesquid/crates/server/resources/tasks/Task-BE-10.1-Walkthrough.md with SRS ID and full title at heading 2. Delete Plan.md and ToDos.md. Check off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase L: Later (do not start without gates; global Tasks 9.3, 9.4)
+
+- [ ] **Task BE-9.1: Institutional service terms API**
+  - **Description:** Annual institutional subscription option with explicit usage/support/cancellation/export terms after RC-014 gates. No assumed prices.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task BE-5.2, F-047 gates
+  - **Related Requirements:** [F-047](../../../../../resources/prd.md#f-047-institutional-dam-and-iiif-interoperability), [RC-014](../../../../../resources/prd.md#rc-014-institutional-interoperability-and-service-readiness)
+  - **Related Tests:** [`institutional_dam_and_iiif_interoperability_F-047.feature`](../tests/features/institutional_dam_and_iiif_interoperability_F-047.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-9.1 only after institutional gates pass. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-9.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task BE-9.2: Hosted private OSS inference service**
+  - **Description:** Quota-limited open-source model inference on FileSquid-operated GPUs, separate from the mailbox, after verified paid encrypted preservation and the hosted-protection readiness close (global Task 5.5 / 9.4). Not frontier resale.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task BE-5.5
+  - **Related Requirements:** [F-048](../../../../../resources/prd.md#f-048-later-hosted-private-oss-inference)
+  - **Related Tests:** [`later_hosted_private_oss_inference_F-048.feature`](../tests/features/later_hosted_private_oss_inference_F-048.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task BE-9.2 only after verified paid encrypted preservation. Then begin development, running Cargo from apps/filesquid/ with -p filesquid-server (module directory apps/filesquid/crates/server/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/server/resources/tasks/Task-BE-9.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/server/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Summary Timeline
+
+- **Total Estimated Time:** 115 hours for BE rows (excluding gated later services), plus the SV rows
+- **Critical Path:** API mount and static UI → transport → accounts, groups and storage root → container → hosted-service binary → isolation/logs/schema → versioned APIs → upload mailbox → change relay → accounts/billing → receipts → C-2 evidence → C-7 publication/load tests

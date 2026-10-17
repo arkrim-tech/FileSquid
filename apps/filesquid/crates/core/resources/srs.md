@@ -1,0 +1,40 @@
+---
+title: "Core Software Requirements Specification"
+parent: "../../../../../resources/prd.md"
+---
+
+# Core crate SRS (scaffold)
+
+This SRS is bounded to `filesquid-core` (portable contracts shared by every FileSquid module, host and distribution). It does not implement the full product.
+
+| Local requirement | Parent |
+|---|---|
+| CORE-S-001 Newly generated identifiers for repository, library, collection, virtual collection, virtual exhibit, file, FileVersion, FileResource, and folder MUST be RFC 4122 / RFC 9562 UUID version 4, stored as lowercase 8-4-4-4-12 hexadecimal with hyphens. They MUST NOT encode a capture date or filesystem path. | [PRD F-001](../../../../../resources/prd.md#f-001-independent-local-library-and-ownership), [PRD F-049](../../../../../resources/prd.md#f-049-product-component-terminology-and-item-type), [PRD F-053](../../../../../resources/prd.md#f-053-virtual-exhibit), [PRD TC-001](../../../../../resources/prd.md#tc-001-immutable-originals-and-explicit-identity), [ADR 021](../../../../../resources/architecture/021-uuid-v4-identifiers.md) |
+| CORE-S-002 The item type is **file**. Photo, Image, and Video MUST NOT be domain types. | [PRD F-049](../../../../../resources/prd.md#f-049-product-component-terminology-and-item-type) |
+| CORE-S-003 This crate MUST NOT link Axum, Tauri, libvips, FFmpeg, `ffmpeg-sys`, or OCFL disk I/O. Public items MUST have rustdoc (`#![deny(missing_docs)]`). | [PRD TC-005](../../../../../resources/prd.md#tc-005-shared-rust-graph-hosted-mailbox-isolation-and-ocfl-writer), [PRD NFR-008](../../../../../resources/prd.md#nfr-008-maintainability-and-verified-engineering), [ADR 018](../../../../../resources/architecture/018-inline-docs-generators.md) |
+| CORE-S-004 Versioned health status (`schema_version`, `status`, `product`) is shared by hosts. | [PRD F-037](../../../../../resources/prd.md#f-037-setup-updates-and-diagnostics) |
+| CORE-S-005 Command envelopes MUST carry protocol schema version, operation/idempotency key, expected revision, and permitted scope; query envelopes MUST carry protocol schema version, permitted scope, and bounded page size (1–100). Port errors MUST carry an error code and retryability. UI progress is never durable completion evidence. | [PRD F-038](../../../../../resources/prd.md#f-038-open-interfaces-and-product-exit), [PRD NFR-001](../../../../../resources/prd.md#nfr-001-preservation-and-transactional-integrity), [architecture 3.3](../../../../../resources/architecture.md#33-backend-architecture) |
+| CORE-S-006 Job checkpoints are in-progress job state, not OCFL collection snapshots. Canonical receipts are durable completion. Default transfers ≤4, CPU-heavy workers ≤2, staging 10 GiB, reserve max(2 GiB, 5% destination), 5 attempts, 60 s backoff cap. Expired leases MUST NOT commit after replacement. | [PRD NFR-003](../../../../../resources/prd.md#nfr-003-bounded-processing-and-migration-endurance), [ADR 007](../../../../../resources/architecture/007-durable-jobs-and-interactive-performance.md) |
+| CORE-S-007 Portable envelope types: AES-256-GCM (12-byte nonce, 16-byte tag), wrap wire `0x01`, HKDF-SHA-256 labels `filesquid/v1/{content,evidence,wrap,device}`, Argon2id 65536 KiB / 3 / 1 / 32-byte output / 16-byte salt. No key-storage I/O. Rewrap MUST NOT rewrite historical ciphertext in place. | [PRD F-029](../../../../../resources/prd.md#f-029-client-encryption-and-key-custody), [PRD TC-002](../../../../../resources/prd.md#tc-002-endpoint-processing-and-hosted-encryption), [ADR 009](../../../../../resources/architecture/009-cryptography-webcrypto-compatible-suite.md) |
+| CORE-S-008 Resource-bound C2PA import records use SHA-256. Status is unsigned, signed, invalid, or unavailable. Unsigned is not a valid signed manifest. Signed records are immutable. Catalog-only actions MUST NOT claim a pixel change. Ephemeral cache is not permanent PROV-O history. Import MUST NOT invent capture. PROV-O sidecars are JSON-LD with RFC 3339 UTC. | [PRD F-043](../../../../../resources/prd.md#f-043-import-time-c2pa-records-and-action-disclosure), [ADR 015](../../../../../resources/architecture/015-prov-o-jsonld-and-c2pa-sdk.md) |
+| CORE-S-009 Capability register rows MUST be nonempty. Status is equivalent, adapter-equivalent, limited, preservation-only, or unavailable. Preservation-only is not editable parity. Aggregate coverage MUST NOT conceal unavailable children. A mandatory capability MUST NOT be all-unsupported. | [PRD F-040](../../../../../resources/prd.md#f-040-compatibility-and-parity-register), [PRD TC-003](../../../../../resources/prd.md#tc-003-platform-and-provider-limits) |
+
+**Tests**
+- [`opaque_identifiers_CORE-S-001.feature`](../tests/features/opaque_identifiers_CORE-S-001.feature)
+- [`item_type_is_file_CORE-S-002.feature`](../tests/features/item_type_is_file_CORE-S-002.feature)
+- [`portable_contracts_isolation_CORE-S-003.feature`](../tests/features/portable_contracts_isolation_CORE-S-003.feature)
+- [`shared_health_status_CORE-S-004.feature`](../tests/features/shared_health_status_CORE-S-004.feature)
+- [`command_query_ports_F-038.feature`](../tests/features/command_query_ports_F-038.feature)
+- [`job_checkpoint_protocol_NFR-003.feature`](../tests/features/job_checkpoint_protocol_NFR-003.feature)
+- [`cryptographic_envelopes_F-029.feature`](../tests/features/cryptographic_envelopes_F-029.feature)
+- [`c2pa_and_provo_records_F-043.feature`](../tests/features/c2pa_and_provo_records_F-043.feature)
+- [`capability_register_F-040.feature`](../tests/features/capability_register_F-040.feature)
+- [`immutable_originals_and_recipes_TC-001.feature`](../tests/features/immutable_originals_and_recipes_TC-001.feature)
+- [`collections_and_virtual_collections_F-004.feature`](../tests/features/collections_and_virtual_collections_F-004.feature)
+- [`../tests/unit/ids.rs`](../tests/unit/ids.rs)
+- [`../tests/unit/command.rs`](../tests/unit/command.rs)
+- [`../tests/unit/job.rs`](../tests/unit/job.rs)
+- [`../tests/unit/crypto.rs`](../tests/unit/crypto.rs)
+- [`../tests/unit/provenance.rs`](../tests/unit/provenance.rs)
+- [`../tests/unit/capability.rs`](../tests/unit/capability.rs)
+- [`../tests/unit/isolation.rs`](../tests/unit/isolation.rs)

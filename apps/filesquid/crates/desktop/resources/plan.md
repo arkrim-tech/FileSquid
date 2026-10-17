@@ -1,0 +1,399 @@
+# Implementation Plan: desktop (`filesquid-desktop`, Tauri 2)
+
+Thin Tauri **host** for FileSquid and every distribution. It serves the `filesquid-api` router in-process through a Tauri custom URI scheme (`filesquid://localhost/api/...`; `http://filesquid.localhost/api/...` on Windows) with no TCP port, binds the API event channel, and owns capabilities, OS integration and the WebdriverIO packaged-window tests ([ADR 002](../../../../../resources/architecture/002-tauri2-desktop-shell.md), amended by [ADR 030](../../../../../resources/architecture/030-filesquid-api-and-transports.md)). Native processing (SQLite storage, OCFL coordinator, libvips/FFmpeg workers, OS adapters) belongs in the native-processing library `filesquid-native` (working name; was `imagesquid_native`; [DE-0.8](#phase-f0-catalog-jobs-ocfl-coordinator-global-task-05)). Catalog, search, replica and application-profile **meaning** belongs in `filesquid-api`. The webview gets opaque handles and API responses, never arbitrary filesystem paths or SQL. One binary serves every distribution through a Tauri config overlay. Cargo commands run from `apps/filesquid/` with `-p filesquid-desktop`. Do not Dockerize this host. Global sequence: [implementation-plan.md](../../../../../resources/implementation-plan.md).
+
+`health_ping` is replaced by the API route. Packaged windows use ADR 017 WebdriverIO/Tauri-service; Playwright preview cannot prove the custom URI scheme or native capabilities.
+
+Logs: stdout JSON ([DE-S-003](./srs.md)). Default: checkpoint-on-quit. `bundle.active` stays false until ADR 011 legal review ([ADR 020](../../../../../resources/architecture/020-distribution-web-and-tauri.md)).
+
+## Phase F0: API through the custom URI scheme (global Task FS-0.0)
+
+- [x] **Task DE-F0.1: Serve `filesquid-api` through the custom URI scheme**
+  - **Description:** Mount the same `filesquid-api` router as `filesquid-server` through a Tauri custom URI scheme, with no TCP listener. Remove the `health_ping` command and its capability and permission files. An integration test calls the protocol handler directly and checks `/api/v1/health`.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** API-F0.1
+  - **Related Requirements:** [F-057](../../../../../resources/prd.md#f-057-desktop-and-server-hosts), [DE-S-001](./srs.md), FileSquid [U-18](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [T-049](../../../../../resources/product-vision.md#api-and-hosts), [ADR 002](../../../../../resources/architecture/002-tauri2-desktop-shell.md), [ADR 030](../../../../../resources/architecture/030-filesquid-api-and-transports.md)
+  - **Related Tests:** Protocol-handler integration test under `../tests/` (written in Task FS-0.0)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-F0.1. Then begin development, with Cargo commands run from apps/filesquid/ with -p filesquid-desktop (module directory apps/filesquid/crates/desktop/). Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-F0.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase F1: Desktop transport (global Task FS-1.1)
+
+- [ ] **Task DE-F1.1: Per-launch token, event channel and ranged reads**
+  - **Description:** Bind the API event channel per ADR 030 (Tauri Channel unless S1 chose otherwise) behind the same `FileSquidClient` interface, guard every request with a per-launch token, and serve `Range` reads through the scheme for `<img>`/`<video>` previews. If ADR 030 adopts a loopback port instead, it MUST say so explicitly.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** DE-F0.1, API-F1.2
+  - **Related Requirements:** [F-056](../../../../../resources/prd.md#f-056-single-filesquid-api), [F-057](../../../../../resources/prd.md#f-057-desktop-and-server-hosts), [DE-S-005](./srs.md), FileSquid [U-17](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [U-18](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [T-049](../../../../../resources/product-vision.md#api-and-hosts), [T-050](../../../../../resources/product-vision.md#api-and-hosts)
+  - **Related Tests:** [`open_interfaces_and_product_exit_F-038.feature`](../../server/tests/features/open_interfaces_and_product_exit_F-038.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-F1.1. Then begin development, with Cargo commands run from apps/filesquid/ with -p filesquid-desktop (module directory apps/filesquid/crates/desktop/). Prove a 100 MB Range read and an event subscription in a packaged window with WebdriverIO/Tauri-service. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-F1.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase F0: Catalog, jobs, OCFL coordinator (global Task 0.5)
+
+- [ ] **Task DE-0.1: Capability expansion (deny-by-default)**
+  - **Description:** Add scoped filesystem and SQL capabilities as explicit permissions. No fs/shell/sql plugins beyond named commands. `health_ping` is replaced by the API route (DE-F0.1). Put `#[tauri::command]` in submodules, not next to `generate_handler` in `lib.rs`. Do not weaken authorization merely to compile. Prove allowed/denied commands with WebdriverIO/Tauri-service on a packaged window.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** None (scaffold exists)
+  - **Related Requirements:** [DE-S-001](./srs.md), [DE-S-002](./srs.md), [F-037](../../../../../resources/prd.md#f-037-setup-updates-and-diagnostics), [ADR 002](../../../../../resources/architecture/002-tauri2-desktop-shell.md), [ADR 017](../../../../../resources/architecture/017-test-runners-and-reporting.md)
+  - **Related Tests:** `tests/unit/ping.rs` (removed with `health_ping` in Task FS-0.0; the DE-F0.1 protocol-handler test replaces it)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-0.1. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Add WebdriverIO/Tauri-service coverage for the packaged window; Playwright preview cannot prove the custom URI scheme or native capabilities. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-0.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-0.2: Per-library SQLite catalog**
+  - **Description:** Each library has its own SQLite catalog **storage**. Schema for files, collections, virtual collections, memberships, pending intent. Query/command **meaning** lives in `filesquid-api`. Rebuild-from-OCFL remains mandatory. Live-file copy of SQLite is not a supported backup.
+  - **Estimated Time:** 10 hours
+  - **Dependencies:** Task DE-0.1, global Task 0.1
+  - **Related Requirements:** [F-001](../../../../../resources/prd.md#f-001-independent-local-library-and-ownership), [F-009](../../../../../resources/prd.md#f-009-multiple-libraries-and-filesystem-administration), [ADR 005](../../../../../resources/architecture/005-sqlite-local-postgres-hosted.md)
+  - **Related Tests:** [`independent_local_library_and_ownership_F-001.feature`](../../../ui/tests/features/independent_local_library_and_ownership_F-001.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-0.2. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Write integration tests against on-disk SQLite. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-0.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-0.3: Intent → OCFL commit → receipt reconcile**
+  - **Description:** Record intent (operation ID, expected revision), construct FileSquid file objects and collection snapshots as a **caller** of `filesquid-ocfl`, apply dual-profile encryption as a caller transform, make canonical content durable via the engine, then update indexes from the published receipt and the engine’s logical-state enumerator. Crash before snapshot leaves work pending. Crash after snapshot cannot lose acknowledged collection state ([ADR 023](../../../../../resources/architecture/023-filesquid-ocfl-engine-and-parquet.md)).
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task DE-0.2, global Task 0.4
+  - **Related Requirements:** [NFR-001](../../../../../resources/prd.md#nfr-001-preservation-and-transactional-integrity), [F-042](../../../../../resources/prd.md#f-042-ocfl-preservation-and-portable-recovery), [DE-S-004](./srs.md), [ADR 005](../../../../../resources/architecture/005-sqlite-local-postgres-hosted.md), [ADR 016](../../../../../resources/architecture/016-rust-ocfl-library.md), [OCFL-S-006](../../ocfl/resources/srs.md)
+  - **Related Tests:** [`preservation_and_transactional_integrity_NFR-001.feature`](../../server/tests/features/preservation_and_transactional_integrity_NFR-001.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-0.3. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Write crash-injection integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-0.3-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-0.4: Durable jobs and checkpoint-on-quit**
+  - **Description:** Persist jobs in SQLite. Exclusive leases. Resume revalidates source identity. Closing the last window MUST NOT destroy checkpoints. Default: checkpoint and resume on next launch. Restart reaches a resumable job state within 30 s without rescanning completed media.
+  - **Estimated Time:** 10 hours
+  - **Dependencies:** Task DE-0.3
+  - **Related Requirements:** [NFR-003](../../../../../resources/prd.md#nfr-003-bounded-processing-and-migration-endurance), [ADR 007](../../../../../resources/architecture/007-durable-jobs-and-interactive-performance.md)
+  - **Related Tests:** [`bounded_processing_and_migration_endurance_NFR-003.feature`](../../server/tests/features/bounded_processing_and_migration_endurance_NFR-003.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-0.4. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-0.4-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-0.5: Bounded media workers (libvips stills)**
+  - **Description:** Out-of-process libvips worker for thumbnails/previews. Default CPU-heavy workers ≤2. Interactive media stays in the client. Do not install ImageMagick.
+  - **Estimated Time:** 10 hours
+  - **Dependencies:** Task DE-0.4
+  - **Related Requirements:** [NFR-002](../../../../../resources/prd.md#nfr-002-benchmark-envelope-and-responsiveness), [F-003](../../../../../resources/prd.md#f-003-browsing-selection-and-viewing), [ADR 006](../../../../../resources/architecture/006-libvips-native-stills-not-imagemagick.md)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-0.5. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Write integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-0.5-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-0.6: Stdout JSON logging**
+  - **Description:** tracing JSON to stdout only. No Tauri log-plugin file targets.
+  - **Estimated Time:** 2 hours
+  - **Dependencies:** Task DE-0.1
+  - **Related Requirements:** [DE-S-003](./srs.md), [NFR-009](../../../../../resources/prd.md#nfr-009-observability-and-capacity-economics), [ADR 014](../../../../../resources/architecture/014-stdout-observability.md)
+  - **Related Tests:** N/A (unit assertion on subscriber)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-0.6. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. TDD-ENFORCE: Not applicable - configuration. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-0.6-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-0.7: Recorder, publisher, and recipe/color feasibility**
+  - **Status:** Dispatched by global Task 0.12 (moved to phase I1).
+  - **Description:** Spike F-041 recorder fixtures, F-044 publisher/format contract, and recipe/color pipeline (declared ΔE2000) without product delivery. Author a recorder ADR under `resources/architecture/` before later implementation.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task DE-0.1
+  - **Related Requirements:** [F-041](../../../../../resources/prd.md#f-041-source-aware-web-clipping-and-http-evidence), [F-044](../../../../../resources/prd.md#f-044-paid-c2pa-publishing-and-watermarking), [F-012](../../../../../resources/prd.md#f-012-composition-and-tonalcolor-editing)
+  - **Related Tests:** [`sourceaware_web_clipping_and_http_evidence_F-041.feature`](../../../ui/tests/features/sourceaware_web_clipping_and_http_evidence_F-041.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-0.7. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Search resources/architecture/ and author a recorder ADR. These are feasibility spikes, not product delivery. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-0.7-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-0.8: Native-processing library boundary (`filesquid-native`)**
+  - **Description:** Extract SQLite storage, OCFL coordinator, job workers, and media workers into a Cargo library in the `apps/filesquid` workspace (working name `filesquid-native`, was `imagesquid_native`; confirm the name under the `filesquid-` prefix). The Tauri package is a thin host. WASM and the ciphertext-only hosted service MUST NOT link this library; `filesquid-server` MAY link it only where an ADR allows. Later standalone extraction is a path move.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task DE-0.2, Task DE-0.4
+  - **Related Requirements:** [TC-005](../../../../../resources/prd.md#tc-005-shared-rust-graph-hosted-mailbox-isolation-and-ocfl-writer), [ADR 001](../../../../../resources/architecture/001-shared-rust-core-with-tauri-and-axum-hosts.md)
+  - **Related Tests:** [`shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature`](../../server/tests/features/shared_rust_graph_hosted_mailbox_isolation_and_ocf_TC-005.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-0.8. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Create filesquid-native as a desktop-workspace library. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-0.8-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phases F2, I1 and F5: Library, import, gallery, organize and setup (global Tasks 1.1–1.6)
+
+- [ ] **Task DE-1.1: Create, open, copy, rebuild library**
+  - **Description:** Desktop handling of the API routes for create/open library on an owner-chosen OCFL root, copy completed snapshot, rebuild catalog from files, refuse in-place inventory edits from inspect/copy. Call `filesquid-api` operations. Prove the packaged window path with WebdriverIO/Tauri-service.
+  - **Estimated Time:** 10 hours
+  - **Dependencies:** Task DE-0.3, global Task CL-1.1
+  - **Related Requirements:** [F-001](../../../../../resources/prd.md#f-001-independent-local-library-and-ownership), [SRS-F-001](../../../../../resources/srs.md#srs-f-001-independent-local-library-and-ownership), [ADR 017](../../../../../resources/architecture/017-test-runners-and-reporting.md)
+  - **Related Tests:** [`independent_local_library_and_ownership_F-001.feature`](../../../ui/tests/features/independent_local_library_and_ownership_F-001.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-1.1. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Write integration tests and WebdriverIO/Tauri-service coverage for the packaged window. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-1.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-1.2: File and folder import**
+  - **Description:** Verified copies, original hashes, restartable jobs, staging cap 10 GiB with reserve max(2 GiB, 5% destination). PhotoKit M-B waits for DE-2.5. Remaining camera adapters wait for DE-8.1.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task DE-1.1
+  - **Related Requirements:** [F-002](../../../../../resources/prd.md#f-002-safe-file-folder-and-device-import), [TC-001](../../../../../resources/prd.md#tc-001-immutable-originals-and-explicit-identity)
+  - **Related Tests:** [`safe_file_folder_and_device_import_F-002.feature`](../../../ui/tests/features/safe_file_folder_and_device_import_F-002.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-1.2. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Write interrupt/resume integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-1.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-1.3: Paged catalog queries and derivative handles**
+  - **Description:** Indexed paged queries, bounded visible window, opaque preview handles for the grid/viewer. Cancel obsolete speculative work after jumps.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task DE-0.5, Task DE-1.2
+  - **Related Requirements:** [F-003](../../../../../resources/prd.md#f-003-browsing-selection-and-viewing), [DE-S-006](./srs.md), [NFR-002](../../../../../resources/prd.md#nfr-002-benchmark-envelope-and-responsiveness)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-1.3. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-1.3-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-1.4: Organize commands (albums, favorites, hide/delete, search)**
+  - **Description:** Desktop handling of the API routes for collections/virtual collections, favorites/`dcterms:subject`, namespaced metadata search, hide/delete policy. Hidden/deleted filtering applies to every query.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task DE-1.3
+  - **Related Requirements:** [F-004](../../../../../resources/prd.md#f-004-collections-folders-and-navigation), [F-005](../../../../../resources/prd.md#f-005-favorites-metadata-and-keywords), [F-006](../../../../../resources/prd.md#f-006-virtual-collections-and-metadata-search), [F-007](../../../../../resources/prd.md#f-007-automatic-and-activity-collections), [F-008](../../../../../resources/prd.md#f-008-deletion-hidden-files-and-duplicate-review)
+  - **Related Tests:** [`albums_folders_and_navigation_F-004.feature`](../../../ui/tests/features/albums_folders_and_navigation_F-004.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-1.4. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-1.4-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-1.5: Export, metadata extract, C2PA init, local OCFL recover**
+  - **Description:** Export originals/JPEG; metadata extraction with IPTC/XMP → `dcterms:` mapping; initialize F-043 records on every completed import; local OCFL export/recover commands.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-1.2
+  - **Related Requirements:** [F-010](../../../../../resources/prd.md#f-010-export-and-portable-backup), [F-042](../../../../../resources/prd.md#f-042-ocfl-preservation-and-portable-recovery), [F-043](../../../../../resources/prd.md#f-043-import-time-c2pa-records-and-action-disclosure), [F-046](../../../../../resources/prd.md#f-046-media-metadata-inspection-correction-and-privacy-exports), [ADR 015](../../../../../resources/architecture/015-prov-o-jsonld-and-c2pa-sdk.md), [ADR 022](../../../../../resources/architecture/022-dublin-core-descriptive-metadata.md)
+  - **Related Tests:** [`importtime_c2pa_records_and_action_disclosure_F-043.feature`](../../../ui/tests/features/importtime_c2pa_records_and_action_disclosure_F-043.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-1.5. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Write integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-1.5-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-1.6: Setup, diagnostics, and redacted logs**
+  - **Status:** Dispatched by global Task 1.6 (moved to phase F5).
+  - **Description:** Automatic initialization of missing catalog/schema. Redacted diagnostics. Interactive prompts for missing secrets rather than crashing.
+  - **Estimated Time:** 6 hours
+  - **Dependencies:** Task DE-1.1
+  - **Related Requirements:** [F-037](../../../../../resources/prd.md#f-037-setup-updates-and-diagnostics), [F-039](../../../../../resources/prd.md#f-039-consent-notifications-and-activity-privacy)
+  - **Related Tests:** [`setup_updates_and_diagnostics_F-037.feature`](../../../ui/tests/features/setup_updates_and_diagnostics_F-037.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-1.6. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-1.6-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase I2: Archive and migration (global Tasks 2.1–2.5)
+
+- [ ] **Task DE-2.1: Multiple libraries, watched folders, relocation**
+  - **Description:** More than one library on a repository. Watched folders. Referenced files, volume identity, safe relocation/repair.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task DE-1.4
+  - **Related Requirements:** [F-009](../../../../../resources/prd.md#f-009-multiple-libraries-and-filesystem-administration), [F-002](../../../../../resources/prd.md#f-002-safe-file-folder-and-device-import)
+  - **Related Tests:** [`multiple_libraries_and_filesystem_administration_F-009.feature`](../../../ui/tests/features/multiple_libraries_and_filesystem_administration_F-009.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-2.1. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-2.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-2.2: Saved-query evaluation, bursts, metadata write, C2PA scans**
+  - **Description:** Local saved-query predicates on namespaced `dcterms:` / `schema:` keys; burst grouping; metadata correction and `/terms/` writes; free resumable collection scans that do not sign or rewrite originals.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-1.5
+  - **Related Requirements:** [F-006](../../../../../resources/prd.md#f-006-virtual-collections-and-metadata-search), [F-016](../../../../../resources/prd.md#f-016-live-photos-bursts-and-motion-images), [F-043](../../../../../resources/prd.md#f-043-import-time-c2pa-records-and-action-disclosure), [F-046](../../../../../resources/prd.md#f-046-media-metadata-inspection-correction-and-privacy-exports), [ADR 022](../../../../../resources/architecture/022-dublin-core-descriptive-metadata.md)
+  - **Related Tests:** [`smart_albums_and_metadata_search_F-006.feature`](../../../ui/tests/features/smart_albums_and_metadata_search_F-006.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-2.2. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-2.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-2.3: Migration engine (M-A file/export)**
+  - **Description:** Inventory, pilot, reconstruction, checkpointed execution. Source unchanged. Headless mode MAY run the same engine. Process memory ≤2 GiB excluding ML models.
+  - **Estimated Time:** 24 hours
+  - **Dependencies:** Task DE-0.4, Task DE-1.2
+  - **Related Requirements:** [F-025](../../../../../resources/prd.md#f-025-migration-selection-inventory-and-pilot), [F-026](../../../../../resources/prd.md#f-026-migration-preservation-and-reconstruction), [F-027](../../../../../resources/prd.md#f-027-migration-execution-recovery-and-reconciliation), [F-028](../../../../../resources/prd.md#f-028-supported-migration-routes), [RC-004](../../../../../resources/prd.md#rc-004-migration-fidelity-and-accountability)
+  - **Related Tests:** [`migration_execution_recovery_and_reconciliation_F-027.feature`](../../../ui/tests/features/migration_execution_recovery_and_reconciliation_F-027.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-2.3. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Write integration tests with Takeout/export fixtures. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-2.3-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-2.4: HTTP recorder and encrypted evidence**
+  - **Description:** Implement the purpose-built recorder against complete GET/POST/form/upload/redirect/error/cache fixtures. Persist encrypted evidence with PROV-O. URLs or sanitized HAR cannot prove full capture.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-0.7, Task DE-1.5
+  - **Related Requirements:** [F-041](../../../../../resources/prd.md#f-041-source-aware-web-clipping-and-http-evidence), [RC-009](../../../../../resources/prd.md#rc-009-source-evidence-and-c2pa-lifecycle)
+  - **Related Tests:** [`sourceaware_web_clipping_and_http_evidence_F-041.feature`](../../../ui/tests/features/sourceaware_web_clipping_and_http_evidence_F-041.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-2.4. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Use the recorder ADR from DE-0.7. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-2.4-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-2.5: M-B PhotoKit acquisition**
+  - **Description:** macOS PhotoKit permission/resource adapters, bounded iCloud extraction, live-source checkpoints. macOS-only. MUST NOT gate Linux/browser suites.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-2.3
+  - **Related Requirements:** [F-028](../../../../../resources/prd.md#f-028-supported-migration-routes), [TC-003](../../../../../resources/prd.md#tc-003-platform-and-provider-limits), [RC-004](../../../../../resources/prd.md#rc-004-migration-fidelity-and-accountability)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-2.5. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. This task is macOS-only. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-2.5-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase I3: Editing workers (global Task 3.1)
+
+- [ ] **Task DE-3.1: Recipe render worker (composition, tone, detail, RAW)**
+  - **Description:** Isolated render jobs pinning source, recipe schema, engine, color/output, budgets. LibRaw/libheif as needed. Golden-image tests within declared tolerance. Originals unchanged.
+  - **Estimated Time:** 24 hours
+  - **Dependencies:** Task DE-0.5, Task DE-0.7
+  - **Related Requirements:** [F-011](../../../../../resources/prd.md#f-011-non-destructive-editing-workflow), [F-012](../../../../../resources/prd.md#f-012-composition-and-tonalcolor-editing), [F-013](../../../../../resources/prd.md#f-013-detail-filters-retouch-and-raw), [NFR-007](../../../../../resources/prd.md#nfr-007-compatibility-rendering-and-localization), [ADR 011](../../../../../resources/architecture/011-native-media-adapters-and-ffmpeg-license.md)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-3.1. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Implement F-011/012/013 as one recipe engine. Write integration tests. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-3.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase I4: Discovery and BYO AI (global Tasks 4.1, 4.2)
+
+- [ ] **Task DE-4.1: Local indexes (people, OCR, places)**
+  - **Description:** Durable indexing jobs with consent. Face/pet/OCR/place indexes partitioned by model revision.
+  - **Estimated Time:** 20 hours
+  - **Dependencies:** Task DE-1.4
+  - **Related Requirements:** [F-019](../../../../../resources/prd.md#f-019-people-pets-and-groups), [F-020](../../../../../resources/prd.md#f-020-semantic-search-ocr-and-visual-understanding), [F-021](../../../../../resources/prd.md#f-021-places-trips-and-curation-controls)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-4.1. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-4.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-4.2: BYO model connections**
+  - **Description:** User-owned Ollama/llama.cpp and OpenAI-compatible frontier. Endpoint-bound secrets. No silent remote fallback. Supply destination, extra-hop, and payload facts for the per-job overlay. Results are proposals to catalog commands.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task DE-1.6, Task DE-2.2
+  - **Related Requirements:** [F-045](../../../../../resources/prd.md#f-045-byo-ai-connections-and-per-task-model-choice), [RC-012](../../../../../resources/prd.md#rc-012-user-funded-ai-connections-and-task-outcomes)
+  - **Related Tests:** [`byo_ai_connections_and_pertask_model_choice_F-045.feature`](../../../ui/tests/features/byo_ai_connections_and_pertask_model_choice_F-045.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-4.2. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Write integration tests against a local OpenAI-compatible fixture. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-4.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase F4: Keys, sync, hosted OCFL (global Tasks 5.1, 5.2, 5.4; DE-5.3 in global Task 5.6, phase I5)
+
+- [ ] **Task DE-5.1: Key custody**
+  - **Description:** OS key storage, Argon2id wrap, enrollment, recovery, revocation. Independent ADR 009 interoperability test vectors. This review is a hard predecessor of DE-5.4 hosted OCFL.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-0.1, global Task CO-5.1
+  - **Related Requirements:** [F-029](../../../../../resources/prd.md#f-029-client-encryption-and-key-custody), [NFR-004](../../../../../resources/prd.md#nfr-004-security-and-privacy), [ADR 009](../../../../../resources/architecture/009-cryptography-webcrypto-compatible-suite.md)
+  - **Related Tests:** [`client_encryption_and_key_custody_F-029.feature`](../../server/tests/features/client_encryption_and_key_custody_F-029.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-5.1. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-5.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-5.2: Sync and backup clients**
+  - **Description:** Encrypted change exchange, resumable transfers ≤4, independent snapshots, clean-device restore. Default active transfers ≤4.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-5.1
+  - **Related Requirements:** [F-030](../../../../../resources/prd.md#f-030-personal-synchronization-and-availability), [F-031](../../../../../resources/prd.md#f-031-encrypted-backup-and-verified-restore)
+  - **Related Tests:** [`encrypted_backup_and_verified_restore_F-031.feature`](../../../ui/tests/features/encrypted_backup_and_verified_restore_F-031.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-5.2. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-5.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-5.3: Shared library key envelopes**
+  - **Description:** Private/shared library keys, contribution, departure. Hosted control authorizes; desktop verifies signed content-access records.
+  - **Estimated Time:** 10 hours
+  - **Dependencies:** Task DE-5.1
+  - **Related Requirements:** [F-033](../../../../../resources/prd.md#f-033-shared-albums-and-hosted-galleries), [F-034](../../../../../resources/prd.md#f-034-family-accounts-and-shared-libraries)
+  - **Related Tests:** [`family_accounts_and_shared_libraries_F-034.feature`](../../../ui/tests/features/family_accounts_and_shared_libraries_F-034.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-5.3. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-5.3-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-5.4: Hosted OCFL via filesquid-ocfl S3 backend**
+  - **Description:** Desktop links `filesquid-ocfl` (through `filesquid-api`) for hosted ciphertext roots; the F5 browser host links the same crate for the same roots. The ciphertext-only hosted service MUST NOT link `filesquid-ocfl`, `filesquid-metadata` or `filesquid-c2pa` ([ADR 025](../../../../../resources/architecture/025-client-side-filesquid-engines.md), [ADR 032](../../../../../resources/architecture/032-hosting-and-privacy-model.md)).
+  - **Estimated Time:** 10 hours
+  - **Dependencies:** Task DE-5.1, Task DE-5.2, global Task IO-5.1
+  - **Related Requirements:** [F-042](../../../../../resources/prd.md#f-042-ocfl-preservation-and-portable-recovery), [TC-005](../../../../../resources/prd.md#tc-005-shared-rust-graph-hosted-mailbox-isolation-and-ocfl-writer)
+  - **Related Tests:** [`ocfl_preservation_and_portable_recovery_F-042.feature`](../../../ui/tests/features/ocfl_preservation_and_portable_recovery_F-042.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-5.4. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-5.4-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phases I5–I7, F3, L and V: Projects, advanced media, sharing, publication, installers (global Tasks 6.1, 7.x, 8.x, 9.x, 10.1)
+
+- [ ] **Task DE-6.1: Memories and print/slideshow render**
+  - **Description:** Timeline/layout objects, licensed/local soundtrack, print-ready pages/PDF. Missing resources stop the affected export.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task DE-3.1
+  - **Related Requirements:** [F-022](../../../../../resources/prd.md#f-022-memories-and-storytelling), [F-023](../../../../../resources/prd.md#f-023-slideshows-printing-and-photo-projects)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-6.1. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-6.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-7.1: AI-assisted cleanup worker (F-014)**
+  - **Description:** BYO-model cleanup/styles as recipe operations in the native-processing library. Originals unchanged.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task DE-3.1, Task DE-4.2
+  - **Related Requirements:** [F-014](../../../../../resources/prd.md#f-014-ai-assisted-cleanup-and-styles)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-7.1. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-7.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-7.2: Portrait, depth, Cinematic, spatial workers (F-015)**
+  - **Description:** Preserve/edit/render/export when data exists. Register proprietary gaps.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** Task DE-3.1
+  - **Related Requirements:** [F-015](../../../../../resources/prd.md#f-015-portrait-depth-cinematic-and-spatial-media)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-7.2. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-7.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-7.3: Remaining Live Photo and motion workers (F-016)**
+  - **Description:** Remaining Live/motion edit/export beyond burst review.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task DE-2.2, Task DE-3.1
+  - **Related Requirements:** [F-016](../../../../../resources/prd.md#f-016-live-photos-bursts-and-motion-images)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-7.3. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-7.3-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-7.4: LGPL FFmpeg video/audio worker (F-017)**
+  - **Description:** Isolated LGPL FFmpeg worker (no GPL/nonfree default). Timeline/trim/adjustment/export. FOSS/patent review before public binaries.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-3.1
+  - **Related Requirements:** [F-017](../../../../../resources/prd.md#f-017-video-and-audio-editing), [ADR 011](../../../../../resources/architecture/011-native-media-adapters-and-ffmpeg-license.md)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-7.4. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-7.4-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-7.5: Markup flattening worker (F-018)**
+  - **Description:** Markup/companion annotation flattening through bounded workers.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task DE-3.1
+  - **Related Requirements:** [F-018](../../../../../resources/prd.md#f-018-markup-and-companion-annotation)
+  - **Related Tests:** Worker scenarios written by `@feature-writer` under `tests/features/` (ImageSquid owns the UI scenarios)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-7.5. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-7.5-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-8.1: System sharing, remaining camera adapters, M-D**
+  - **Description:** Scoped OS sharing/external editor. Remaining native camera/phone adapters. M-D migration coverage audit. PhotoKit M-B is DE-2.5. F-041 recorder is DE-2.4.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-2.3, Task DE-7.5
+  - **Related Requirements:** [F-024](../../../../../resources/prd.md#f-024-system-sharing-and-extension-interfaces), [F-002](../../../../../resources/prd.md#f-002-safe-file-folder-and-device-import), [F-028](../../../../../resources/prd.md#f-028-supported-migration-routes), [RC-004](../../../../../resources/prd.md#rc-004-migration-fidelity-and-accountability)
+  - **Related Tests:** [`system_sharing_and_extension_interfaces_F-024.feature`](../../../ui/tests/features/system_sharing_and_extension_interfaces_F-024.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-8.1. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. F-041 and PhotoKit already have DE-2.4/DE-2.5. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-8.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-8.2: C-7 publication coordinator**
+  - **Description:** Prepare/submit/verify published output for base C-7. Transient staging only when authorization names that recipient. Separate credentials from preservation. Does not wait for family libraries. Professional Article 50 disclosure is DE-8.4.
+  - **Estimated Time:** 10 hours
+  - **Dependencies:** Task DE-1.5, Task DE-2.4, Task DE-3.1
+  - **Related Requirements:** [F-044](../../../../../resources/prd.md#f-044-paid-c2pa-publishing-and-watermarking), [RC-011](../../../../../resources/prd.md#rc-011-paid-third-party-publishing-and-watermark-delivery)
+  - **Related Tests:** [`paid_c2pa_publishing_and_watermarking_F-044.feature`](../../../ui/tests/features/paid_c2pa_publishing_and_watermarking_F-044.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-8.2. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Implement C-7 base publication; leave professional EU-icon disclosure to DE-8.4. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-8.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-8.4: Professional Article 50 disclosure rendering**
+  - **Description:** After the hosted-protection readiness close, apply human-perceivable EU icons or permitted accessible alternatives on first public exposure. A C2PA manifest or watermark alone does not satisfy visible disclosure.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task DE-8.2, global Task 5.5
+  - **Related Requirements:** [F-044](../../../../../resources/prd.md#f-044-paid-c2pa-publishing-and-watermarking), [F-014](../../../../../resources/prd.md#f-014-ai-assisted-cleanup-and-styles)
+  - **Related Tests:** [`paid_c2pa_publishing_and_watermarking_F-044.feature`](../../../ui/tests/features/paid_c2pa_publishing_and_watermarking_F-044.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-8.4. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Confirm the hosted-protection readiness close before professional disclosure. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-8.4-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-8.5: Installer signing, updater, and update recovery**
+  - **Status:** Dispatched by global Task 8.5 (moved to phase F3: FileSquid release 1 ships desktop installers). Its dependency on DE-8.1 is replaced by DE-F3.1.
+  - **Description:** Signing ADR, Tauri updater, failed-update recovery. `bundle.active` stays false until ADR 011 legal review and the signing ADR exist.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-F3.1
+  - **Related Requirements:** [F-037](../../../../../resources/prd.md#f-037-setup-updates-and-diagnostics), [ADR 020](../../../../../resources/architecture/020-distribution-web-and-tauri.md)
+  - **Related Tests:** [`setup_updates_and_diagnostics_F-037.feature`](../../../ui/tests/features/setup_updates_and_diagnostics_F-037.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-8.5. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-8.5-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-8.6: Native-window capability regression suite**
+  - **Status:** Dispatched by global Task 8.5 (phase F3).
+  - **Description:** Packaged-window WebdriverIO/Tauri-service suite covering deny-by-default capabilities, the custom URI scheme, and update-recovery UI. Playwright preview cannot prove these.
+  - **Estimated Time:** 8 hours
+  - **Dependencies:** Task DE-0.1, Task DE-1.1, Task DE-8.5
+  - **Related Requirements:** [ADR 017](../../../../../resources/architecture/017-test-runners-and-reporting.md), [ADR 002](../../../../../resources/architecture/002-tauri2-desktop-shell.md)
+  - **Related Tests:** `tests/unit/ping.rs` (removed with `health_ping` in Task FS-0.0; the DE-F0.1 protocol-handler test replaces it)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-8.6. Then write WebdriverIO/Tauri-service tests for packaged windows. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-8.6-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-9.1: IIIF-2 bounded import worker**
+  - **Description:** After the IIIF-2 gate, import selected archive items with finite traversal/request/byte/time limits into OCFL via the native-processing library.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-1.2; global Task 9.1
+  - **Related Requirements:** [F-047](../../../../../resources/prd.md#f-047-institutional-dam-and-iiif-interoperability), [RC-014](../../../../../resources/prd.md#rc-014-institutional-interoperability-and-service-readiness)
+  - **Related Tests:** [`institutional_dam_and_iiif_interoperability_F-047.feature`](../../server/tests/features/institutional_dam_and_iiif_interoperability_F-047.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-9.1 only after the IIIF-2 gate. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-9.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-9.3: IIIF-3 projection and publish worker**
+  - **Description:** After the IIIF-3 gate, authorized IIIF projections and per-item resumable publication. Private OCFL roots stay private.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-9.1; global Task 9.1
+  - **Related Requirements:** [F-047](../../../../../resources/prd.md#f-047-institutional-dam-and-iiif-interoperability), [RC-014](../../../../../resources/prd.md#rc-014-institutional-interoperability-and-service-readiness)
+  - **Related Tests:** [`institutional_dam_and_iiif_interoperability_F-047.feature`](../../server/tests/features/institutional_dam_and_iiif_interoperability_F-047.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-9.3 only after the IIIF-3 gate. Then begin development with Cargo commands run from apps/filesquid/ with -p filesquid-desktop. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-9.3-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-10.1: Packaged desktop performance evidence**
+  - **Description:** Measure NFR-002/003 on packaged builds: warm interaction p95 ≤100 ms on declared hardware; useful-image paint; 72-hour soak. Choosing Rust/Tauri/libvips does not satisfy FileSquid U-11 until measured.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** Task DE-1.3
+  - **Related Requirements:** [NFR-002](../../../../../resources/prd.md#nfr-002-benchmark-envelope-and-responsiveness), [NFR-003](../../../../../resources/prd.md#nfr-003-bounded-processing-and-migration-endurance), [ADR 007](../../../../../resources/architecture/007-durable-jobs-and-interactive-performance.md)
+  - **Related Tests:** [`benchmark_envelope_and_responsiveness_NFR-002.feature`](../../server/tests/features/benchmark_envelope_and_responsiveness_NFR-002.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-10.1. Then write and execute Performance/Load tests using the framework in ADR 017/007. Copy raw CLI output into apps/filesquid/crates/desktop/resources/tasks/Task-DE-10.1-Walkthrough.md with SRS ID and full title at heading 2. Delete Plan.md and ToDos.md. Check off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Phase F3: Installers and performance (global Tasks FS-3.1, FS-3.4)
+
+- [ ] **Task DE-F3.1: Distribution config overlays and installers**
+  - **Description:** Build per-OS installers (Linux first) from one binary with a Tauri config overlay per distribution (`productName`, `identifier`, icons, `frontendDist`), starting with `filesquid` and `imagesquid`. Verify the overlay flag against the pinned Tauri CLI before documenting it. A packaged-window test asserts each distribution's product name and logo.
+  - **Estimated Time:** 16 hours
+  - **Dependencies:** DE-F0.1, global Task FS-2.2
+  - **Related Requirements:** [F-058](../../../../../resources/prd.md#f-058-white-label-distributions), [F-037](../../../../../resources/prd.md#f-037-setup-updates-and-diagnostics), [DE-S-007](./srs.md), FileSquid [U-34](../../../../../resources/product-vision.md#one-api-hosts-and-distributions), [ADR 020](../../../../../resources/architecture/020-distribution-web-and-tauri.md), [ADR 029](../../../../../resources/architecture/029-filesquid-unified-product-and-distributions.md)
+  - **Related Tests:** [`setup_updates_and_diagnostics_F-037.feature`](../../../ui/tests/features/setup_updates_and_diagnostics_F-037.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-F3.1. Then begin development, with Cargo commands run from apps/filesquid/ with -p filesquid-desktop (module directory apps/filesquid/crates/desktop/). Execute every build command before documenting it. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-F3.1-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+- [ ] **Task DE-F3.2: Packaged desktop file-browsing performance**
+  - **Description:** Measure FileSquid U-11 for file browsing on the packaged desktop: warm browse and preview p95 ≤100 ms on the declared 4-core/16 GB/SSD profile, first useful folder view ≤3 s on the Large fixture, Range-read previews, bounded upload staging. Proposed budgets until measured.
+  - **Estimated Time:** 12 hours
+  - **Dependencies:** DE-F3.1
+  - **Related Requirements:** [NFR-002](../../../../../resources/prd.md#nfr-002-benchmark-envelope-and-responsiveness), [NFR-003](../../../../../resources/prd.md#nfr-003-bounded-processing-and-migration-endurance), FileSquid [U-11](../../../../../resources/product-vision.md#platform-ownership-and-access), [ADR 007](../../../../../resources/architecture/007-durable-jobs-and-interactive-performance.md)
+  - **Related Tests:** [`benchmark_envelope_and_responsiveness_NFR-002.feature`](../../server/tests/features/benchmark_envelope_and_responsiveness_NFR-002.feature)
+  - **Agent Prompt:** `@AGENTS.md Begin by creating a new feature branch for Task DE-F3.2. Then begin development, with Cargo commands run from apps/filesquid/ with -p filesquid-desktop (module directory apps/filesquid/crates/desktop/). Record sample sizes, warm-up and percentiles; placeholders do not pass. Additionally, invoke the @feature-writer skill to translate SRS requirements into executable BDD feature tests. Upon completion, YOU MUST generate apps/filesquid/crates/desktop/resources/tasks/Task-DE-F3.2-Walkthrough.md directly in the project repository with clear SRS mapping (including BOTH the ID and full human-readable title text) in the secondary section, and strictly delete the internal tracking Plan/ToDos documents before checking off the Markdown box locally in apps/filesquid/crates/desktop/resources/plan.md. Then commit your changes and push the branch to origin.`
+
+## Superseded: published filesquid-ocfl crate (global Task 10.4)
+
+- [ ] **Task DE-D.1: Pin published filesquid-ocfl in desktop Cargo**
+  - **Status:** **Superseded** — FileSquid compiles `filesquid-ocfl` as a workspace path dependency in `apps/filesquid/`; the crate is still published for other users (global Task FS-3.3). The rule in this row that the desktop MUST NOT download or `std::process`-call `fsquid` for canonical OCFL I/O still holds ([OCFL-S-006](../../ocfl/resources/srs.md)).
+  - **Description:** Replace `filesquid-ocfl = { path = "../../filesquid-ocfl" }` with a versioned crates.io (or Git tag) dependency. Lock the exact version in `Cargo.lock`. Compile the **library** into the desktop native graph. MUST NOT add a runtime download or `std::process` call to `fsquid` for canonical OCFL I/O.
+  - **Estimated Time:** 3 hours
+  - **Dependencies:** Task IO-D.3
+  - **Related Requirements:** [F-051](../../../../../resources/prd.md#f-051-ocfl-module), [T-040](../../../../../resources/product-vision.md#canonical-ocfl-state-and-evidence), [T-043](../../../../../resources/product-vision.md#canonical-ocfl-state-and-evidence), [DE-S-004](./srs.md)
+  - **Related Tests:** [`reusable_ocfl_engine_F-051.feature`](../../ocfl/tests/features/reusable_ocfl_engine_F-051.feature)
+  - **Agent Prompt:** None. Superseded; execute the replacement named in **Status**.
+
+## Summary Timeline
+
+- **Total Estimated Time:** 550 hours (542 hours unchecked plus 8 hours for completed DE-F0.1; excluding superseded DE-D.1)
+- **Critical Path:** custom URI scheme and transport → capabilities (WebdriverIO) → SQLite I/O → OCFL reconcile → jobs/workers → import/gallery → organize/export/C2PA → M-A → F-041 recorder → recipes → keys/vectors → hosted OCFL → installers and overlays → C-7 publication → Article 50 after hosted-protection readiness → performance

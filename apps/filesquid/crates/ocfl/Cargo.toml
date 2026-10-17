@@ -1,0 +1,26 @@
+[package]
+name = "filesquid-ocfl"
+version = "0.1.0"
+edition = "2021"
+description = "FileSquid OCFL 1.1 module. Installable without the FileSquid app; builds and publishes without other FileSquid crates. Git MUST NOT be the OCFL store."
+license = "MIT"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "2"
+
+[dev-dependencies]
+cucumber = { version = "0.23", features = ["macros"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[[test]]
+name = "unit_git_guard"
+path = "tests/unit/git_guard.rs"
+
+[[test]]
+name = "features"
+path = "tests/features.rs"
+harness = false

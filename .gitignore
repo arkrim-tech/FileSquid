@@ -1,0 +1,70 @@
+.env
+.venv
+
+# Sample media under data/ is tracked and ships with the repository.
+# data/*
+# !data/README.md
+
+.DS_Store
+**/.DS_Store
+**/.*.DS_Store*
+.!*
+
+# Rust build
+**/target/
+# Tauri generated schemas (rebuilt by tauri-build on every build)
+apps/filesquid/crates/desktop/gen/schemas/
+# FileSquid host data (activity journal, admin token) and journal exports from local runs
+**/filesquid-data/
+*.jsonl
+
+# Test reports & artifacts
+**/artifacts/
+**/playwright-report/
+**/allure-results/
+**/coverage/
+**/wdio-logs/
+**/docs-jsdoc/
+
+# Dependency directories
+node_modules/
+**/node_modules/
+
+# Scratch files and transient tests
+**/test-card.js
+**/screenshot.spec.js
+
+# Allow selective tracking in tests/
+**/tests/*
+!**/tests/features/
+!**/tests/support/
+!**/tests/unit/
+!**/tests/ui/
+!**/tests/e2e/
+!**/tests/integration/
+!**/tests/performance/
+!**/tests/README.md
+!**/tests/**/*.rs
+!**/tests/**/*.ts
+!**/tests/**/*.spec.ts
+!**/tests/**/*.feature
+!**/tests/**/.gitkeep
+
+
+# Playwright last-run
+**/test-results/
+
+
+# Local Compose service data (postgres, elasticsearch, optional observability sinks)
+data/*_data/
+
+# GitHub Pages deployment configuration (not part of the product). These files are
+# still tracked in this history, so the rules take effect in a fresh repository
+# initialised from this tree; untracking them here would remove them from main.
+docs/CNAME
+docs/sitemap.xml
+docs/googlecc15870a351e7029.html
+
+# Python bytecode caches
+**/__pycache__/
+*.pyc

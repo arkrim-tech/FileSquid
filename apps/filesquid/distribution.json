@@ -1,0 +1,9 @@
+{
+  "id": "filesquid",
+  "productName": "FileSquid",
+  "identifier": "tech.filesquid.desktop",
+  "ui": "ui/dist",
+  "tauriOverlay": null,
+  "modules": ["core", "ocfl", "metadata"],
+  "plannedModules": ["c2pa"]
+}

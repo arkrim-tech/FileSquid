@@ -1,0 +1,9 @@
+{
+  "id": "imagesquid",
+  "productName": "ImageSquid",
+  "identifier": "app.imagesquid.desktop",
+  "ui": "dist",
+  "tauriOverlay": "tauri.imagesquid.json",
+  "modules": ["core", "ocfl", "metadata", "c2pa"],
+  "plannedModules": ["media", "editing", "people", "migration", "ai-connections", "publication"]
+}

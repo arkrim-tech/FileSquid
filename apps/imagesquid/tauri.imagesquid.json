@@ -1,0 +1,20 @@
+{
+  "productName": "ImageSquid",
+  "identifier": "app.imagesquid.desktop",
+  "build": {
+    "beforeDevCommand": { "script": "npm run dev", "cwd": "../../../imagesquid" },
+    "devUrl": "http://127.0.0.1:5174",
+    "beforeBuildCommand": { "script": "npm run build", "cwd": "../../../imagesquid" },
+    "frontendDist": "../../../imagesquid/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "ImageSquid",
+        "width": 1280,
+        "height": 800
+      }
+    ]
+  }
+}

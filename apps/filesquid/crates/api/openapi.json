@@ -1,0 +1,707 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FileSquid API",
+    "version": "0.2.0",
+    "description": "The single FileSquid API served by every FileSquid host. See resources/architecture/030-filesquid-api-and-transports.md."
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Process health",
+        "responses": {
+          "200": {
+            "description": "The host is running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/openapi.json": {
+      "get": {
+        "operationId": "getContract",
+        "summary": "This API contract",
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.1 document.",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events": {
+      "get": {
+        "operationId": "subscribeEvents",
+        "summary": "Push events (WebSocket on filesquid-server; Tauri events on filesquid-desktop). Topics: process.update (ProcessView), journal.entry (JournalEntry), health.change (HealthReport).",
+        "responses": {
+          "101": {
+            "description": "Switching protocols to WebSocket. Each text frame is one ApiEvent."
+          }
+        }
+      }
+    },
+    "/api/v1/admin/health": {
+      "get": {
+        "operationId": "getAdminHealth",
+        "summary": "Overall health with reasons",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "description": "Health report.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthReport"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No credentials (server)."
+          },
+          "403": {
+            "description": "Wrong credentials."
+          },
+          "503": {
+            "description": "Monitor not started yet."
+          }
+        }
+      }
+    },
+    "/api/v1/admin/processes": {
+      "get": {
+        "operationId": "getAdminProcesses",
+        "summary": "Live and recently finished processes",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "description": "Processes in registration order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProcessView"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No credentials (server)."
+          },
+          "403": {
+            "description": "Wrong credentials."
+          },
+          "503": {
+            "description": "Monitor not started yet."
+          }
+        }
+      }
+    },
+    "/api/v1/admin/journal": {
+      "get": {
+        "operationId": "getAdminJournal",
+        "summary": "Search the activity journal",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {}
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "description": "Earliest time, RFC 3339 (inclusive).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "description": "Latest time, RFC 3339 (inclusive).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actor",
+            "in": "query",
+            "required": false,
+            "description": "Exact actor.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "operation",
+            "in": "query",
+            "required": false,
+            "description": "Exact operation, for example ocfl.commit.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "outcome",
+            "in": "query",
+            "required": false,
+            "description": "Exact outcome.",
+            "schema": {
+              "$ref": "#/components/schemas/Outcome"
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "description": "Exact level.",
+            "schema": {
+              "$ref": "#/components/schemas/Level"
+            }
+          },
+          {
+            "name": "process",
+            "in": "query",
+            "required": false,
+            "description": "Exact process id.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Cursor: entries with a greater id.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size (default 100, max 1000).",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "description": "asc (default) or desc (newest first).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of entries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JournalPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No credentials (server)."
+          },
+          "403": {
+            "description": "Wrong credentials."
+          },
+          "503": {
+            "description": "Monitor not started yet."
+          },
+          "400": {
+            "description": "Invalid query parameter."
+          }
+        }
+      }
+    },
+    "/api/v1/admin/journal/export": {
+      "get": {
+        "operationId": "exportAdminJournal",
+        "summary": "Export matching journal entries as JSON Lines",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {}
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "description": "Earliest time, RFC 3339 (inclusive).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "description": "Latest time, RFC 3339 (inclusive).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actor",
+            "in": "query",
+            "required": false,
+            "description": "Exact actor.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "operation",
+            "in": "query",
+            "required": false,
+            "description": "Exact operation, for example ocfl.commit.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "outcome",
+            "in": "query",
+            "required": false,
+            "description": "Exact outcome.",
+            "schema": {
+              "$ref": "#/components/schemas/Outcome"
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "description": "Exact level.",
+            "schema": {
+              "$ref": "#/components/schemas/Level"
+            }
+          },
+          {
+            "name": "process",
+            "in": "query",
+            "required": false,
+            "description": "Exact process id.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Continue after this entry id (the value of X-Journal-Next-Cursor from a truncated export).",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One JournalEntry per line. At most 1 000 000 entries per response; when more match, X-Journal-Next-Cursor is set.",
+            "content": {
+              "application/x-ndjson": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "headers": {
+              "X-Journal-Next-Cursor": {
+                "description": "Present only when the export stopped at its size cap with more entries left; pass it as `after` to continue.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameter."
+          },
+          "401": {
+            "description": "No credentials (server)."
+          },
+          "403": {
+            "description": "Wrong credentials."
+          },
+          "503": {
+            "description": "Monitor not started yet."
+          }
+        }
+      }
+    },
+    "/api/v1/admin/metrics": {
+      "get": {
+        "operationId": "getAdminMetrics",
+        "summary": "Counters and gauges (same values as /metrics)",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "description": "Metric name to value.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No credentials (server)."
+          },
+          "403": {
+            "description": "Wrong credentials."
+          },
+          "503": {
+            "description": "Monitor not started yet."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiEvent": {
+        "type": "object",
+        "required": [
+          "topic",
+          "data"
+        ],
+        "properties": {
+          "topic": {
+            "type": "string",
+            "description": "Dotted event name, for example job.progress."
+          },
+          "data": {
+            "description": "Topic-specific payload."
+          }
+        }
+      },
+      "Level": {
+        "type": "string",
+        "enum": [
+          "info",
+          "warn",
+          "error"
+        ]
+      },
+      "Outcome": {
+        "type": "string",
+        "enum": [
+          "info",
+          "started",
+          "succeeded",
+          "failed",
+          "stalled",
+          "resumed",
+          "cancelled"
+        ]
+      },
+      "JournalEntry": {
+        "type": "object",
+        "required": [
+          "time",
+          "host",
+          "actor",
+          "operation",
+          "outcome",
+          "level",
+          "target_ids"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "host": {
+            "type": "string"
+          },
+          "process_id": {
+            "type": "string"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/Outcome"
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "target_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "duration_ms": {
+            "type": "integer"
+          },
+          "error_code": {
+            "type": "string"
+          }
+        }
+      },
+      "JournalPage": {
+        "type": "object",
+        "required": [
+          "entries",
+          "next_cursor"
+        ],
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JournalEntry"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        }
+      },
+      "ProcessState": {
+        "type": "string",
+        "enum": [
+          "running",
+          "stalled",
+          "completed",
+          "failed",
+          "cancelled"
+        ]
+      },
+      "ProcessView": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "state",
+          "done",
+          "total",
+          "started",
+          "last_heartbeat",
+          "heartbeat_timeout_ms",
+          "rate_per_second",
+          "eta_seconds",
+          "error_code"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ProcessState"
+          },
+          "done": {
+            "type": "integer"
+          },
+          "total": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "started": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_heartbeat": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "heartbeat_timeout_ms": {
+            "type": "integer"
+          },
+          "rate_per_second": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "eta_seconds": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "HealthReason": {
+        "type": "object",
+        "required": [
+          "code",
+          "severity",
+          "detail"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/MonitorStatus"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      },
+      "HealthInputs": {
+        "type": "object",
+        "required": [
+          "stalled",
+          "store_ok",
+          "data_dir_writable",
+          "free_bytes",
+          "queue_fill",
+          "errors_last_5m"
+        ],
+        "properties": {
+          "stalled": {
+            "type": "integer"
+          },
+          "store_ok": {
+            "type": "boolean"
+          },
+          "data_dir_writable": {
+            "type": "boolean"
+          },
+          "free_bytes": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "queue_fill": {
+            "type": "number"
+          },
+          "errors_last_5m": {
+            "type": "integer"
+          }
+        }
+      },
+      "HealthReport": {
+        "type": "object",
+        "required": [
+          "status",
+          "reasons",
+          "checks"
+        ],
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/MonitorStatus"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HealthReason"
+            }
+          },
+          "checks": {
+            "$ref": "#/components/schemas/HealthInputs"
+          }
+        }
+      },
+      "MonitorStatus": {
+        "type": "string",
+        "enum": [
+          "ok",
+          "degraded",
+          "failing"
+        ]
+      },
+      "HealthStatus": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "status",
+          "product"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1
+          },
+          "status": {
+            "type": "string",
+            "const": "ok"
+          },
+          "product": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Server administrator token (FILESQUID_ADMIN_TOKEN or <data dir>/admin-token). Not needed on the desktop host."
+      }
+    }
+  }
+}

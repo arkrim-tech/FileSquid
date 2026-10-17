@@ -1,0 +1,47 @@
+[package]
+name = "filesquid-desktop"
+version = "0.1.0"
+edition.workspace = true
+description = "Tauri 2 desktop host for FileSquid and its distributions. Privileged work stays in Rust."
+license.workspace = true
+publish = false
+
+[lib]
+name = "filesquid_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+path = "src/lib.rs"
+
+[[bin]]
+name = "filesquid-desktop"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.6.3", features = [] }
+
+[dependencies]
+axum = "0.8"
+filesquid-api = { path = "../api" }
+filesquid-core = { path = "../core" }
+filesquid-ocfl = { path = "../ocfl" }
+filesquid-metadata = { path = "../metadata" }
+http = "1"
+http-body-util = "0.1"
+tower = { version = "0.5", features = ["util"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2.11.5", features = [] }
+tokio = { version = "1", features = ["sync", "time", "rt"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+test-webdriver = []
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[[test]]
+name = "integration_api_protocol"
+path = "tests/integration/api_protocol.rs"

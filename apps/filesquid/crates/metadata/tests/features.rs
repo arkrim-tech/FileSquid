@@ -1,0 +1,316 @@
+//! Cucumber harness for the F-052 Gherkin under `tests/features/`.
+//!
+//! Each run clears `tests/allure-results/` and writes
+//! `tests/allure-results/cucumber-junit.xml` with one `<testcase>` per scenario.
+
+use std::fs;
+use std::io::ErrorKind;
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+use cucumber::{then, when, writer, StatsWriter as _, World, WriterExt as _};
+use filesquid_metadata::cli::USAGE;
+use filesquid_metadata::csv::{apply_csv, to_csv};
+use filesquid_metadata::markdown::to_markdown;
+use filesquid_metadata::record::Record;
+use filesquid_metadata::store::{load, save, METADATA_MD};
+use filesquid_metadata::xmp::{from_xmp, to_xmp};
+use filesquid_metadata::{MetadataError, MetadataNamespace};
+
+/// Crates the library MUST NOT depend on (MD-S-003).
+const FORBIDDEN_DEPS: &[&str] = &[
+    "axum",
+    "tauri",
+    "libvips",
+    "filesquid-core",
+    "filesquid_core",
+];
+
+/// FileSquid application identifiers that MUST NOT appear in the public API (MD-S-001).
+const APPLICATION_TYPES: &[&str] = &["filesquid_core", "Recipe", "C2pa", "CollectionSnapshot"];
+
+/// Counter that gives each object scenario its own scratch directory.
+static OBJECT_DIR_SEQ: AtomicUsize = AtomicUsize::new(0);
+
+/// World state for F-052 scenarios.
+#[derive(Debug, Default, World)]
+struct MetadataWorld {
+    /// Outcome of the last authoring write.
+    write_result: Option<Result<(), MetadataError>>,
+    /// Object directory used for `metadata.md` scenarios.
+    object_dir: Option<PathBuf>,
+    /// Text captured from the last inspection step.
+    inspected: String,
+    /// Whether the last CSV import failed.
+    csv_rejected: bool,
+}
+
+/// Read a file from the crate root.
+fn read_crate_file(relative: &str) -> String {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(relative);
+    fs::read_to_string(path).expect("crate file")
+}
+
+/// Concatenate every `src/` module so API scenarios inspect the whole crate.
+fn read_crate_sources() -> String {
+    let src = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src");
+    let mut text = String::new();
+    for entry in fs::read_dir(src).expect("src dir") {
+        let entry = entry.expect("src dir entry");
+        if entry.path().extension().is_some_and(|ext| ext == "rs") {
+            text.push_str(&fs::read_to_string(entry.path()).expect("source"));
+        }
+    }
+    text
+}
+
+/// Remove a scratch directory, treating "already absent" as success.
+///
+/// Panics on any other I/O error so a stale directory cannot leak into a run.
+fn remove_dir_if_present(dir: &Path) {
+    match fs::remove_dir_all(dir) {
+        Ok(()) => {}
+        Err(err) if err.kind() == ErrorKind::NotFound => {}
+        Err(err) => panic!("remove {}: {err}", dir.display()),
+    }
+}
+
+/// Create an empty scratch object directory unique to this process and scenario.
+///
+/// Cucumber runs scenarios concurrently, so a fixed path could race.
+fn fresh_object_dir() -> PathBuf {
+    let seq = OBJECT_DIR_SEQ.fetch_add(1, Ordering::Relaxed);
+    let name = format!("filesquid-metadata-features-{}-{seq}", std::process::id());
+    let dir = std::env::temp_dir().join(name);
+    remove_dir_if_present(&dir);
+    fs::create_dir_all(&dir).expect("object dir");
+    dir
+}
+
+/// Return the `key: value` lines nested under a top-level YAML map `key`.
+fn yaml_map_entries<'a>(front_matter: &'a str, key: &str) -> Vec<&'a str> {
+    let header = format!("{key}:");
+    front_matter
+        .lines()
+        .skip_while(|line| *line != header)
+        .skip(1)
+        .take_while(|line| line.starts_with("  "))
+        .map(str::trim)
+        .collect()
+}
+
+/// Return the `[dependencies]` table of `Cargo.toml` only.
+fn library_dependencies() -> String {
+    let manifest = read_crate_file("Cargo.toml");
+    let start = manifest.find("[dependencies]").expect("[dependencies]");
+    let rest = &manifest[start + "[dependencies]".len()..];
+    let end = rest.find("\n[").unwrap_or(rest.len());
+    rest[..end].to_string()
+}
+
+#[when("I inspect the filesquid-metadata public API")]
+fn inspect_api(world: &mut MetadataWorld) {
+    world.inspected = read_crate_sources();
+}
+
+#[then("dcterms register and statement operations should be available")]
+fn api_has_register_and_statements(_world: &mut MetadataWorld) {
+    let mut record = Record::default();
+    record
+        .set(MetadataNamespace::Dcterms, "title", "Harbour")
+        .expect("dcterms:title");
+    assert_eq!(record.get("dcterms:title").expect("get").value, "Harbour");
+    assert!(filesquid_metadata::is_dcterms_property("title"));
+    assert_eq!(
+        filesquid_metadata::map_dc_to_dcterms("creator"),
+        Some("creator")
+    );
+}
+
+#[then("FileSquid catalog, recipe, C2PA, and collection-snapshot types should be absent")]
+fn api_excludes_application_types(world: &mut MetadataWorld) {
+    for name in APPLICATION_TYPES {
+        assert!(!world.inspected.contains(name), "{name} must be absent");
+    }
+}
+
+#[when(expr = "I author dcterms:{word} on a file")]
+fn author_dcterms(world: &mut MetadataWorld, term: String) {
+    let mut record = Record::default();
+    world.write_result = Some(record.set(MetadataNamespace::Dcterms, &term, "value"));
+}
+
+#[then("the write should be rejected")]
+fn write_rejected(world: &mut MetadataWorld) {
+    let result = world.write_result.as_ref().expect("write attempted");
+    assert!(result.is_err(), "write should be rejected");
+}
+
+#[when(expr = "I set dcterms:title {word} on an object")]
+fn set_title_on_object(world: &mut MetadataWorld, title: String) {
+    let dir = fresh_object_dir();
+    let mut record = Record::default();
+    record
+        .set(MetadataNamespace::Dcterms, "title", title)
+        .expect("set title");
+    save(&dir, &record).expect("save metadata.md");
+    world.object_dir = Some(dir);
+}
+
+#[then(expr = "metadata.md YAML front matter should contain dcterms title {word}")]
+fn front_matter_has_title(world: &mut MetadataWorld, title: String) {
+    let dir = world.object_dir.as_ref().expect("object dir");
+    let text = fs::read_to_string(dir.join(METADATA_MD)).expect("metadata.md");
+    let front_matter = text
+        .strip_prefix("---\n")
+        .and_then(|rest| rest.split("\n---").next())
+        .expect("YAML front matter");
+    let entries = yaml_map_entries(front_matter, "dcterms");
+    let expected = format!("title: {title}");
+    assert!(
+        entries.contains(&expected.as_str()),
+        "dcterms title {title} missing"
+    );
+}
+
+#[then("catalogs should be rebuildable from that file")]
+fn rebuild_from_metadata_md(world: &mut MetadataWorld) {
+    let dir = world.object_dir.take().expect("object dir");
+    let rebuilt = load(&dir).expect("load metadata.md");
+    let original = fs::read_to_string(dir.join(METADATA_MD)).expect("metadata.md");
+    assert_eq!(to_markdown(&rebuilt), original);
+    remove_dir_if_present(&dir);
+}
+
+#[when("I inspect filesquid-metadata library dependencies")]
+fn inspect_dependencies(world: &mut MetadataWorld) {
+    world.inspected = library_dependencies();
+}
+
+#[then("filesquid-ocfl should be present")]
+fn ocfl_present(world: &mut MetadataWorld) {
+    assert!(world.inspected.contains("filesquid-ocfl"));
+}
+
+#[then("axum, tauri, libvips, and filesquid-core should be absent")]
+fn forbidden_deps_absent(world: &mut MetadataWorld) {
+    for name in FORBIDDEN_DEPS {
+        assert!(!world.inspected.contains(name), "{name} must be absent");
+    }
+}
+
+#[when("I run filesquid-metadata help")]
+fn run_help(world: &mut MetadataWorld) {
+    let code = filesquid_metadata::cli::run(&["help".into()]).expect("help");
+    assert_eq!(code, 0);
+    world.inspected = USAGE.to_string();
+}
+
+#[then("I should see extract, get, set, export, import, and validate")]
+fn help_lists_commands(world: &mut MetadataWorld) {
+    for command in ["extract", "get", "set", "export", "import", "validate"] {
+        let line = format!("\n  {command} ");
+        assert!(world.inspected.contains(&line), "{command} missing");
+    }
+}
+
+#[when(expr = "I import a CSV with headers {word}")]
+fn import_csv(world: &mut MetadataWorld, headers: String) {
+    let columns = headers.split(',').count();
+    let row = vec!["x"; columns].join(",");
+    let mut record = Record::default();
+    world.csv_rejected = apply_csv(&format!("{headers}\n{row}\n"), &mut record).is_err();
+}
+
+#[then("dcterms:name should be rejected")]
+fn csv_name_rejected(world: &mut MetadataWorld) {
+    assert!(world.csv_rejected, "dcterms:name column should be rejected");
+}
+
+#[when("I inspect filesquid-metadata interchange")]
+fn inspect_interchange(world: &mut MetadataWorld) {
+    world.inspected = format!("{}{}", read_crate_sources(), library_dependencies());
+}
+
+#[then("CSV, XMP sidecar, and embedded extract should be available")]
+fn interchange_round_trips(world: &mut MetadataWorld) {
+    let mut record = Record::default();
+    record
+        .set(MetadataNamespace::Dcterms, "creator", "George")
+        .expect("creator");
+    assert!(to_csv("obj-1", &record).contains("dcterms:creator"));
+    let from_sidecar = from_xmp(&to_xmp(&record));
+    assert_eq!(
+        from_sidecar.get("dcterms:creator").expect("xmp").value,
+        "George"
+    );
+    assert!(world.inspected.contains("pub fn extract_into"));
+}
+
+#[then("MODS and SQL should be absent")]
+fn mods_and_sql_absent(world: &mut MetadataWorld) {
+    for marker in ["mods", "sqlx", "rusqlite", "SELECT ", "INSERT INTO"] {
+        assert!(!world.inspected.contains(marker), "{marker} must be absent");
+    }
+    let unknown = filesquid_metadata::cli::run(&["mods".into()]);
+    assert!(unknown.is_err(), "mods is not a command");
+}
+
+#[when("I inspect filesquid-metadata product identity")]
+fn inspect_identity(world: &mut MetadataWorld) {
+    world.inspected = read_crate_file("Cargo.toml");
+}
+
+#[then("it should remain installable without the FileSquid app")]
+fn installable_without_app(world: &mut MetadataWorld) {
+    assert!(world.inspected.contains("name = \"filesquid-metadata\""));
+    let deps = library_dependencies();
+    for app_crate in [
+        "imagesquid",
+        "filesquid-core",
+        "filesquid-api",
+        "filesquid-server",
+        "filesquid-desktop",
+    ] {
+        assert!(
+            !deps.contains(app_crate),
+            "{app_crate} must not be a dependency"
+        );
+    }
+}
+
+#[then("it should build and publish without FileSquid application crates")]
+fn extractable(world: &mut MetadataWorld) {
+    let path_deps: Vec<&str> = world
+        .inspected
+        .lines()
+        .filter(|line| line.contains("path = \"../"))
+        .collect();
+    assert_eq!(
+        path_deps.len(),
+        1,
+        "only filesquid-ocfl may be a path dependency"
+    );
+    assert!(path_deps[0].starts_with("filesquid-ocfl"));
+}
+
+#[tokio::main]
+async fn main() {
+    let results_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/allure-results");
+    remove_dir_if_present(&results_dir);
+    fs::create_dir_all(&results_dir).expect("allure-results");
+    let features = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/features");
+    let junit = fs::File::create(results_dir.join("cucumber-junit.xml")).expect("junit file");
+    let writer = MetadataWorld::cucumber()
+        .with_writer(
+            writer::Basic::stdout()
+                .summarized()
+                .tee::<MetadataWorld, _>(writer::JUnit::for_tee(junit, 0))
+                .normalized(),
+        )
+        .run(features)
+        .await;
+    if writer.execution_has_failed() {
+        std::process::exit(1);
+    }
+}
